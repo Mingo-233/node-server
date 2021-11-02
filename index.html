@@ -42,9 +42,7 @@
 
 
   const CancelToken = axios.CancelToken;
-  console.log(CancelToken);
   let cancel;
-
   function start() {
     instance.post('/cancel', {
       name: 'new name',
@@ -59,10 +57,8 @@
     });
   }
   // 手动取消请求
-
   function stop() {
     cancel('取消了');
-
   }
 </script>
 
