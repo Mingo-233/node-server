@@ -1,42 +1,70 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <!-- CSS不会阻塞DOM解析，但是会阻塞DOM渲染，严谨一点则是CSS会阻塞render tree的生成，进而会阻塞DOM的渲染
-  JS会阻塞DOM解析
-  CSS会阻塞JS的执行
-  浏览器遇到<script>标签且没有defer或async属性时会触发页面渲染
-  Body内部的外链CSS较为特殊，请慎用 -->
+
 <head>
-    <script>
-      // 判断dom是否被解析
-        document.addEventListener('DOMContentLoaded', () => {
-            var p = document.querySelector('p')
-            console.log(p)
-        })
-        function clear1(){
-          bodyNode.removeChild(text)
-        }
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-
-
-    </script>
-    <!-- css不会阻塞dom解析但会阻塞渲染 -->
-    <link rel="stylesheet" href="./static/index.css?sleep=2000">
-    <!-- css阻塞js执行 -->
-    <script src="./static/index.js"></script>
 </head>
 
 <body id="bodyNode">
-  <script>
-        // js的执行会阻塞dom解析-start
-          // const p = document.querySelector('p')
-          // console.log(p)
-          // for (var i = 0, arr = []; i < 100000000; i++) {
-          //     arr.push(i)
-          // }
-        // js的执行会阻塞dom解析-end
-  </script>
-    <p id="text">hello world</p>
-    <button id="btn" onclick="clear1()">clear</button>
+
+  <p id="text">hello world</p>
+  <button id="btn" onclick="start()">开始请求</button>
+  <button id="btn" onclick="stop()">停止</button>
 </body>
+<script>
+  const instance = axios.create({
+    baseURL: 'http://127.0.0.1:3000/',
+    timeout: 30000,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+  // 设置 axios 实例默认配置
+  instance.defaults.headers.common['Authorization'] = '';
+  instance.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
+
+  // 自定义请求拦截器
+  instance.interceptors.request.use(config => {
+    const token = window.localStorage.getItem('token');
+    token && (config.headers['Authorization'] = token);
+    return config;
+  }, error => Promise.reject(error));
+
+  // 自定义响应拦截器
+  instance.interceptors.response.use(response => {
+    if (response.status === 200) {
+      return Promise.resolve(response.data);
+    }
+
+    return Promise.reject(response);
+  }, error => Promise.reject(error));
+
+  console.log(instance);
+
+  const CancelToken = axios.CancelToken;
+  console.log(CancelToken);
+  let cancel;
+
+  function start() {
+    instance.post('/cancel', {
+      name: 'new name',
+      phone: 'new phone',
+    }, {
+      // CancelToken 构造函数接收一个 executor 函数参数，并且该函数接收一个取消函数 c 用于取消该次请求
+      cancelToken: new CancelToken(function executor(c) {
+        // 将取消函数赋值到外部变量，方便从外部取消请求
+        cancel = c;
+        console.log(c);
+      }),
+    });
+  }
+  // 手动取消请求
+
+  function stop() {
+    cancel('取消了');
+
+  }
+</script>
 
 </html>

@@ -25,12 +25,19 @@ app.use(filter)
 app.use('/static/', express.static('./static/'))
 
 app.get('/', function (req, res, next) {
-    fs.readFile('./index2.html', 'UTF-8', (err, data) => {
+    fs.readFile('./index.html', 'UTF-8', (err, data) => {
         if (err) return
         res.send(data)
     })
 })
 
+app.post('/cancel', function (req, res, next) {
+    console.log('jinlaile');
+setTimeout(() => {
+    res.send('ok')
+    
+}, 4000);
+})
 app.listen(port, () => {
     console.log(`app is running at http://127.0.0.1:${port}/`)
 })
