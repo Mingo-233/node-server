@@ -1,38 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <!-- CSS不会阻塞DOM解析，但是会阻塞DOM渲染，严谨一点则是CSS会阻塞render tree的生成，进而会阻塞DOM的渲染
-  JS会阻塞DOM解析
-  CSS会阻塞JS的执行
-  浏览器遇到<script>标签且没有defer或async属性时会触发页面渲染
-  Body内部的外链CSS较为特殊，请慎用 -->
-<head>
-    <script>
-      // 判断dom是否被解析
-        document.addEventListener('DOMContentLoaded', () => {
-            var p = document.querySelector('p')
-            console.log(p)
-        })
-        function clear1(){
-          bodyNode.removeChild(text)
-        }
 
-    </script>
-    <!-- css不会阻塞dom解析但会阻塞渲染 -->
-    <link rel="stylesheet" href="./static/index.css?sleep=2000">
+<head>
     <!-- css阻塞js执行 -->
     <script src="./static/index.js"></script>
 </head>
 
 <body id="bodyNode">
-  <script>
-        // js的执行会阻塞dom解析-start
-          // const p = document.querySelector('p')
-          // console.log(p)
-          // for (var i = 0, arr = []; i < 100000000; i++) {
-          //     arr.push(i)
-          // }
-        // js的执行会阻塞dom解析-end
-  </script>
+  <img src="static/img/tree.png" alt="">
     <p id="text">hello world</p>
     <button id="btn" onclick="clear1()">clear</button>
 </body>
