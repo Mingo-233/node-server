@@ -1,29 +1,14 @@
-const express = require("express");
-const fs = require("fs");
-const app = new express();
-const port = 3000;
-const axios = require("axios");
+const { getUserInfoApi, postCollectionsApi } = require("./api/bxhApi.js");
+const { getBookListApi, postSignApi } = require("./api/juejinApi");
 
 // https://www.baoxiaohe.com/api/design/search/popular
-const sleepFun = (time) => {
-  return new Promise((res) => {
-    setTimeout(() => {
-      res();
-    }, time);
-  });
-};
 
-axios
-  .get("https://www.baoxiaohe.com/api/design/search/popular")
-  .then((response) => {
-    console.log(response);
+let url1 = "https://r4.baoxiaohe.fun/api/design/users/check";
+// getUserInfoApi(url1);
+let url2 = "https://r4.baoxiaohe.fun/api/design/collections";
 
-    console.log(response.data);
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+// postCollectionsApi(url2);
 
-app.listen(port, () => {
-  console.log(`app is running at http://127.0.0.1:${port}/`);
-});
+// getBookListApi();
+
+postSignApi();
