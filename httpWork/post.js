@@ -1,5 +1,6 @@
 const { getUserInfoApi, postCollectionsApi } = require("./api/bxhApi.js");
-const { getBookListApi, postSignApi } = require("./api/juejinApi");
+// const { getBookListApi, postSignApi } = require("./api/juejinApiOld");
+const { getBookList, postSign, touchHappy } = require("./api/juejinApi");
 
 // https://www.baoxiaohe.com/api/design/search/popular
 
@@ -9,6 +10,8 @@ let url2 = "https://r4.baoxiaohe.fun/api/design/collections";
 
 // postCollectionsApi(url2);
 
-// getBookListApi();
+// getBookList();
 
-postSignApi();
+// postSignApi();
+
+touchHappy();
