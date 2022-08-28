@@ -10,8 +10,12 @@ let url2 = "https://r4.baoxiaohe.fun/api/design/collections";
 
 // postCollectionsApi(url2);
 
-// getBookList();
+postSign()
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-// postSignApi();
-
-touchHappy();
+// touchHappy();

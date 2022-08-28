@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { getLogger } = require("nodemailer/lib/shared");
 
 let nodeMail = nodemailer.createTransport({
   service: "qq", //类型qq邮箱
@@ -13,7 +14,10 @@ let nodeMail = nodemailer.createTransport({
 // node_modules/nodemailer/lib/well-known/services.json可以查看相关的配置，
 // 比如这里是qq邮箱，port为465，secure为true。
 
-const emailSend = (msg) => {
+const emailSend = (msg, url) => {
+  console.log("邮件准备开始发送");
+  console.log(msg);
+
   const email = "825740725@qq.com";
   // const code = String(Math.floor(Math.random() * 1000000)).padEnd(6, "0"); //生成6位随机验证码
   //发送邮件

@@ -9,46 +9,38 @@ const isExists = (filePath) => {
       if (!err) {
         resolve(true);
       } else {
-        reject(false);
+        resolve(false);
       }
     });
   });
 };
+const getLogIndex = (name) => {
+  let result = name.match(/[0-9]/);
+  if (result) {
+    return result[0];
+  } else {
+    return null;
+  }
+};
 
-let n = 1;
-const inputHandle = async (content) => {
+const inputHandle = (content) => {
   // const content = fs.readFileSync("./src/template.jsx");
-  //   let content = "teset22d\n";
-
-  if ((n = 1)) {
+  let fileArrs = fs.readdirSync(path.resolve(__dirname, `log`));
+  let n = getLogIndex(fileArrs[fileArrs.length - 1]);
+  if (!n) {
     fs.rmdirSync("./log", { recursive: true, force: true });
     fs.mkdirSync("./log");
+    n = 1;
+  } else {
+    n = Number(n) + 1;
   }
 
-  //   info[n] = "testcontent1";
-
-  //   info[2] = "testcontent2";
-
-  //   for (const key in info) {
-  //     console.log(info[key]);
-
-  //     content += info[key] + "\n";
-  //   }
   let fileName = `log-${n}.json`;
-  let is = await isExists(path.resolve(__dirname, `log/${fileName}`));
-  console.log(is);
-  if (is) {
-    n = n + 1;
-    fileName = `log-${n}.json`;
-    console.log(n);
-  }
-  // const filePath = path.resolve(__dirname, `log/log.json`);
   const filePath = path.resolve(__dirname, `log/${fileName}`);
   // const filePath2 = path.resolve(__dirname, `log/log.txt`);
   console.log(filePath);
   console.log("日志信息已记录");
   fs.writeFileSync(filePath, content);
-  // fs.writeFileSync(filePath2, content);
 };
 
 module.exports = inputHandle;

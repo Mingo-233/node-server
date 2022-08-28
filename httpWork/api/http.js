@@ -52,9 +52,9 @@ class Http {
         .post(url, JSON.stringify(params))
         .then((res) => {
           inputHandler(JSON.stringify(res.data));
-          console.log(res.data);
+          // console.log(res.data);
           // emailSend(JSON.stringify(res.data));
-          resolve(res.data);
+          resolve({ ...res.data, url });
         })
         .catch((err) => {
           reject(err.data);
