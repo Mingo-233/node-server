@@ -12,6 +12,7 @@ axios.interceptors.request.use(
     };
     // @ts-ignore
     Object.assign(config.headers, aheaders);
+    console.log(config);
     return config;
   },
   (error) => {

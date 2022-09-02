@@ -18,6 +18,10 @@ let touchHappyUrl =
   "https://api.juejin.cn/growth_api/v1/lottery_lucky/dip_lucky?aid=2608&uuid=7131217957565122084&spider=0";
 // lottery_history_id: "7135665166527512607";add
 // 7136452057275465762
+
+// 沾沾喜气的卡片list
+let happyCardUrl =
+  "https://api.juejin.cn/growth_api/v1/lottery_history/global_big?aid=2608&uuid=7073392340530513442&spider=0";
 const juejinApi = {
   getBookList() {
     return h.post(bookListUrl);
@@ -30,6 +34,9 @@ const juejinApi = {
   },
   touchHappy() {
     return h.post(touchHappyUrl, { lottery_history_id: "7136452057275465762" });
+  },
+  getHappyCardList() {
+    return h.post(happyCardUrl, { page_no: 1, page_size: 5 });
   },
 };
 
