@@ -15,12 +15,18 @@ let url2 = "https://r4.baoxiaohe.fun/api/design/collections";
 
 // postCollectionsApi(url2);
 
-getHappyCardList()
+// getHappyCardList()
+//   .then((res) => {
+//     console.log(res);
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
+
+touchHappy()
   .then((res) => {
     console.log(res);
   })
   .catch((err) => {
     console.log(err);
   });
-
-// touchHappy();

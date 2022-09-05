@@ -10,6 +10,7 @@ const {
   getBookList,
   postSign,
   luckDraw,
+  getHappyCardList,
   touchHappy,
 } = require("./api/juejinApi");
 
@@ -26,7 +27,8 @@ a.create(async () => {
           throw Error(JSON.stringify(res));
         }
         luckDraw();
-        touchHappy();
+        const {data}  = await getHappyCardList()
+        touchHappy(data.lotteries[0].history_id);
       })
       .catch((err) => {
         console.log(err);
