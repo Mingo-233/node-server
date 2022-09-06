@@ -15,18 +15,23 @@ let url2 = "https://r4.baoxiaohe.fun/api/design/collections";
 
 // postCollectionsApi(url2);
 
-// getHappyCardList()
+getHappyCardList()
+  .then((res) => {
+    const { data } = res;
+    console.log(res);
+
+    touchHappy(data.lotteries[0].history_id).then((res) => {
+      console.log(res);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
+// touchHappy()
 //   .then((res) => {
 //     console.log(res);
 //   })
 //   .catch((err) => {
 //     console.log(err);
 //   });
-
-touchHappy()
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((err) => {
-    console.log(err);
-  });

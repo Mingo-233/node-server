@@ -21,19 +21,13 @@ let a = new Interval({
 });
 a.create(async () => {
   try {
-    postSign()
-      .then((res) => {
-        if (res.err_no && res.err_no !== 0) {
-          throw Error(JSON.stringify(res));
-        }
-        luckDraw();
-        const {data}  = await getHappyCardList()
-        touchHappy(data.lotteries[0].history_id);
-      })
-      .catch((err) => {
-        console.log(err);
-        emailSend(err.message);
-      });
+    const res = await postSign();
+    if (res.err_no && res.err_no !== 0) {
+      throw Error(JSON.stringify(res));
+    }
+    luckDraw();
+    const { data } = await getHappyCardList();
+    touchHappy(data.lotteries[0].history_id);
   } catch (error) {
     console.log(error);
     emailSend(error.message);
