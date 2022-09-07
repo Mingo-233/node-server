@@ -1,8 +1,8 @@
 const axios = require("axios");
 const emailSend = require("../utils/emailSend");
 const { circularReference } = require("../utils/tools");
+const logger = require("../utils/winston");
 const inputHandler = require("../ioTxt");
-// axios.defaults.baseURL = "/api/design";
 // axios.defaults.timeout = 10000;
 // axios.defaults.headers.post["Content-Type"] = "application/json;charset=UTF-8";
 axios.interceptors.request.use(
@@ -36,7 +36,8 @@ class Http {
       axios
         .get(url, { params })
         .then((res) => {
-          inputHandler(JSON.stringify(res.data));
+          // inputHandler(JSON.stringify(res.data));
+          logger.info(res.data);
           console.log(res.data);
           resolve(res.data);
         })
@@ -51,8 +52,8 @@ class Http {
       axios
         .post(url, JSON.stringify(params))
         .then((res) => {
-          inputHandler(JSON.stringify(res.data));
-          // console.log(res.data);
+          // inputHandler(JSON.stringify(res.data));
+          logger.info(res.data);
           // emailSend(JSON.stringify(res.data));
           resolve({ ...res.data, url });
         })
@@ -61,17 +62,5 @@ class Http {
         });
     });
   }
-  // getRestful(url) {
-  //   return new Promise((resolve, reject) => {
-  //     axios
-  //       .get(url)
-  //       .then((res) => {
-  //         resolve(res.data);
-  //       })
-  //       .catch((err) => {
-  //         reject(err.data);
-  //       });
-  //   });
-  // }
 }
 module.exports = Http;
