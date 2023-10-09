@@ -10,6 +10,25 @@
 
 <body>
     <p>aa</p>
+    <button id="btn">send</button>
+    <script>
+        // let host ='http://127.0.0.1'
+        let host = 'http://10.0.13.144'
+        const btnEl = document.querySelector('#btn');
+        btnEl.addEventListener('click', () => {
+            fetch(`${host}:3123/code`, {
+                method: 'get',
+            })
+                .then(res => res.text())
+                .then(text => {
+                    console.log(text)
+                    const imgEl = document.createElement('img');
+                    imgEl.src = text
+                    document.body.appendChild(imgEl)
+                });
+        })
+
+    </script>
 </body>
 
 </html>
