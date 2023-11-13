@@ -1,0 +1,48 @@
+{
+  message: 'task start, current time: 2023/11/13 14:52:15',
+  level: 'error',
+  label: 'tl',
+  timestamp: '2023-11-13 02:52:15.686 PM'
+}
+{
+  message: 'task start, current time: 2023/11/13 14:52:15',
+  level: 'error',
+  label: 'tl',
+  timestamp: '2023-11-13 02:52:15.689 PM'
+}
+{
+  message: 'task start, current time: 2023/11/13 15:05:26',
+  level: 'error',
+  label: 'tl',
+  timestamp: '2023-11-13 03:05:26.856 PM'
+}
+{
+  message: 'current num: 1',
+  level: 'error',
+  label: 'tl',
+  timestamp: '2023-11-13 03:05:29.864 PM'
+}
+{
+  message: 'npc task done,start plant task',
+  level: 'error',
+  label: 'tl',
+  timestamp: '2023-11-13 03:05:31.429 PM'
+}
+{
+  message: 'task start, current time: 2023/11/13 15:08:46',
+  level: 'info',
+  label: 'tl',
+  timestamp: '2023-11-13 03:08:46.295 PM'
+}
+{
+  message: 'current num: 1',
+  level: 'info',
+  label: 'tl',
+  timestamp: '2023-11-13 03:08:49.301 PM'
+}
+{
+  message: 'npc task done,start plant task',
+  level: 'info',
+  label: 'tl',
+  timestamp: '2023-11-13 03:08:50.870 PM'
+}
