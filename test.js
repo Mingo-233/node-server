@@ -39,8 +39,8 @@ async function keyboard() {
 }
 
 // logMousePosition(1000)
-keyboard()
+// keyboard()
 
-
+mouseClickHandle()
 
 // logRecorder(`task start, current time: ${new Date().toLocaleString()}`)
