@@ -1,5 +1,5 @@
 const robot = require("robotjs");
-const { sleep, logRecorder } = require('./utils')
+const { sleep, logRecorder, snipaste } = require('./utils')
 function getAreaColor() {
     // 获取屏幕宽度和高度
     const { width, height } = robot.getScreenSize();

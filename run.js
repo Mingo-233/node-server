@@ -20,7 +20,6 @@ const waitTime = {
 function getAreaColor() {
     // 获取屏幕宽度和高度
     const { width, height } = robot.getScreenSize();
-
     // 定义要检查的区域的坐标
     const x = 900;
     const y = 500;
@@ -66,14 +65,12 @@ let executeAction = {
         mouseClickHandle(this.value.x, this.value.y)
     }
 }
-// setInterval(() => {
-//     executeAction.setValue()
-// }, 2000);
 
-function touchNpc(log = true) {
+async function touchNpc(log = true) {
     executeAction.setValue()
     executeAction.do()
     mouseClickHandle(mousePosition.talkOptionsFirst.x, mousePosition.talkOptionsFirst.y)
+    await sleep(500)
     mouseClickHandle(mousePosition.talkOptionsSecond.x, mousePosition.talkOptionsSecond.y)
     if (log) logRecorder('npc task done,start plant task')
 }
