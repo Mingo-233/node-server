@@ -1,5 +1,6 @@
 import pyautogui
 import time
+import json
 import asyncio
 num = 1
 
@@ -79,11 +80,25 @@ async def main():
         log_recorder(error, True)
 
 def log_recorder(message, is_error=False):
-    with open('log.txt', 'a') as file:
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        log_entry = f"[{timestamp}] {'[ERROR]' if is_error else ''} {message}\n"
-        print(log_entry, end='')  # 打印到控制台
-        file.write(log_entry)  # 写入日志文件
+    log_entry = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "is_error": is_error,
+        "message": message
+    }
+    current_date = time.strftime("%Y-%m-%d")
+    filename = f"logs/{current_date}.json"
+    try:
+        with open(filename, 'r') as file:
+            log_data = json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError):
+        log_data = []
 
+    log_data.append(log_entry)
+
+    with open(filename, 'w') as file:
+        json.dump(log_data, file, indent=2)  # 'indent' for pretty formatting
+        file.write('\n')  # Add a newline for better readability in the file
+
+    print(json.dumps(log_entry, indent=2))  # Print the JSON-formatted log entry to the console
 if __name__ == "__main__":
     asyncio.run(main())
