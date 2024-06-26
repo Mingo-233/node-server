@@ -1,16 +1,17 @@
 {
-  "name": "node-demo",
+  "name": "websocket",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "express": "^4.17.1"
+  "dependencies": {
+    "socket.io": "^4.7.5"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "sirv": "^2.0.4"
+  }
 }

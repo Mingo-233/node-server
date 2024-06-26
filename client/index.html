@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"
+        integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="example">
+        <h1>socket ID: <span id="socketID"></span></h1>
+        <section id="content">
+            <div>本次生成token值:</div>
+            <div id="token-value"></div>
+        </section>
+    </div>
+    <script>
+        const socketIdDom = document.querySelector('#socketID');
+        const tokenValueDom = document.querySelector('#token-value');
+        /** 客户端 google_key */
+        const clientKey = '6LdtQt4nAAAAAPF81h0Gtrx3__CvwAvFLN6gJEXj';
+        /** google机器人服务api */
+        const googleApiSrc = `https://www.google.com/recaptcha/api.js?render=${clientKey}`;
+
+        /** 使用google机器人检测工具 */
+        const useGoogleReCAPTCHAv3 = () => {
+            /** 检测script是否已经加载了 */
+            const checkLoadScript = (scriptSrc) => {
+                return document.querySelector(`script[src="${scriptSrc}"]`);
+            };
+
+            /** 加载api */
+            const loadScript = (src) => {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.async = true;
+                    document.head.appendChild(script);
+
+                    script.onload = () => resolve(true);
+                    script.onerror = () => reject(false);
+                });
+            };
+
+            /** 获取token */
+            const getGoogleToken = async () => {
+                try {
+                    if (!checkLoadScript(googleApiSrc)) await loadScript(googleApiSrc);
+                    const grecaptcha = window?.grecaptcha;
+                    return new Promise((resolve, reject) => {
+                        grecaptcha?.ready(function () {
+                            grecaptcha
+                                ?.execute(clientKey, { action: 'submit' })
+                                .then(function (token) {
+                                    resolve(token);
+                                })
+                                .catch(() => {
+                                    throw 'google_ReCAPTCHAv3_Token 获取失败！';
+                                });
+                        });
+                    });
+                } catch (error) {
+                    throw new Error('google_ReCAPTCHAv3_Token 获取失败！');
+                }
+            };
+
+            return { getGoogleToken };
+        };
+        const { getGoogleToken } = useGoogleReCAPTCHAv3();
+        window.getGoogleToken = getGoogleToken
+        const socket = io('http://localhost:3000/');
+        console.log(socket);
+        // client-side
+        socket.on("connect", () => {
+            console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+            socketIdDom.innerText = socket.id;
+        });
+
+        socket.on("disconnect", () => {
+            console.log(socket.id); // undefined
+        });
+
+        function send() {
+            getGoogleToken().then((token) => {
+                console.log(token);
+                tokenValueDom.innerText = token;
+                socket.emit('receiveToken', token);
+
+            });
+        }
+
+        socket.on('askToken', (data) => {
+            send()
+        });
+        function test() {
+            socket.emit('receiveToken2', '123123');
+
+        }
+        window.test = test;
+
+
+    </script>
+
+</body>
+
+</html>
