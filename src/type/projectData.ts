@@ -1,0 +1,63 @@
+export interface IProject {
+  background: string | null;
+  bleedline: number;
+  design_data: IDesign[];
+  inside_design_data: IDesign[];
+  face_background: any;
+  inless: number;
+  inside_background: null | string;
+  inside_face_background: null | string;
+  outless: number;
+  science_id: number;
+  science_image: string;
+  science_name: string;
+  thickness: number;
+  positionX?: number;
+  positionY?: number;
+}
+export interface IDesign {
+  type: string;
+  uuid: string;
+  id?: string;
+  shapeType?: string;
+  can_set_color?: number;
+  fills?: { class?: string; color: string; value: string; type: string }[];
+  owidth?: number;
+  oheight?: number;
+  locked?: boolean;
+  isProportional?: boolean;
+  style: {
+    vertical?: number;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    fontSize?: number;
+    rotate: number;
+    rotateX?: number;
+    rotateY?: number;
+    opacity?: number;
+    transform?: string;
+    color?: string;
+    fontFamily?: string;
+    fontStyle?: string;
+    fontWeight?: string;
+    lineHeight?: number;
+    textAlign?: string;
+    textDecoration?: string;
+    stroke?: string;
+    strokeWidth?: number;
+    strokeWidthTemp?: number;
+    strokeDashArray?: number;
+    strokeDashOffset?: number;
+    radius?: number;
+  };
+  value?: string;
+  example?: string;
+  bg?: any;
+  src?: string;
+  _layer_name?: string;
+  _selected?: boolean;
+  designs?: IDesign[];
+  _is_texture?: boolean;
+}

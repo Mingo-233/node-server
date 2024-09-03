@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    "target": "ESNext",
+    "module": "CommonJS",
+    "rootDir": "./",
+    "outDir": "dist",
+    "moduleResolution": "Node",
+    "allowJs": true,
+    "checkJs": false,
+    "sourceMap": false,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules"]
+}

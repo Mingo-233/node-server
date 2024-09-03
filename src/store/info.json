@@ -1,0 +1,587 @@
+{
+  "id": 10118767,
+  "length": 120.6,
+  "width": 60.6,
+  "height": 161.6,
+  "thickness": 0.5,
+  "inless": 0.3,
+  "outless": 0.2,
+  "background": null,
+  "userId": 1102855,
+  "images": null,
+  "membrane_id": null,
+  "is_mode": 0,
+  "design_data": [
+      {
+        "bg": {
+          "x": 0,
+          "y": 0,
+          "width": 1080.3959641330482,
+          "height": 270.09899103326205
+        },
+        "id": "89109b25-c771-4e80-845a-340863871adb",
+        "src": "https://cdn.pacdora.com/font/7604567e-56c3-4966-9e63-3d185323d973.woff2",
+        "type": "font",
+        "uuid": "89109b25-c771-4e80-845a-340863871adb",
+        "style": {
+          "top": 75.35,
+          "left": 133.204,
+          "color": "#191919",
+          "width": 64,
+          "height": 199.926,
+          "rotate": 0,
+          "opacity": 100,
+          "fontSize": 16,
+          "vertical": 1,
+          "textAlign": "left",
+          "fontFamily": "f108800",
+          "lineHeight": 32
+        },
+        "value": "Your text here \nabc",
+        "example": "soul-handwriting_free-version",
+        "_layer_name": "traditional"
+      },
+      {
+          "bg": {
+              "x": 0,
+              "y": 0,
+              "width": 31.5512,
+              "height": 31.5512
+          },
+          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a8de08d6-f297-48f0-ab2e-c384f2c13e92.png",
+          "type": "img",
+          "uuid": "e8bf73d9-154f-42ca-be07-a8c1e8081d27",
+          "fills": [],
+          "style": {
+              "top": 85.25,
+              "left": 302.026,
+              "width": 31.5512,
+              "height": 31.5512,
+              "rotate": 0,
+              "opacity": 100,
+              "position": "absolute"
+          },
+          "owidth": 64,
+          "oheight": 64,
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
+      },
+      {
+          "id": "2c610586-0166-41d4-950a-1ccd4065adc9",
+          "src": "https://cdn.pacdora.com/web-assets/08ac63e1-5e81-481d-920d-0be436a1e105.svg",
+          "type": "shape",
+          "uuid": "2c610586-0166-41d4-950a-1ccd4065adc9",
+          "fills": [],
+          "style": {
+              "top": 94.3918,
+              "left": 38.2178,
+              "color": "#cccccc ",
+              "width": 42.7489,
+              "height": 42.7489,
+              "radius": 0,
+              "rotate": 0,
+              "stroke": "#e03d3d",
+              "opacity": 100,
+              "strokeWidth": 5.699849170437405,
+              "strokeDashArray": 0,
+              "strokeWidthTemp": 5.699849170437405
+          },
+          "owidth": 200,
+          "oheight": 200,
+          "shapeType": "rectangle",
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
+      },
+      {
+          "type": "group",
+          "uuid": "b3d2daf7-e4aa-4065-a353-a08c7dcf7323",
+          "style": {
+              "top": 173.403,
+              "left": 145.527,
+              "width": 42.7489,
+              "height": 42.7489,
+              "rotate": 0
+          },
+          "_opers": [],
+          "locked": false,
+          "designs": [
+              {
+                  "id": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+                  "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+                  "type": "shape",
+                  "uuid": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+                  "fills": [],
+                  "style": {
+                      "top": 0,
+                      "left": 0,
+                      "color": "#cccccc",
+                      "width": 42.748900000000006,
+                      "height": 42.748900000000006,
+                      "radius": 0,
+                      "rotate": 0,
+                      "stroke": "#000000",
+                      "opacity": 100,
+                      "strokeWidth": 5.699849170437405,
+                      "strokeDashArray": 0,
+                      "strokeWidthTemp": 5.699849170437405
+                  },
+                  "owidth": 200,
+                  "oheight": 200,
+                  "shapeType": "circle",
+                  "_layer_name": "traditional",
+                  "can_set_color": 0,
+                  "isProportional": false
+              },
+              {
+                  "bg": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 16.933300000000003,
+                      "height": 16.933300000000003
+                  },
+                  "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a5d4fdf2-8545-4f2d-95ea-6049f7bcf1e1.png",
+                  "type": "img",
+                  "uuid": "e0ea1c72-df47-45bd-b466-c3ceef2a49f4",
+                  "fills": [],
+                  "style": {
+                      "top": 12.909000000000024,
+                      "left": 12.908999999999995,
+                      "width": 16.933300000000003,
+                      "height": 16.933300000000003,
+                      "rotate": 0,
+                      "opacity": 100,
+                      "position": "absolute"
+                  },
+                  "owidth": 64,
+                  "oheight": 64,
+                  "_layer_name": "traditional",
+                  "can_set_color": 0,
+                  "isProportional": false
+              }
+          ],
+          "_side_name": "outside",
+          "_layer_name": "traditional"
+      },
+      {
+          "id": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+          "src": "//test-cdn.pacdora.com/symbol-icon/afd66cab-e3c1-410e-8393-0e42f8c2cd9f.svg",
+          "type": "img",
+          "uuid": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+          "fills": [
+              {
+                  "type": "fill",
+                  "color": "#000000",
+                  "value": "#000000"
+              },
+              {
+                  "type": "fill",
+                  "color": "#FFFFFF",
+                  "value": "#FFFFFF"
+              }
+          ],
+          "style": {
+              "top": 247.917,
+              "left": 23.9675,
+              "width": 35.6241,
+              "height": 26.033,
+              "rotate": 0,
+              "opacity": 100
+          },
+          "owidth": 52,
+          "oheight": 38,
+          "_layer_name": "traditional",
+          "can_set_color": 1,
+          "isProportional": true
+      }
+  ],
+  "inside_design_data": [],
+  "by_project_id": null,
+  "material_obj": null,
+  "material_jpg": null,
+  "material_mtl": null,
+  "is_render": 0,
+  "line_guides": null,
+  "screenshot_id": 13510600,
+  "screenshot": "//test-cdn.pacdora.com/render-cover/f8398875-3262-44e9-b40a-83430b7f7b8d.png",
+  "color_history": null,
+  "inside_background": null,
+  "face_background": {
+      "H": {
+          "cmyk": "",
+          "rgba": "#b52b2b"
+      },
+      "FL": {
+          "cmyk": "",
+          "rgba": "#373dbd"
+      }
+  },
+  "inside_face_background": null,
+  "show_bleed_line": 1,
+  "show_material": 1,
+  "size_type": "dm",
+  "mch_id": 0,
+  "by_mode_id": 0,
+  "by_work_id": null,
+  "by_ai_project_id": 0,
+  "by_share_project_id": 0,
+  "blankSettingId": 16352,
+  "rotate": 0,
+  "extend_attrs": {
+      "trademark": "",
+      "productName": "",
+      "nameModified": false
+  },
+  "size_option": null,
+  "enterpriseId": null,
+  "enterpriseUid": null,
+  "layer": {
+      "traditional": {
+          "inless": 0.3,
+          "outless": 0.2,
+          "bleedline": 3,
+          "thickness": 0.5,
+          "background": null,
+          "science_id": 8,
+          "design_list": [
+            {
+              "bg": {
+                "x": 0,
+                "y": 0,
+                "width": 1080.3959641330482,
+                "height": 270.09899103326205
+              },
+              "id": "89109b25-c771-4e80-845a-340863871adb",
+              "src": "https://cdn.pacdora.com/font/7604567e-56c3-4966-9e63-3d185323d973.woff2",
+              "type": "font",
+              "uuid": "89109b25-c771-4e80-845a-340863871adb",
+              "style": {
+                "top": 75.35,
+                "left": 133.204,
+                "color": "#191919",
+                "width": 64,
+                "height": 199.926,
+                "rotate": 0,
+                "opacity": 100,
+                "fontSize": 16,
+                "vertical": 1,
+                "textAlign": "left",
+                "fontFamily": "f108800",
+                "lineHeight": 32
+              },
+              "value": "Your text here \nabc",
+              "example": "soul-handwriting_free-version",
+              "_layer_name": "traditional"
+            },
+              {
+                  "bg": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 31.5512,
+                      "height": 31.5512
+                  },
+                  "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a8de08d6-f297-48f0-ab2e-c384f2c13e92.png",
+                  "type": "img",
+                  "uuid": "e8bf73d9-154f-42ca-be07-a8c1e8081d27",
+                  "fills": [],
+                  "style": {
+                      "top": 85.25,
+                      "left": 302.026,
+                      "width": 31.5512,
+                      "height": 31.5512,
+                      "rotate": 0,
+                      "opacity": 100,
+                      "position": "absolute"
+                  },
+                  "owidth": 64,
+                  "oheight": 64,
+                  "_layer_name": "traditional",
+                  "can_set_color": 0,
+                  "isProportional": false
+              },
+              {
+                  "id": "2c610586-0166-41d4-950a-1ccd4065adc9",
+                  "src": "https://cdn.pacdora.com/web-assets/08ac63e1-5e81-481d-920d-0be436a1e105.svg",
+                  "type": "shape",
+                  "uuid": "2c610586-0166-41d4-950a-1ccd4065adc9",
+                  "fills": [],
+                  "style": {
+                      "top": 94.3918,
+                      "left": 38.2178,
+                      "color": "#cccccc ",
+                      "width": 42.7489,
+                      "height": 42.7489,
+                      "radius": 0,
+                      "rotate": 0,
+                      "stroke": "#e03d3d",
+                      "opacity": 100,
+                      "strokeWidth": 5.699849170437405,
+                      "strokeDashArray": 0,
+                      "strokeWidthTemp": 5.699849170437405
+                  },
+                  "owidth": 200,
+                  "oheight": 200,
+                  "shapeType": "rectangle",
+                  "_layer_name": "traditional",
+                  "can_set_color": 0,
+                  "isProportional": false
+              },
+              {
+                  "type": "group",
+                  "uuid": "b3d2daf7-e4aa-4065-a353-a08c7dcf7323",
+                  "style": {
+                      "top": 173.403,
+                      "left": 145.527,
+                      "width": 42.7489,
+                      "height": 42.7489,
+                      "rotate": 0
+                  },
+                  "_opers": [],
+                  "locked": false,
+                  "designs": [
+                      {
+                          "id": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+                          "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+                          "type": "shape",
+                          "uuid": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+                          "fills": [],
+                          "style": {
+                              "top": 0,
+                              "left": 0,
+                              "color": "#cccccc",
+                              "width": 42.748900000000006,
+                              "height": 42.748900000000006,
+                              "radius": 0,
+                              "rotate": 0,
+                              "stroke": "#000000",
+                              "opacity": 100,
+                              "strokeWidth": 5.699849170437405,
+                              "strokeDashArray": 0,
+                              "strokeWidthTemp": 5.699849170437405
+                          },
+                          "owidth": 200,
+                          "oheight": 200,
+                          "shapeType": "circle",
+                          "_layer_name": "traditional",
+                          "can_set_color": 0,
+                          "isProportional": false
+                      },
+                      {
+                          "bg": {
+                              "x": 0,
+                              "y": 0,
+                              "width": 16.933300000000003,
+                              "height": 16.933300000000003
+                          },
+                          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a5d4fdf2-8545-4f2d-95ea-6049f7bcf1e1.png",
+                          "type": "img",
+                          "uuid": "e0ea1c72-df47-45bd-b466-c3ceef2a49f4",
+                          "fills": [],
+                          "style": {
+                              "top": 12.909000000000024,
+                              "left": 12.908999999999995,
+                              "width": 16.933300000000003,
+                              "height": 16.933300000000003,
+                              "rotate": 0,
+                              "opacity": 100,
+                              "position": "absolute"
+                          },
+                          "owidth": 64,
+                          "oheight": 64,
+                          "_layer_name": "traditional",
+                          "can_set_color": 0,
+                          "isProportional": false
+                      }
+                  ],
+                  "_side_name": "outside",
+                  "_layer_name": "traditional"
+              },
+              {
+                  "id": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+                  "src": "//test-cdn.pacdora.com/symbol-icon/afd66cab-e3c1-410e-8393-0e42f8c2cd9f.svg",
+                  "type": "img",
+                  "uuid": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+                  "fills": [
+                      {
+                          "type": "fill",
+                          "color": "#000000",
+                          "value": "#000000"
+                      },
+                      {
+                          "type": "fill",
+                          "color": "#FFFFFF",
+                          "value": "#FFFFFF"
+                      }
+                  ],
+                  "style": {
+                      "top": 247.917,
+                      "left": 23.9675,
+                      "width": 35.6241,
+                      "height": 26.033,
+                      "rotate": 0,
+                      "opacity": 100
+                  },
+                  "owidth": 52,
+                  "oheight": 38,
+                  "_layer_name": "traditional",
+                  "can_set_color": 1,
+                  "isProportional": true
+              }
+          ],
+          "line_guides": null,
+          "membrane_id": null,
+          "science_name": "White card board",
+          "membrane_name": "",
+          "science_image": "//cdn.baoxiaohe.com/94e8078a-9931-42cd-97ed-57883bd88085.jpg",
+          "def_line_color": "#999999",
+          "face_background": {
+              "H": {
+                  "cmyk": "",
+                  "rgba": "#b52b2b"
+              },
+              "FL": {
+                  "cmyk": "",
+                  "rgba": "#373dbd"
+              }
+          },
+          "inside_background": null,
+          "inside_design_list": [],
+          "inside_membrane_id": null,
+          "inside_membrane_name": "",
+          "inside_face_background": null
+      }
+  },
+  "globalDesignList": null,
+  "openParams": null,
+  "knifeData": null,
+  "owner_type": "private",
+  "user_data": {
+      "background": {
+          "colors": [
+              {
+                  "step": 0,
+                  "color": "#B5B5B5"
+              },
+              {
+                  "step": 1,
+                  "color": "#EBEBEB"
+              }
+          ],
+          "direction": 180
+      },
+      "backgroundType": "gradient",
+      "partThemeColorData": {
+          "color": "",
+          "recentColors": [],
+          "blankSettingId": 16352
+      }
+  },
+  "type": "mockup-detail",
+  "appId": null,
+  "create_time": "1722996176129",
+  "by_experience_project_id": null,
+  "update_time": "1723628591330",
+  "is_delete": 0,
+  "science_id": 8,
+  "user_id": 1102855,
+  "cate_id": 41,
+  "commentCount": 0,
+  "unread": false,
+  "collaborate": {
+      "permission": "",
+      "ioToken": "",
+      "memberCount": 0
+  },
+  "project_name": "Double tray boxes storage with front opening cardboard mailer mockup 100103",
+  "price": 0,
+  "can_print": true,
+  "supportSciences": [
+      8,
+      7,
+      37,
+      3,
+      5,
+      6,
+      11,
+      14
+  ],
+  "cate": {
+      "id": 41,
+      "name": "锁扣飞机式插锁盒",
+      "image": "//yun.baoxiaohe.com/render/20220113/100103.jpg",
+      "sort": 100103,
+      "remarks": "锁扣飞机式插锁盒",
+      "faces": "[]",
+      "cate_no": "100103",
+      "defaultSize": [
+          {
+              "length": "120",
+              "width": "80",
+              "height": "200",
+              "remark": ""
+          },
+          {
+              "length": "120",
+              "width": "60",
+              "height": "160",
+              "remark": ""
+          },
+          {
+              "length": "90",
+              "width": "90",
+              "height": "90",
+              "remark": ""
+          }
+      ],
+      "lengthLimit": "15,2000",
+      "widthLimit": "10,2000",
+      "heightLimit": "15,2000",
+      "code": "PairAircraftWithLock",
+      "minThickness": "0.2",
+      "price": "0.00",
+      "discount": 1,
+      "mu_price": "0.00",
+      "mu_discount": 1,
+      "min_thickness": "0.2",
+      "complex_type": 0,
+      "size_options": [],
+      "map_options": null,
+      "printExtra": [
+          "f_d_p_huhe"
+      ],
+      "elaborate": 0,
+      "layerList": [
+          {
+              "name": "traditional",
+              "friendlyName": "传统面纸",
+              "isGrey": false,
+              "fixedThickness": 0,
+              "minThickness": 0.2
+          }
+      ],
+      "layerGlobalSettings": null,
+      "is_enterprise": 0,
+      "openParamsStatus": 1,
+      "cate_type": 0,
+      "IsOnlyManufacture": 0,
+      "mainFace": {
+          "face": "F",
+          "side": "outside",
+          "layer": "traditional"
+      },
+      "displaySetting": {},
+      "partGroup": {},
+      "appId": "",
+      "create_time": "1585550467392",
+      "update_time": "1672724285655",
+      "is_delete": 0,
+      "cate_top_id": 1,
+      "modelClassId": 181
+  },
+  "science_image": "//cdn.baoxiaohe.com/94e8078a-9931-42cd-97ed-57883bd88085.jpg",
+  "bleedline": 3,
+  "science_name": "White card board",
+  "def_line_color": "#999999",
+  "membrane_name": ""
+}
