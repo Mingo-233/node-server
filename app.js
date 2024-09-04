@@ -19,6 +19,7 @@ function request() {
     console.log('mock request');
 }
 app.get('/notify', function (req, res, next) {
+    request()
     const task = async () => {
         await sleep(MIN_TIME_50)
         notifyBark(50)
