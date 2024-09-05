@@ -60,4 +60,23 @@ export default {
   dlist_to_d(dlist: SvgOpt[], reverse?: boolean, width?: number) {
     return _dlist_to_d(dlist, reverse, width);
   },
+  folds_to_d(folds: any[]) {
+    let pathData = folds
+      .map(
+        (segment) =>
+          `M ${segment.x1} ${segment.y1} L ${segment.x2} ${segment.y2}`
+      )
+      .join(" ");
+
+    return pathData;
+  },
+  cut_to_d(cuts, holes: any[] = []) {
+    const cutsForSvg = _dlist_to_d(cuts);
+    const holesForSvg = holes.map((e) => {
+      return _dlist_to_d(e);
+    });
+
+    const temp = cutsForSvg + holesForSvg.join("Z");
+    return temp;
+  },
 };

@@ -1,4 +1,5 @@
 import type { Path } from "opentype.js";
+import type { IColorMode, IUnit } from "@/type/pdfPage";
 enum IFontShape {
   glyph = 1,
   letter = 2,
@@ -15,16 +16,54 @@ interface IPathPart {
   translate: string;
   alignTranslate: string;
 }
+interface IFontParseParams {
+  fontFamilyUrl: string;
+  text: string;
+  fontSize: number;
+  textLineHeight: number;
+  textAlign: string;
+  vertical: boolean;
+  color: string;
+  colorMode: IColorMode;
+  rotate: number;
+  MaxWidth: number;
+  MaxHeight: number;
+}
+interface IFontParse {
+  pathPart: IPathPart[];
+  position: IPosition;
+  svgDomSize: {
+    width: number;
+    height: number;
+  };
+  isVertical: boolean;
+  hasSymbolChar: boolean;
+  color: string;
+  colorMode: IColorMode;
+}
 export type IPathCollection = IPathPart[];
 
-export interface IGenSvgConfig {
+type IFontTransform = IFontParse & {
+  pageMarginTranslate: string;
+  sideScale: string;
+  DPI: number;
+  unit: IUnit;
+  renderColor: string;
+};
+
+// type IFontGenerateParams = IFontTransform;
+export interface IFontGenerateParams {
+  pathPart: IPathPart[];
   position: IPosition;
   isVertical: boolean;
   domBoxSize: {
     width: number;
     height: number;
   };
-  DPI: number;
   hasSymbolChar: boolean;
-  pageTranslate: string;
+  pageMarginTranslate: string;
+  sideScale: string;
+  DPI: number;
+  unit: IUnit;
+  renderColor: string;
 }

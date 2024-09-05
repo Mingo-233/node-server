@@ -4,8 +4,8 @@ interface ICreatePdfParams {
   projectData: IProject;
   knifeData: IKnifeData;
   config: {
-    side: "outside" | "inside";
     unit: "mm";
-    color_mode: "RGB" | "CMYK";
+    colorMode: "RGB" | "CMYK";
+    filePath: string;
   };
 }

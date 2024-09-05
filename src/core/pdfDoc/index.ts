@@ -2,12 +2,8 @@ import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
-import { IDrawingBoardConfig } from "@/utils/index";
-export function usePdfDoc(boardConfig: IDrawingBoardConfig) {
-  let doc = createPdfDocument(
-    boardConfig.pageSize.width,
-    boardConfig.pageSize.height
-  );
+export function usePdfDoc(pageSize, pageMargin) {
+  let doc = createPdfDocument(pageSize.width, pageSize.height);
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
     console.log("sizeWidth", sizeWidth);
@@ -24,7 +20,7 @@ export function usePdfDoc(boardConfig: IDrawingBoardConfig) {
     console.log("_onCreated is called");
   }
   function _paintBefore() {
-    doc.translate(boardConfig.pageMargin.left, boardConfig.pageMargin.top);
+    doc.translate(pageMargin.left, pageMargin.top);
   }
 
   function addSVG(svg: string) {
@@ -43,8 +39,9 @@ export function usePdfDoc(boardConfig: IDrawingBoardConfig) {
   }
   function addPage() {
     doc.addPage({
-      size: [boardConfig.pageSize.width, boardConfig.pageSize.height],
+      size: [pageSize.width, pageSize.height],
     });
+    _paintBefore();
   }
   function gotoPage(page: number) {
     doc.switchToPage(page);

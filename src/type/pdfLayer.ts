@@ -1,19 +1,20 @@
 export interface IPdfLayerMap {
   "knife-layer": knifeLayer;
   "design-layer": designLayer;
-  "other-layer": otherLayer;
+  "annotation-layer": annotationLayer;
 }
 
-export type ILayerType = "knife-layer" | "design-layer" | "other-layer";
+export type ILayerType = "knife-layer" | "design-layer" | "annotation-layer";
 type IBaseLayer<T extends ILayerType> = {
   type: T;
   svgString: string;
   children: IPdfSvgContainer<T>[];
   getSvgString: () => string;
+  getSvgChildren: () => IPdfSvgContainer<T>[];
 };
 export type knifeLayer = IBaseLayer<"knife-layer">;
 export type designLayer = IBaseLayer<"design-layer">;
-export type otherLayer = IBaseLayer<"other-layer">;
+export type annotationLayer = IBaseLayer<"annotation-layer">;
 
 export type IPdfSvgContainer<T extends ILayerType> = {
   type: IPdfNode<T>;
@@ -23,7 +24,7 @@ export type IPdfSvgContainer<T extends ILayerType> = {
 interface IPdfLayerNode {
   "knife-layer": "bleedLine" | "cutLine" | "foldLine" | "holeLine";
   "design-layer": "font" | "img" | "shape" | "group" | "knifeFace";
-  "other-layer": "annotation" | "footer" | "locale";
+  "annotation-layer": "annotation" | "footer" | "locale";
 }
 export type IPdfNode<T extends ILayerType = "knife-layer"> = IPdfLayerNode[T];
 export interface IPdfLayer {
@@ -33,9 +34,31 @@ export interface IPdfLayer {
   getPdfLayer: () => IPdfLayerMap;
 }
 
-interface IDrawingBoardConfig {
-  globalSvgWidth: number;
-  globalSvgHeight: number;
-  strokeWidth: number;
-  side: "outside" | "inside";
+interface IAnnotationParams {
+  unit: "mm" | "in";
+  insideSize: {
+    //size
+    L: number;
+    W: number;
+    H: number;
+  };
+  outsideSize: {
+    //outSize
+    L: number;
+    W: number;
+    H: number;
+  };
+  manufactureSize: {
+    //knifeSize
+    L: number;
+    W: number;
+    H: number;
+  };
+  material: string;
+  thickness: number;
+  dielineID: string; //cate_no
+  designArea: {
+    width: number;
+    height: number;
+  };
 }

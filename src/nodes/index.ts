@@ -9,6 +9,7 @@ export function createElement(
 
   // 添加属性
   for (const [key, value] of Object.entries(attributes)) {
+    if (!value) continue;
     element += ` ${key}="${value}"`;
   }
 
@@ -61,8 +62,9 @@ export function createSvgElement(
 
 export function createKnifeSvgElement(
   rootProps: {
-    width: string;
-    height: string;
+    width: number;
+    height: number;
+    unit: string;
   },
   children: INodeChildren
 ) {
@@ -70,11 +72,13 @@ export function createKnifeSvgElement(
     {
       x: "0",
       y: "0",
-      width: rootProps.width + "mm",
-      height: rootProps.height + "mm",
+      width: rootProps.width + rootProps.unit,
+      height: rootProps.height + rootProps.unit,
       overflow: "visible",
       viewBox: `0 0 ${rootProps.width} ${rootProps.height}`,
     },
     children
   );
 }
+
+export function createAnnotationSvgElement() {}

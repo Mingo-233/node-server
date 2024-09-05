@@ -17,13 +17,17 @@ export interface IKnifeData {
   positionY?: number;
 }
 // TODO: folds有2种数据类型
-export type IFolds = {
-  name: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-};
+export type IFolds =
+  | {
+      name: string;
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+    }
+  | {
+      path: string;
+    };
 export interface SvgOpt {
   mtd: string;
   x?: number;

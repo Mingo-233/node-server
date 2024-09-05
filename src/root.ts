@@ -1,8 +1,13 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
 import { usePdfLayer } from "./core/pdfLayer/index";
 import { getDrawingBoardConfig } from "./utils";
-import projectData from "./store/info.json";
-import knifeData from "./store/knife.json";
+import { createPageApp } from "./core/pdfPage";
+import util from "util";
+// import projectData from "./store/info.json";
+// import knifeData from "./store/knife.json";
+
+import projectData from "./store/proInfo.json";
+import knifeData from "./store/proKnife.json";
 function getMockData() {
   return {
     projectData,
@@ -10,26 +15,42 @@ function getMockData() {
     params: {},
   };
 }
-const drawingBoardConfig = getDrawingBoardConfig(
-  getMockData().knifeData,
-  getMockData().projectData,
-  getMockData().params
-);
-const { pdfInit, addSVG, end } = usePdfDoc(drawingBoardConfig);
-pdfInit();
-const pdfLayer = usePdfLayer(
-  getMockData().knifeData,
-  getMockData().projectData,
-  drawingBoardConfig
-);
-const knifeLayer = pdfLayer.drawKnife();
-function pageOne() {
-  addSVG(knifeLayer.getSvgString());
-  end();
-}
+// const drawingBoardConfig = getDrawingBoardConfig(
+//   getMockData().knifeData,
+//   getMockData().params
+// );
 
-export function pdfMain() {
-  pageOne();
-}
+const pageApp = createPageApp(knifeData, {
+  unit: "mm",
+  colorMode: "CMYK",
+});
+pageApp.registerFace(getMockData().knifeData, getMockData().projectData);
+console.log(pageApp);
+// console.log(
+//   util.inspect(pageApp.pages[0], {
+//     depth: null,
+//     colors: true,
+//   })
+// );
+pageApp.paint();
+const pdfDoc = usePdfDoc(pageApp.pageSize, pageApp.pageMargin);
 
-pageOne();
+pdfDoc.pdfInit();
+pageApp.pages.forEach((page, index) => {
+  let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
+  if (knifeSvgArr) {
+    knifeSvgArr.forEach((knifeSvg) => {
+      pdfDoc.addSVG(knifeSvg.svgString);
+    });
+  }
+  // knifeSvg && pdfDoc.addSVG(knifeSvg);
+  let designSvg = page.face?.designLayer.getSvgString();
+  designSvg && pdfDoc.addSVG(designSvg);
+  let annotateSvg = page.face?.annotationLayer.getSvgString();
+  annotateSvg && pdfDoc.addSVG(annotateSvg);
+  if (index !== pageApp.pages.length - 1) {
+    pdfDoc.addPage();
+  }
+});
+pdfDoc.end();
+export function pdfMain() {}
