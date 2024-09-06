@@ -1,13 +1,18 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
 import { usePdfLayer } from "./core/pdfLayer/index";
-import { getDrawingBoardConfig } from "./utils";
+import { imgMap } from "./utils/imgUtils";
 import { createPageApp } from "./core/pdfPage";
+import {
+  TYPE_OUTSIDE_DESIGN,
+  TYPE_INSIDE_DESIGN,
+  TYPE_MARK,
+} from "@/nodes/layerNode";
 import util from "util";
-// import projectData from "./store/info.json";
-// import knifeData from "./store/knife.json";
+import projectData from "./store/info.json";
+import knifeData from "./store/knife.json";
 
-import projectData from "./store/proInfo.json";
-import knifeData from "./store/proKnife.json";
+// import projectData from "./store/proInfo.json";
+// import knifeData from "./store/proKnife.json";
 function getMockData() {
   return {
     projectData,
@@ -20,37 +25,87 @@ function getMockData() {
 //   getMockData().params
 // );
 
-const pageApp = createPageApp(knifeData, {
-  unit: "mm",
-  colorMode: "CMYK",
-});
-pageApp.registerFace(getMockData().knifeData, getMockData().projectData);
-console.log(pageApp);
-// console.log(
-//   util.inspect(pageApp.pages[0], {
-//     depth: null,
-//     colors: true,
-//   })
-// );
-pageApp.paint();
-const pdfDoc = usePdfDoc(pageApp.pageSize, pageApp.pageMargin);
-
-pdfDoc.pdfInit();
-pageApp.pages.forEach((page, index) => {
-  let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
-  if (knifeSvgArr) {
-    knifeSvgArr.forEach((knifeSvg) => {
-      pdfDoc.addSVG(knifeSvg.svgString);
+export async function pdfMain() {
+  try {
+    console.time("export task");
+    const pageApp = createPageApp(knifeData, {
+      unit: "mm",
+      colorMode: "CMYK",
     });
+    pageApp.registerFace(getMockData().knifeData, getMockData().projectData);
+    console.log(pageApp);
+    // console.log(
+    //   util.inspect(pageApp.pages[0], {
+    //     depth: null,
+    //     colors: true,
+    //   })
+    // );
+    await pageApp.paint();
+    const pdfDoc = usePdfDoc(pageApp.pageSize, pageApp.pageMargin);
+
+    pdfDoc.pdfInit();
+    for (let i = 0; i < pageApp.pages.length; i++) {
+      const page = pageApp.pages[i];
+      // pageApp.pages.forEach((page, index) => {
+      if (
+        page.pageType & TYPE_OUTSIDE_DESIGN ||
+        page.pageType & TYPE_INSIDE_DESIGN
+      ) {
+        let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
+        if (knifeSvgArr) {
+          knifeSvgArr.forEach((knifeSvg) => {
+            pdfDoc.addSVG(knifeSvg.svgString);
+          });
+        }
+        let designSvg = page.face?.designLayer.getSvgString();
+        designSvg &&
+          pdfDoc.addSVG(designSvg, 0, 0, {
+            imageCallback: function (link) {
+              console.log("imgMap", imgMap);
+
+              return imgMap.get(link);
+            },
+          });
+        fsSaveFile(designSvg);
+        let annotateSvg = page.face?.annotationLayer.getSvgString();
+        annotateSvg && pdfDoc.addSVG(annotateSvg);
+        // pdfDoc.addPage();
+        // // 只画设计
+        // pdfDoc.addSVG(designSvg);
+        // pdfDoc.addPage();
+        // 只画刀线
+        // knifeSvgArr.forEach((knifeSvg) => {
+        //   pdfDoc.addSVG(knifeSvg.svgString);
+        // });
+      }
+      if (page.pageType & TYPE_MARK) {
+        let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
+        if (knifeSvgArr) {
+          knifeSvgArr.forEach((knifeSvg) => {
+            pdfDoc.addSVG(knifeSvg.svgString);
+          });
+        }
+        let annotateSvg = page.face?.annotationLayer.getSvgString();
+        annotateSvg && pdfDoc.addSVG(annotateSvg);
+      }
+
+      // if (index !== pageApp.pages.length - 1) {
+      //   pdfDoc.addPage();
+      // }
+      // });
+    }
+
+    pdfDoc.end();
+    console.timeEnd("export task");
+  } catch (error) {
+    console.error("出现错误", error);
   }
-  // knifeSvg && pdfDoc.addSVG(knifeSvg);
-  let designSvg = page.face?.designLayer.getSvgString();
-  designSvg && pdfDoc.addSVG(designSvg);
-  let annotateSvg = page.face?.annotationLayer.getSvgString();
-  annotateSvg && pdfDoc.addSVG(annotateSvg);
-  if (index !== pageApp.pages.length - 1) {
-    pdfDoc.addPage();
-  }
-});
-pdfDoc.end();
-export function pdfMain() {}
+}
+pdfMain();
+function fsSaveFile(context, name = "test.svg") {
+  const fs = require("fs");
+  const path = require("path");
+  const filePath = path.resolve(__dirname, "../../output");
+  fs.writeFileSync(`${filePath}/${name}`, context);
+  console.log("file saved");
+}

@@ -10,7 +10,8 @@ export function getDrawingBoardConfig(
 ): IDrawingBoardConfig {
   // const scale = 0.37023462996825945;
   // const strokeWidth = 0.25 / scale / DPI;
-  const strokeWidth = 1;
+  // 原先pdf导出项目中就这样设定的
+  const strokeWidth = 0.2;
   const PAGE_MARGIN_TOP = PDFLayoutDPI * PAGE_MARGIN.top;
   const PAGE_MARGIN_BOTTOM = PDFLayoutDPI * PAGE_MARGIN.bottom;
   const PAGE_MARGIN_LEFT = PDFLayoutDPI * PAGE_MARGIN.left;

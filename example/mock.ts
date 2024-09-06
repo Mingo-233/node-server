@@ -21,7 +21,7 @@ async function loadFont() {
     opentypeParse(out);
   });
 }
-loadFont();
+// loadFont();
 
 function opentypeParse(data) {
   // const decompressed = Module.decompress(data);

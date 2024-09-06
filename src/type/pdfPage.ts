@@ -41,7 +41,7 @@ export interface IDrawingBoardConfig {
   };
   colorMode: IColorMode;
   unit: IUnit;
-  strokeWidth: 1;
+  strokeWidth: number;
   bleedLineWidth: number;
 }
 
@@ -56,4 +56,5 @@ export interface IPage {
   pageNum: number;
   face: IFace;
   faceData: IFaceData;
+  pageType: number;
 }

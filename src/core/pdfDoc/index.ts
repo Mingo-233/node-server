@@ -23,9 +23,9 @@ export function usePdfDoc(pageSize, pageMargin) {
     doc.translate(pageMargin.left, pageMargin.top);
   }
 
-  function addSVG(svg: string) {
+  function addSVG(svg, x?, y?, options?) {
     // @ts-ignore
-    doc.addSVG(svg);
+    doc.addSVG(svg, x, y, options);
   }
   function _paintAfter() {}
   function _paintEnd() {

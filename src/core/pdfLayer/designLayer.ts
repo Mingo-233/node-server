@@ -1,17 +1,49 @@
 import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createElement } from "@/nodes/index";
-const mockUrl =
-  "//test-cdn.pacdora.com/user-materials-mockup_mockup/a5d4fdf2-8545-4f2d-95ea-6049f7bcf1e1.png";
-export function drawImgElement(knifeData) {
-  const imgSvg = createElement("svg", { xmlns: "http://www.w3.org/2000/svg" }, [
-    createElement("image", {
-      "xlink:href": mockUrl,
-    }),
-  ]);
+import { imgMap, fetchImage, isSvgUrl } from "@/utils/imgUtils";
+import { getTransformSvg } from "@/utils/svgImgUtils";
+import { IDrawingBoardConfig } from "@/type/pdfPage";
 
-  const context: IPdfSvgContainer<"design-layer"> = {
-    type: "img",
-    svgString: imgSvg,
-  };
-  return context;
+export async function drawImgElement(designItem, config: IDrawingBoardConfig) {
+  if (isSvgUrl(designItem.src)) {
+    const svgString = (await fetchImage(designItem.src, false)) as string;
+    const transformSvg = getTransformSvg(svgString, []);
+    const imgSvg = createElement(
+      "svg",
+      {
+        xmlns: "http://www.w3.org/2000/svg",
+        transform: `translate(${designItem.style.left}, ${designItem.style.top})`,
+      },
+      transformSvg
+    );
+
+    const context: IPdfSvgContainer<"design-layer"> = {
+      type: "img",
+      svgString: imgSvg,
+    };
+    return context;
+  } else {
+    const imageBuffer = await fetchImage(designItem.src);
+    imgMap.set(designItem.src, imageBuffer);
+    const imgSvg = createElement(
+      "svg",
+      {
+        xmlns: "http://www.w3.org/2000/svg",
+        transform: `translate(${designItem.style.left}, ${designItem.style.top})`,
+      },
+      [
+        createElement("image", {
+          "xlink:href": designItem.src,
+          width: designItem.style.width + config.unit,
+          height: designItem.style.height + config.unit,
+        }),
+      ]
+    );
+
+    const context: IPdfSvgContainer<"design-layer"> = {
+      type: "img",
+      svgString: imgSvg,
+    };
+    return context;
+  }
 }
