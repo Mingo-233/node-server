@@ -172,7 +172,7 @@
         const remarkDom = document.getElementById('remark');
         const resultDom = document.getElementById('result')
         const formDom = document.querySelector('.form-operation');
-        const timer = null
+        let timer = null
         echoParkingInfo()
         function saveParkingInfo() {
             const floor = floorDom.value;
@@ -199,6 +199,7 @@
             resultDom.style.display = 'block';
             formDom.style.display = 'none'
             updateTime()
+            notify()
         }
 
         function echoParkingInfo() {
@@ -241,9 +242,7 @@
             clearInterval(timer)
         }
         function notify() {
-            const msg = `你的停车时间已经超过50分钟`
-            const icon = `https://day.app/assets/images/avatar.jpg`
-            fetch(`https://api.day.app/vVEfUA68tfzDjNgADBMVZ6/${msg}?icon=${icon}`)
+            fetch('http://cc.mingo.wang:3123/notify')
         }
 
     </script>

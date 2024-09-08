@@ -1,4 +1,5 @@
 const express = require('express')
+const https = require('https')
 const app = new express()
 const port = 3123
 
@@ -13,11 +14,17 @@ const MAX_TIME_110 = 110 * 60 * 1000
 function notifyBark(minute, hour = 0) {
     const msg = `你的停车时间已经超过${hour}小时${minute}分钟`
     const icon = `https://day.app/assets/images/avatar.jpg`
-    fetch(`https://api.day.app/vVEfUA68tfzDjNgADBMVZ6/${msg}?icon=${icon}`)
+    https.get(`https://api.day.app/vVEfUA68tfzDjNgADBMVZ6/${msg}?icon=${icon}`)
 }
 function request() {
     console.log('mock request');
 }
+// 允许跨域
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.get('/notify', function (req, res, next) {
     request()
     const task = async () => {
