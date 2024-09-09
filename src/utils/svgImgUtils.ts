@@ -42,8 +42,8 @@ export function getTransformSvg(svgString, fillsConfig = []) {
     }
   }
   svgDom.appendChild(styleDom);
-  //   svgDom.setAttribute("width", `${width}px`);
-  //   svgDom.setAttribute("height", `${height}px`);
+  svgDom.setAttribute("width", `100%`);
+  svgDom.setAttribute("height", `100%`);
   let resultSvgString = dom.querySelector("svg")?.outerHTML ?? "";
   return resultSvgString;
 }

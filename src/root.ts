@@ -1,18 +1,22 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import { usePdfLayer } from "./core/pdfLayer/index";
 import { imgMap } from "./utils/imgUtils";
 import { createPageApp } from "./core/pdfPage";
+import log from "@/utils/log";
 import {
   TYPE_OUTSIDE_DESIGN,
   TYPE_INSIDE_DESIGN,
   TYPE_MARK,
 } from "@/nodes/layerNode";
 import util from "util";
-import projectData from "./store/info.json";
-import knifeData from "./store/knife.json";
+// import projectData from "./store/info.json";
+// import knifeData from "./store/knife.json";
 
 // import projectData from "./store/proInfo.json";
 // import knifeData from "./store/proKnife.json";
+
+import projectData from "./store/tempInfo.json";
+import knifeData from "./store/tempKnife.json";
+
 function getMockData() {
   return {
     projectData,
@@ -20,18 +24,15 @@ function getMockData() {
     params: {},
   };
 }
-// const drawingBoardConfig = getDrawingBoardConfig(
-//   getMockData().knifeData,
-//   getMockData().params
-// );
-
 export async function pdfMain() {
   try {
     console.time("export task");
+
     const pageApp = createPageApp(knifeData, {
       unit: "mm",
-      colorMode: "CMYK",
+      colorMode: "RGB",
     });
+    log.info("log-", "registerFace start");
     pageApp.registerFace(getMockData().knifeData, getMockData().projectData);
     console.log(pageApp);
     // console.log(
@@ -46,7 +47,7 @@ export async function pdfMain() {
     pdfDoc.pdfInit();
     for (let i = 0; i < pageApp.pages.length; i++) {
       const page = pageApp.pages[i];
-      // pageApp.pages.forEach((page, index) => {
+      log.info("log-pdf doc add start");
       if (
         page.pageType & TYPE_OUTSIDE_DESIGN ||
         page.pageType & TYPE_INSIDE_DESIGN
@@ -57,7 +58,9 @@ export async function pdfMain() {
             pdfDoc.addSVG(knifeSvg.svgString);
           });
         }
-        let designSvg = page.face?.designLayer.getSvgString();
+        let designSvg = page.face?.designLayer.getSvgString({
+          pageMargin: pageApp.pageMargin,
+        });
         designSvg &&
           pdfDoc.addSVG(designSvg, 0, 0, {
             imageCallback: function (link) {
@@ -66,17 +69,16 @@ export async function pdfMain() {
               return imgMap.get(link);
             },
           });
-        fsSaveFile(designSvg);
         let annotateSvg = page.face?.annotationLayer.getSvgString();
         annotateSvg && pdfDoc.addSVG(annotateSvg);
-        // pdfDoc.addPage();
-        // // 只画设计
-        // pdfDoc.addSVG(designSvg);
-        // pdfDoc.addPage();
+        pdfDoc.addPage();
+        // 只画设计
+        pdfDoc.addSVG(designSvg);
+        pdfDoc.addPage();
         // 只画刀线
-        // knifeSvgArr.forEach((knifeSvg) => {
-        //   pdfDoc.addSVG(knifeSvg.svgString);
-        // });
+        knifeSvgArr.forEach((knifeSvg) => {
+          pdfDoc.addSVG(knifeSvg.svgString);
+        });
       }
       if (page.pageType & TYPE_MARK) {
         let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
@@ -89,10 +91,9 @@ export async function pdfMain() {
         annotateSvg && pdfDoc.addSVG(annotateSvg);
       }
 
-      // if (index !== pageApp.pages.length - 1) {
-      //   pdfDoc.addPage();
-      // }
-      // });
+      if (i !== pageApp.pages.length - 1) {
+        pdfDoc.addPage();
+      }
     }
 
     pdfDoc.end();

@@ -61,5 +61,5 @@ export function getDrawingBoardConfig(
   };
 }
 export function isTraditional(layerList) {
-  return layerList.every((layer) => layer.type === "traditional");
+  return layerList.every((layer) => layer.name === "traditional");
 }

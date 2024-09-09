@@ -9,7 +9,7 @@ type IBaseLayer<T extends ILayerType> = {
   type: T;
   svgString: string;
   children: IPdfSvgContainer<T>[];
-  getSvgString: () => string;
+  getSvgString: (config?: any) => string;
   getSvgChildren: () => IPdfSvgContainer<T>[];
 };
 export type knifeLayer = IBaseLayer<"knife-layer">;

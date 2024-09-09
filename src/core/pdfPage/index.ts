@@ -1,6 +1,7 @@
 import { getDrawingBoardConfig, isTraditional } from "@/utils/index";
 import { createFace } from "@/core/pdfFace/index";
 import { IPage } from "@/type/pdfPage";
+import log from "@/utils/log";
 import {
   LAYER_KNIFE,
   LAYER_MARK,
@@ -32,11 +33,19 @@ export function createPageApp(knifeData, params) {
   function registerFace(knifeData, projectData) {
     const layerList = knifeData.modeCate.layerList;
     let _knifeData = {};
-    let _designData = [];
-    let _insideDesignData = [];
+    let _designData = {
+      list: [],
+      faceBackground: {},
+    };
+    let _insideDesignData = {
+      list: [],
+      faceBackground: {},
+    };
     let _annotateData = {};
 
     if (isTraditional(layerList)) {
+      log.info("log-registerFace traditional");
+
       const layerKnifeData = knifeData.layer.traditional;
       _knifeData = {
         cuts: layerKnifeData?.cuts || [],
@@ -44,16 +53,25 @@ export function createPageApp(knifeData, params) {
         folds: layerKnifeData?.folds || [],
         bleeds: layerKnifeData?.bleeds || [],
       };
-      _designData = projectData.layer.traditional.design_list;
-      _insideDesignData = projectData.layer.traditional.inside_design_list;
+      _designData = {
+        list: projectData.layer.traditional.design_list || [],
+        faceBackground: projectData.layer.traditional.face_background || {},
+      };
+      _insideDesignData = {
+        list: projectData.layer.traditional.inside_design_list || [],
+        faceBackground: projectData.layer.traditional.face_background || {},
+      };
       let pageType = 0;
-      if (_designData.length > 0) {
+      if (_designData.list.length > 0) {
         pageType |= LAYER_DESIGN;
       }
-      if (_insideDesignData.length > 0) {
-        pageType |= LAYER_INSIDE_DESIGN;
-      }
-      if (_designData.length === 0 && _insideDesignData.length === 0) {
+      // if (_insideDesignData.list.length > 0) {
+      //   pageType |= LAYER_INSIDE_DESIGN;
+      // }
+      if (
+        _designData.list.length === 0 &&
+        _insideDesignData.list.length === 0
+      ) {
         pageType |= LAYER_MARK;
       }
       if (pageType & TYPE_MARK) {
@@ -72,6 +90,7 @@ export function createPageApp(knifeData, params) {
         pagePush(_knifeData, _insideDesignData, _annotateData, face, pageType);
       }
     } else {
+      log.info("log-registerFace 精品盒");
       // 精品盒
       layerList.forEach((facePaper) => {
         const isGrey = facePaper.isGrey;
@@ -83,19 +102,31 @@ export function createPageApp(knifeData, params) {
           holes: layerKnifeData?.holes || [],
           folds: layerKnifeData?.folds || [],
           bleeds: layerKnifeData?.bleeds || [],
+          faces: layerKnifeData?.faces || [],
         };
-        const _designData = projectData.layer[facePaper.name].design_list;
-        const _insideDesignData =
-          projectData.layer[facePaper.name].inside_design_list;
+        _designData = {
+          list: projectData.layer[facePaper.name].design_list || [],
+          faceBackground:
+            projectData.layer[facePaper.name].face_background || {},
+        };
+        const _insideDesignData = {
+          list: projectData.layer[facePaper.name].inside_design_list || [],
+          faceBackground:
+            projectData.layer[facePaper.name].face_background || {},
+        };
+
         const _annotateData = {};
         let pageType = 0;
-        if (_designData.length > 0) {
+        if (_designData.list.length > 0) {
           pageType |= LAYER_DESIGN;
         }
-        if (_insideDesignData.length > 0) {
+        if (_insideDesignData.list.length > 0) {
           pageType |= LAYER_INSIDE_DESIGN;
         }
-        if (_designData.length === 0 && _insideDesignData.length === 0) {
+        if (
+          _designData.list.length === 0 &&
+          _insideDesignData.list.length === 0
+        ) {
           pageType |= LAYER_MARK;
         }
         if (pageType & TYPE_MARK) {
@@ -141,8 +172,11 @@ export function createPageApp(knifeData, params) {
       const page = app.pages[i];
       const { knifeData, designData, annotateData, boardConfig } =
         page.faceData;
+      log.info("log-face.drawKnife start", i);
       page.face.drawKnife(knifeData, boardConfig);
-      await page.face.drawDesign(designData, boardConfig);
+      log.info("log-face.drawDesign start", i);
+      await page.face.drawDesign(designData, knifeData, boardConfig);
+      log.info("log-face.drawAnnotate start", i);
       page.face.drawAnnotate(annotateData, boardConfig);
     }
   }

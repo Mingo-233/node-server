@@ -10,7 +10,8 @@ export function createFace(name, type, side) {
     designLayer: layer.getDesignLayer(),
     annotationLayer: layer.getAnnotationLayer(),
     drawKnife: (knifeData, config) => layer.drawKnife(knifeData, config),
-    drawDesign: (designData, config) => layer.drawDesign(designData, config),
+    drawDesign: (designData, knifeData, config) =>
+      layer.drawDesign(designData, knifeData, config),
     drawAnnotate: (annotateData, config) =>
       layer.drawAnnotation(annotateData, config),
   };

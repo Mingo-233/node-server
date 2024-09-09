@@ -2617,9 +2617,11 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     SvgElemHasChildren.call(this, obj, inherits);
     this.drawContent = function (isClip, isMask) {
       this.transform();
+      // console.log("c-test-1");
       let clipped = this.clip(),
         masked = this.mask(),
         group;
+
       if ((this.get("opacity") < 1 || clipped || masked) && !isClip) {
         group = docBeginGroup(getPageBBox());
       }
@@ -2775,7 +2777,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     this.drawInDocument = function (isClip, isMask) {
       doc.save();
       if (this.get("overflow") === "hidden") {
-        let tempLength = 5;
+        console.log("svg-to-pdfkit-lib", "drawInDocument tempLength");
+        let tempLength = 1;
         new SvgShape()
           .M(x - tempLength, y - tempLength)
           .L(x + tempLength + width, y - tempLength)
@@ -2785,6 +2788,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           .transform(this.get("transform"))
           .insertInDocument();
         doc.clip();
+        // console.log("c-test-2");
       }
       this.drawContent(isClip, isMask);
       doc.restore();
@@ -2849,9 +2853,13 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       doc.save();
       this.transform();
       if (this.get("overflow") === "hidden") {
+        console.log("svg-to-pdfkit-lib", "drawInDocument SVGElemImage");
         doc.rect(x, y, width, height).clip();
+        // console.log("c-test-3");
       }
       this.clip();
+      // console.log("c-test-4");
+
       this.mask();
       doc.translate(x, y);
       doc.transform.apply(
@@ -3203,6 +3211,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       doc.save();
       this.transform();
       this.clip();
+      // console.log("c-test-5");
+
       if (!isClip) {
         let masked = this.mask(),
           group;
@@ -3502,6 +3512,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
             height
           )
           .clip();
+        // console.log("c-test-6");
       }
       doc.transform.apply(doc, aspectRatioMatrix);
       doc.translate(-refX, -refY);
@@ -3535,6 +3546,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         );
       }
       this.clip();
+      // console.log("c-test-7");
+
       this.drawChildren(true, false);
       doc.restore();
       docEndGroup(group);
@@ -3583,6 +3596,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           (bBox[3] - bBox[1]);
       }
       doc.rect(x, y, w, h).clip();
+      // console.log("c-test-8");
+
       if (this.attr("maskContentUnits") === "objectBoundingBox") {
         doc.transform(
           bBox[2] - bBox[0],
@@ -3594,6 +3609,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         );
       }
       this.clip();
+      // console.log("c-test-9");
+
       this.drawChildren(false, true);
       doc.restore();
       docEndGroup(group);
@@ -4118,6 +4135,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       doc.save();
       this.transform();
       this.clip();
+      // console.log("c-test-10");
+
       let masked = this.mask(),
         group;
       if (masked) {

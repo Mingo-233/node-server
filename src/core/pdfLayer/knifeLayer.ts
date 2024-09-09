@@ -48,6 +48,7 @@ export function drawFoldLine(
       transform: `translate(${config.bleedLineWidth}, ${config.bleedLineWidth})`,
     })
   );
+
   const context: IPdfSvgContainer<"knife-layer"> = {
     type: "foldLine",
     svgString,

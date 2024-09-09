@@ -41,31 +41,18 @@ function _dlist_to_d(dlist: any[], reverse?: boolean, width?: number) {
 }
 
 export default {
-  // faces转成facesForSvg
-  buildFacesForSvg(faces: Face[]) {
-    const list = faces.map((e) => {
-      const { name } = e;
-
-      const d = _dlist_to_d(e.dlist);
-
-      return {
-        name,
-        d,
-      };
-    });
-
-    return list;
-  },
-
   dlist_to_d(dlist: SvgOpt[], reverse?: boolean, width?: number) {
     return _dlist_to_d(dlist, reverse, width);
   },
   folds_to_d(folds: any[]) {
     let pathData = folds
-      .map(
-        (segment) =>
-          `M ${segment.x1} ${segment.y1} L ${segment.x2} ${segment.y2}`
-      )
+      .map((segment) => {
+        if (!segment.path && !segment.blank) {
+          return `M ${segment.x1} ${segment.y1} L ${segment.x2} ${segment.y2}`;
+        } else {
+          return segment.d;
+        }
+      })
       .join(" ");
 
     return pathData;
@@ -78,5 +65,17 @@ export default {
 
     const temp = cutsForSvg + holesForSvg.join("Z");
     return temp;
+  },
+  face_to_d_list(faces: Face[]) {
+    const list = faces.map((e) => {
+      const { name } = e;
+      const d = _dlist_to_d(e.dlist);
+      return {
+        name,
+        d,
+      };
+    });
+
+    return list;
   },
 };

@@ -10,7 +10,7 @@ interface IFace {
   designLayer: designLayer;
   annotationLayer: annotationLayer;
   drawKnife: (knifeData, config) => void;
-  drawDesign: (designData, config) => void;
+  drawDesign: (designData, knifeData, config) => void;
   drawAnnotate: (annotateData, config) => void;
 }
 

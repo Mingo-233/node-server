@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
-import SVGtoPDF from "svg-to-pdfkit";
+// import SVGtoPDF from "svg-to-pdfkit";
+import SVGtoPDF from "../../../public/svg-to-pdfkit";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
 export function usePdfDoc(pageSize, pageMargin) {
