@@ -1,5 +1,5 @@
 {
-  "id": 10115871,
+  "id": 10118767,
   "length": 120.6,
   "width": 60.6,
   "height": 161.6,
@@ -13,266 +13,207 @@
   "is_mode": 0,
   "design_data": [
     {
-      "uuid": "423372d2-b795-44dc-bd69-f04b47f81c2e",
-      "id": "423372d2-b795-44dc-bd69-f04b47f81c2e",
       "bg": {
         "x": 0,
         "y": 0,
-        "width": 377.9,
-        "height": 311.29999999999995
+        "width": 1080.3959641330482,
+        "height": 270.09899103326205
       },
-      "designs": [
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "a0acd5c1-165e-46ff-b922-2b958fc143ae",
-          "id": "a0acd5c1-165e-46ff-b922-2b958fc143ae",
-          "can_set_color": 1,
-          "style": {
-            "top": -3,
-            "left": -3,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "2032c046-d3d9-4e64-94a5-e4b2a210998f",
-          "id": "2032c046-d3d9-4e64-94a5-e4b2a210998f",
-          "can_set_color": 1,
-          "style": {
-            "top": 124.96666666666665,
-            "left": -3,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "df900875-c05b-41ad-9ed4-2b2d6a601d3f",
-          "id": "df900875-c05b-41ad-9ed4-2b2d6a601d3f",
-          "can_set_color": 1,
-          "style": {
-            "top": 252.9333333333333,
-            "left": -3,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "59e6ec85-fb0d-4010-ac02-e07fff367ef7",
-          "id": "59e6ec85-fb0d-4010-ac02-e07fff367ef7",
-          "can_set_color": 1,
-          "style": {
-            "top": -3,
-            "left": 124.96666666666665,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "23e37ce1-0658-40fb-8594-80231f460e92",
-          "id": "23e37ce1-0658-40fb-8594-80231f460e92",
-          "can_set_color": 1,
-          "style": {
-            "top": 124.96666666666665,
-            "left": 124.96666666666665,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "a4c361ec-f79b-4e81-8f20-fc5128bf834f",
-          "id": "a4c361ec-f79b-4e81-8f20-fc5128bf834f",
-          "can_set_color": 1,
-          "style": {
-            "top": 252.9333333333333,
-            "left": 124.96666666666665,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "dbd2252d-d666-448c-8333-f26c5896faa7",
-          "id": "dbd2252d-d666-448c-8333-f26c5896faa7",
-          "can_set_color": 1,
-          "style": {
-            "top": -3,
-            "left": 252.9333333333333,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "639ef986-b142-47fe-be28-18192443c8b5",
-          "id": "639ef986-b142-47fe-be28-18192443c8b5",
-          "can_set_color": 1,
-          "style": {
-            "top": 124.96666666666665,
-            "left": 252.9333333333333,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        },
-        {
-          "type": "img",
-          "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-          "fills": [
-            {
-              "color": "#000000",
-              "value": "#000000",
-              "class": "globalFill",
-              "type": "fill"
-            }
-          ],
-          "uuid": "9414cfaf-2f1f-4ebe-8960-b672d30b1ecc",
-          "id": "9414cfaf-2f1f-4ebe-8960-b672d30b1ecc",
-          "can_set_color": 1,
-          "style": {
-            "top": 252.9333333333333,
-            "left": 252.9333333333333,
-            "rotate": 0,
-            "opacity": 100,
-            "width": 127.96666666666665,
-            "height": 127.96666666666665
-          },
-          "_is_texture": true
-        }
-      ],
-      "type": "group",
-      "locked": true,
+      "id": "89109b25-c771-4e80-845a-340863871adb",
+      "src": "https://cdn.pacdora.com/font/7604567e-56c3-4966-9e63-3d185323d973.woff2",
+      "type": "font",
+      "uuid": "89109b25-c771-4e80-845a-340863871adb",
       "style": {
-        "left": 0,
-        "height": 311.29999999999995,
-        "width": 377.9,
+        "top": 82.6284,
+        "left": 134.902,
+        "color": "#191919",
+        "width": 64,
+        "height": 199.926,
         "rotate": 0,
-        "top": 0,
-        "clipPath": "url(#layer-clip-path_traditional)"
+        "opacity": 100,
+        "fontSize": 16,
+        "vertical": 1,
+        "textAlign": "left",
+        "fontFamily": "f108800",
+        "lineHeight": 32
       },
-      "_layer_name": "traditional",
-      "_side_name": "outside",
-      "_is_texture": true,
-      "_texture_scale": 3,
-      "_texture_id": 2000007
+      "value": "Your text here \nabc",
+      "example": "soul-handwriting_free-version",
+      "_layer_name": "traditional"
     },
     {
-      "id": "10cf17ca-57dd-4afe-82cf-abf722be8cca",
-      "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/d79c45ef-6b09-46ad-8b87-b450f5ee0d20.svg",
+      "id": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+      "src": "//test-cdn.pacdora.com/symbol-icon/afd66cab-e3c1-410e-8393-0e42f8c2cd9f.svg",
       "type": "img",
-      "uuid": "10cf17ca-57dd-4afe-82cf-abf722be8cca",
+      "uuid": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
       "fills": [
         {
           "type": "fill",
-          "class": "circle",
-          "color": "#ad15e8",
-          "value": "rgb(18, 52, 86)"
+          "color": "#000000",
+          "value": "#000000"
+        },
+        {
+          "type": "fill",
+          "color": "#FFFFFF",
+          "value": "#FFFFFF"
         }
       ],
       "style": {
-        "top": 117.89,
-        "left": 238.093,
-        "width": 52.9167,
-        "height": 52.9167,
+        "top": 247.917,
+        "left": 23.9675,
+        "width": 35.6241,
+        "height": 26.033,
+        "rotate": 0,
+        "opacity": 100
+      },
+      "owidth": 52,
+      "oheight": 38,
+      "_layer_name": "traditional",
+      "can_set_color": 1,
+      "isProportional": true
+    },
+    {
+      "bg": {
+        "x": 0,
+        "y": 0,
+        "width": 775.0770284241302,
+        "height": 193.76925710603257
+      },
+      "id": "fa8fce24-d200-4f60-9339-6c974decdfec",
+      "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
+      "type": "font",
+      "uuid": "fa8fce24-d200-4f60-9339-6c974decdfec",
+      "style": {
+        "top": 95.15,
+        "left": 154.976,
+        "color": "#191919",
+        "width": 205.052,
+        "height": 24.6062,
+        "rotate": 0,
+        "opacity": 100,
+        "fontSize": 16.4058,
+        "vertical": 0,
+        "textAlign": "center",
+        "fontFamily": "f99066",
+        "lineHeight": 24.6087
+      },
+      "value": "Test",
+      "example": "Crimson-Roman",
+      "_layer_name": "traditional"
+    },
+    {
+      "type": "group",
+      "uuid": "b3d2daf7-e4aa-4065-a353-a08c7dcf7323",
+      "style": {
+        "top": 173.403,
+        "left": 145.527,
+        "width": 42.7489,
+        "height": 42.7489,
+        "rotate": 0
+      },
+      "_opers": [],
+      "locked": false,
+      "designs": [
+        {
+          "id": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+          "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+          "type": "shape",
+          "uuid": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+          "fills": [],
+          "style": {
+            "top": 0,
+            "left": 0,
+            "color": "#cccccc",
+            "width": 42.748900000000006,
+            "height": 42.748900000000006,
+            "radius": 0,
+            "rotate": 0,
+            "stroke": "#000000",
+            "opacity": 100,
+            "strokeWidth": 5.699849170437405,
+            "strokeDashArray": 0,
+            "strokeWidthTemp": 5.699849170437405
+          },
+          "owidth": 200,
+          "oheight": 200,
+          "shapeType": "circle",
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
+        },
+        {
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 16.933300000000003,
+            "height": 16.933300000000003
+          },
+          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a5d4fdf2-8545-4f2d-95ea-6049f7bcf1e1.png",
+          "type": "img",
+          "uuid": "e0ea1c72-df47-45bd-b466-c3ceef2a49f4",
+          "fills": [],
+          "style": {
+            "top": 12.909000000000024,
+            "left": 12.908999999999995,
+            "width": 16.933300000000003,
+            "height": 16.933300000000003,
+            "rotate": 0,
+            "opacity": 100,
+            "position": "absolute"
+          },
+          "owidth": 64,
+          "oheight": 64,
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
+        }
+      ],
+      "_side_name": "outside",
+      "_layer_name": "traditional"
+    },
+    {
+      "bg": {
+        "x": 0,
+        "y": -8.74093,
+        "width": 117.085,
+        "height": 66.0116
+      },
+      "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/8662f7e0-18b6-4fdf-b025-c106cbed3c35.png",
+      "type": "img",
+      "uuid": "4d9dba1c-5699-44be-81d7-180d1da6d97b",
+      "fills": [],
+      "style": {
+        "top": 25.2148,
+        "left": 16.5,
+        "width": 117.085,
+        "height": 48.5299,
+        "rotate": 0,
+        "opacity": 100,
+        "position": "absolute"
+      },
+      "owidth": 580,
+      "oheight": 327,
+      "_layer_name": "traditional",
+      "can_set_color": 0,
+      "isProportional": false
+    },
+    {
+      "id": "1eb0448a-57fc-40a4-8713-d3552f9c34bb",
+      "src": "//test-cdn.pacdora.com/symbol-icon/cb08ef45-80ee-4c95-a006-37e5bdc31bb2.svg",
+      "type": "img",
+      "uuid": "1eb0448a-57fc-40a4-8713-d3552f9c34bb",
+      "fills": [
+        {
+          "type": "fill",
+          "color": "#9e7e7e",
+          "value": "#191919"
+        }
+      ],
+      "style": {
+        "top": 128.619,
+        "left": 242.121,
+        "width": 30.7609,
+        "height": 30.7609,
         "rotate": 0,
         "opacity": 100
       },
@@ -285,32 +226,30 @@
   ],
   "inside_design_data": [
     {
-      "bg": {
-        "x": 0,
-        "y": 0,
-        "width": 775.0770284241302,
-        "height": 193.76925710603257
-      },
-      "id": "70fe5b6b-fa02-4862-b13e-c7bc771c6e8c",
-      "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
-      "type": "font",
-      "uuid": "70fe5b6b-fa02-4862-b13e-c7bc771c6e8c",
+      "type": "shape",
+      "id": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
+      "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+      "uuid": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
+      "shapeType": "circle",
+      "can_set_color": 0,
+      "fills": [],
+      "owidth": 200,
+      "oheight": 200,
+      "isProportional": false,
       "style": {
-        "top": 136.212,
-        "left": 30.0494,
-        "color": "#191919",
-        "width": 205.052,
-        "height": 24.6062,
+        "strokeWidth": 3.7326139088729016,
+        "strokeWidthTemp": 3.7326139088729016,
+        "radius": 0,
+        "stroke": "#000000",
+        "color": "#cccccc",
+        "left": 107.00269784172662,
+        "top": 106.00269784172662,
+        "width": 27.99460431654676,
+        "height": 27.99460431654676,
         "rotate": 0,
         "opacity": 100,
-        "fontSize": 16.4058,
-        "vertical": 0,
-        "textAlign": "center",
-        "fontFamily": "f99066",
-        "lineHeight": 24.6087
+        "strokeDashArray": 0
       },
-      "value": "内层",
-      "example": "Crimson-Roman",
       "_layer_name": "traditional"
     }
   ],
@@ -320,11 +259,20 @@
   "material_mtl": null,
   "is_render": 0,
   "line_guides": null,
-  "screenshot_id": 13512031,
-  "screenshot": "//test-cdn.pacdora.com/render-cover/d4d0e032-32ff-4819-9d61-0441349a4008.png",
+  "screenshot_id": 13512169,
+  "screenshot": "//test-cdn.pacdora.com/render-cover/b5d06a83-4f55-4282-a865-32e58fa79766.png",
   "color_history": null,
   "inside_background": null,
-  "face_background": null,
+  "face_background": {
+    "H": {
+      "cmyk": "",
+      "rgba": "#b52b2b"
+    },
+    "FL": {
+      "cmyk": "",
+      "rgba": "#373dbd"
+    }
+  },
   "inside_face_background": null,
   "show_bleed_line": 1,
   "show_material": 1,
@@ -357,263 +305,204 @@
           "bg": {
             "x": 0,
             "y": 0,
-            "width": 377.9,
-            "height": 311.29999999999995
+            "width": 1080.3959641330482,
+            "height": 270.09899103326205
           },
-          "id": "423372d2-b795-44dc-bd69-f04b47f81c2e",
-          "type": "group",
-          "uuid": "423372d2-b795-44dc-bd69-f04b47f81c2e",
+          "id": "89109b25-c771-4e80-845a-340863871adb",
+          "src": "https://cdn.pacdora.com/font/7604567e-56c3-4966-9e63-3d185323d973.woff2",
+          "type": "font",
+          "uuid": "89109b25-c771-4e80-845a-340863871adb",
           "style": {
-            "top": 0,
-            "left": 0,
-            "width": 377.9,
-            "height": 311.29999999999995,
+            "top": 82.6284,
+            "left": 134.902,
+            "color": "#191919",
+            "width": 64,
+            "height": 199.926,
             "rotate": 0,
-            "clipPath": "url(#layer-clip-path_traditional)"
+            "opacity": 100,
+            "fontSize": 16,
+            "vertical": 1,
+            "textAlign": "left",
+            "fontFamily": "f108800",
+            "lineHeight": 32
           },
-          "locked": true,
-          "designs": [
-            {
-              "id": "a0acd5c1-165e-46ff-b922-2b958fc143ae",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "a0acd5c1-165e-46ff-b922-2b958fc143ae",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": -3,
-                "left": -3,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "2032c046-d3d9-4e64-94a5-e4b2a210998f",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "2032c046-d3d9-4e64-94a5-e4b2a210998f",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 124.96666666666664,
-                "left": -3,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "df900875-c05b-41ad-9ed4-2b2d6a601d3f",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "df900875-c05b-41ad-9ed4-2b2d6a601d3f",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 252.9333333333333,
-                "left": -3,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "59e6ec85-fb0d-4010-ac02-e07fff367ef7",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "59e6ec85-fb0d-4010-ac02-e07fff367ef7",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": -3,
-                "left": 124.96666666666664,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "23e37ce1-0658-40fb-8594-80231f460e92",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "23e37ce1-0658-40fb-8594-80231f460e92",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 124.96666666666664,
-                "left": 124.96666666666664,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "a4c361ec-f79b-4e81-8f20-fc5128bf834f",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "a4c361ec-f79b-4e81-8f20-fc5128bf834f",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 252.9333333333333,
-                "left": 124.96666666666664,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "dbd2252d-d666-448c-8333-f26c5896faa7",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "dbd2252d-d666-448c-8333-f26c5896faa7",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": -3,
-                "left": 252.9333333333333,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "639ef986-b142-47fe-be28-18192443c8b5",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "639ef986-b142-47fe-be28-18192443c8b5",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 124.96666666666664,
-                "left": 252.9333333333333,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            },
-            {
-              "id": "9414cfaf-2f1f-4ebe-8960-b672d30b1ecc",
-              "src": "//cloud.pacdora.com/effect/pattern/2000007.svg",
-              "type": "img",
-              "uuid": "9414cfaf-2f1f-4ebe-8960-b672d30b1ecc",
-              "fills": [
-                {
-                  "type": "fill",
-                  "class": "globalFill",
-                  "color": "#000000",
-                  "value": "#000000"
-                }
-              ],
-              "style": {
-                "top": 252.9333333333333,
-                "left": 252.9333333333333,
-                "width": 127.96666666666664,
-                "height": 127.96666666666664,
-                "rotate": 0,
-                "opacity": 100
-              },
-              "_is_texture": true,
-              "can_set_color": 1
-            }
-          ],
-          "_side_name": "outside",
-          "_is_texture": true,
-          "_layer_name": "traditional",
-          "_texture_id": 2000007,
-          "_texture_scale": 3
+          "value": "Your text here \nabc",
+          "example": "soul-handwriting_free-version",
+          "_layer_name": "traditional"
         },
         {
-          "id": "10cf17ca-57dd-4afe-82cf-abf722be8cca",
-          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/d79c45ef-6b09-46ad-8b87-b450f5ee0d20.svg",
+          "id": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
+          "src": "//test-cdn.pacdora.com/symbol-icon/afd66cab-e3c1-410e-8393-0e42f8c2cd9f.svg",
           "type": "img",
-          "uuid": "10cf17ca-57dd-4afe-82cf-abf722be8cca",
+          "uuid": "665740b9-9ec7-444d-8a0f-2ddf0982e0b3",
           "fills": [
             {
               "type": "fill",
-              "class": "circle",
-              "color": "#ad15e8",
-              "value": "rgb(18, 52, 86)"
+              "color": "#000000",
+              "value": "#000000"
+            },
+            {
+              "type": "fill",
+              "color": "#FFFFFF",
+              "value": "#FFFFFF"
             }
           ],
           "style": {
-            "top": 117.89,
-            "left": 238.093,
-            "width": 52.9167,
-            "height": 52.9167,
+            "top": 247.917,
+            "left": 23.9675,
+            "width": 35.6241,
+            "height": 26.033,
+            "rotate": 0,
+            "opacity": 100
+          },
+          "owidth": 52,
+          "oheight": 38,
+          "_layer_name": "traditional",
+          "can_set_color": 1,
+          "isProportional": true
+        },
+        {
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 775.0770284241302,
+            "height": 193.76925710603257
+          },
+          "id": "fa8fce24-d200-4f60-9339-6c974decdfec",
+          "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
+          "type": "font",
+          "uuid": "fa8fce24-d200-4f60-9339-6c974decdfec",
+          "style": {
+            "top": 95.15,
+            "left": 154.976,
+            "color": "#191919",
+            "width": 205.052,
+            "height": 24.6062,
+            "rotate": 0,
+            "opacity": 100,
+            "fontSize": 16.4058,
+            "vertical": 0,
+            "textAlign": "center",
+            "fontFamily": "f99066",
+            "lineHeight": 24.6087
+          },
+          "value": "Test",
+          "example": "Crimson-Roman",
+          "_layer_name": "traditional"
+        },
+        {
+          "type": "group",
+          "uuid": "b3d2daf7-e4aa-4065-a353-a08c7dcf7323",
+          "style": {
+            "top": 173.403,
+            "left": 145.527,
+            "width": 42.7489,
+            "height": 42.7489,
+            "rotate": 0
+          },
+          "_opers": [],
+          "locked": false,
+          "designs": [
+            {
+              "id": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+              "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+              "type": "shape",
+              "uuid": "95938588-ac6e-42ad-b07a-024d0eb868c8",
+              "fills": [],
+              "style": {
+                "top": 0,
+                "left": 0,
+                "color": "#cccccc",
+                "width": 42.748900000000006,
+                "height": 42.748900000000006,
+                "radius": 0,
+                "rotate": 0,
+                "stroke": "#000000",
+                "opacity": 100,
+                "strokeWidth": 5.699849170437405,
+                "strokeDashArray": 0,
+                "strokeWidthTemp": 5.699849170437405
+              },
+              "owidth": 200,
+              "oheight": 200,
+              "shapeType": "circle",
+              "_layer_name": "traditional",
+              "can_set_color": 0,
+              "isProportional": false
+            },
+            {
+              "bg": {
+                "x": 0,
+                "y": 0,
+                "width": 16.933300000000003,
+                "height": 16.933300000000003
+              },
+              "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a5d4fdf2-8545-4f2d-95ea-6049f7bcf1e1.png",
+              "type": "img",
+              "uuid": "e0ea1c72-df47-45bd-b466-c3ceef2a49f4",
+              "fills": [],
+              "style": {
+                "top": 12.909000000000024,
+                "left": 12.908999999999995,
+                "width": 16.933300000000003,
+                "height": 16.933300000000003,
+                "rotate": 0,
+                "opacity": 100,
+                "position": "absolute"
+              },
+              "owidth": 64,
+              "oheight": 64,
+              "_layer_name": "traditional",
+              "can_set_color": 0,
+              "isProportional": false
+            }
+          ],
+          "_side_name": "outside",
+          "_layer_name": "traditional"
+        },
+        {
+          "bg": {
+            "x": 0,
+            "y": -8.74093,
+            "width": 117.085,
+            "height": 66.0116
+          },
+          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/8662f7e0-18b6-4fdf-b025-c106cbed3c35.png",
+          "type": "img",
+          "uuid": "4d9dba1c-5699-44be-81d7-180d1da6d97b",
+          "fills": [],
+          "style": {
+            "top": 25.2148,
+            "left": 16.5,
+            "width": 117.085,
+            "height": 48.5299,
+            "rotate": 0,
+            "opacity": 100,
+            "position": "absolute"
+          },
+          "owidth": 580,
+          "oheight": 327,
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
+        },
+        {
+          "id": "1eb0448a-57fc-40a4-8713-d3552f9c34bb",
+          "src": "//test-cdn.pacdora.com/symbol-icon/cb08ef45-80ee-4c95-a006-37e5bdc31bb2.svg",
+          "type": "img",
+          "uuid": "1eb0448a-57fc-40a4-8713-d3552f9c34bb",
+          "fills": [
+            {
+              "type": "fill",
+              "color": "#9e7e7e",
+              "value": "#191919"
+            }
+          ],
+          "style": {
+            "top": 128.619,
+            "left": 242.121,
+            "width": 30.7609,
+            "height": 30.7609,
             "rotate": 0,
             "opacity": 100
           },
@@ -630,37 +519,44 @@
       "membrane_name": "",
       "science_image": "//cdn.baoxiaohe.com/94e8078a-9931-42cd-97ed-57883bd88085.jpg",
       "def_line_color": "#999999",
-      "face_background": null,
+      "face_background": {
+        "H": {
+          "cmyk": "",
+          "rgba": "#b52b2b"
+        },
+        "FL": {
+          "cmyk": "",
+          "rgba": "#373dbd"
+        }
+      },
       "inside_background": null,
       "inside_design_list": [
         {
-          "bg": {
-            "x": 0,
-            "y": 0,
-            "width": 775.0770284241302,
-            "height": 193.76925710603257
-          },
-          "id": "70fe5b6b-fa02-4862-b13e-c7bc771c6e8c",
-          "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
-          "type": "font",
-          "uuid": "70fe5b6b-fa02-4862-b13e-c7bc771c6e8c",
+          "id": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
+          "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+          "type": "shape",
+          "uuid": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
+          "fills": [],
           "style": {
-            "top": 136.212,
-            "left": 30.0494,
-            "color": "#191919",
-            "width": 205.052,
-            "height": 24.6062,
+            "top": 106.00269784172662,
+            "left": 107.00269784172662,
+            "color": "#cccccc",
+            "width": 27.99460431654676,
+            "height": 27.99460431654676,
+            "radius": 0,
             "rotate": 0,
+            "stroke": "#000000",
             "opacity": 100,
-            "fontSize": 16.4058,
-            "vertical": 0,
-            "textAlign": "center",
-            "fontFamily": "f99066",
-            "lineHeight": 24.6087
+            "strokeWidth": 3.7326139088729016,
+            "strokeDashArray": 0,
+            "strokeWidthTemp": 3.7326139088729016
           },
-          "value": "内层",
-          "example": "Crimson-Roman",
-          "_layer_name": "traditional"
+          "owidth": 200,
+          "oheight": 200,
+          "shapeType": "circle",
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
         }
       ],
       "inside_membrane_id": null,
@@ -673,7 +569,6 @@
   "knifeData": null,
   "owner_type": "private",
   "user_data": {
-    "texture": 2000007,
     "background": {
       "colors": [
         {
@@ -696,9 +591,9 @@
   },
   "type": "mockup-detail",
   "appId": null,
-  "create_time": "1719886212522",
+  "create_time": "1722996176129",
   "by_experience_project_id": null,
-  "update_time": "1725588916710",
+  "update_time": "1725960379772",
   "is_delete": 0,
   "science_id": 8,
   "user_id": 1102855,

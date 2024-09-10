@@ -65,9 +65,13 @@ export function createKnifeSvgElement(
     width: number;
     height: number;
     unit: string;
+    side: string;
+    pageMargin: any;
   },
   children: INodeChildren
 ) {
+  console.log("rootProps.sid", rootProps.side);
+
   return createSvgElement(
     {
       x: "0",
@@ -76,6 +80,13 @@ export function createKnifeSvgElement(
       height: rootProps.height + rootProps.unit,
       overflow: "visible",
       viewBox: `0 0 ${rootProps.width} ${rootProps.height}`,
+      transform: `${
+        rootProps.side === "inside"
+          ? `scale(-1, 1) translate(-${
+              2 * (rootProps.width + rootProps.pageMargin.left)
+            },0)`
+          : ""
+      }`,
     },
     children
   );

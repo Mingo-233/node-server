@@ -1,36 +1,43 @@
-const https = require("https");
-const path = require("path");
-
+import https from "https";
+import path from "path";
+import log from "@/utils/log";
+import { fetchResourceWithCache } from "@/utils/request";
+// const https = require("https");
+// const path = require("path");
+// const log = require("@/utils/log");
 export const imgMap = new Map();
 
 export function clearImgMap() {
   imgMap.clear();
 }
 export function fetchImage(url, isBuffer = true) {
-  return new Promise((resolve, reject) => {
-    const _url = prefixUrl(url);
-    https
-      .get(_url, (res) => {
-        if (res.statusCode !== 200) {
-          return reject(
-            new Error(
-              `Failed to get fetch Image. Status code: ${res.statusCode}`
-            )
-          );
-        }
-        const chunks: any = [];
-        res.on("data", (chunk) => chunks.push(chunk));
-        res.on("end", () => {
-          if (isBuffer) {
-            const buffer = Buffer.concat(chunks);
-            resolve(buffer);
-          } else {
-            resolve(chunks.join(""));
-          }
-        });
-      })
-      .on("error", (err) => reject(err));
-  });
+  log.info("log-fetchImage start", url);
+  const _url = prefixUrl(url);
+  return fetchResourceWithCache(_url);
+  // return new Promise((resolve, reject) => {
+  //   const _url = prefixUrl(url);
+  //   https
+  //     .get(_url, (res) => {
+  //       if (res.statusCode !== 200) {
+  //         return reject(
+  //           new Error(
+  //             `Failed to get fetch Image. Status code: ${res.statusCode}`
+  //           )
+  //         );
+  //       }
+  //       const chunks: any = [];
+  //       res.on("data", (chunk) => chunks.push(chunk));
+  //       res.on("end", () => {
+  //         if (isBuffer) {
+  //           const buffer = Buffer.concat(chunks);
+  //           resolve(buffer);
+  //         } else {
+  //           resolve(chunks.join(""));
+  //         }
+  //       });
+  //     })
+  //     .on("error", (err) => reject(err));
+  // });
 }
 function fetchImageAsBase64(url) {
   return new Promise((resolve, reject) => {
@@ -71,7 +78,7 @@ function fetchImageAsBase64(url) {
   });
 }
 
-function prefixUrl(url) {
+export function prefixUrl(url) {
   if (url.startsWith("//")) return `https:${url}`;
   return url;
 }

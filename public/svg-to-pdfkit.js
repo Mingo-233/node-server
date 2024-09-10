@@ -2776,8 +2776,13 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     };
     this.drawInDocument = function (isClip, isMask) {
       doc.save();
-      if (this.get("overflow") === "hidden") {
-        console.log("svg-to-pdfkit-lib", "drawInDocument tempLength");
+      if (this.attr("data-clip")) {
+        new SvgShape()
+          .path(this.attr("data-clip"))
+          .transform(this.get("transform"))
+          .insertInDocument();
+        doc.clip();
+      } else if (this.get("overflow") === "hidden") {
         let tempLength = 1;
         new SvgShape()
           .M(x - tempLength, y - tempLength)
@@ -2853,7 +2858,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       doc.save();
       this.transform();
       if (this.get("overflow") === "hidden") {
-        console.log("svg-to-pdfkit-lib", "drawInDocument SVGElemImage");
         doc.rect(x, y, width, height).clip();
         // console.log("c-test-3");
       }

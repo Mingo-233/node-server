@@ -2,11 +2,11 @@ import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createKnifeSvgElement, createElement } from "@/nodes/index";
 import SvgUtil from "@/utils/svgUtils";
 import type { IKnifeData } from "@/type/knifeData";
-import { IDrawingBoardConfig } from "@/type/pdfPage";
+import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
 
 export function drawBleedLine(
   knifeData: IKnifeData,
-  config: IDrawingBoardConfig
+  config: IDrawingConfigPlus
 ) {
   const bleedPath = SvgUtil.dlist_to_d(knifeData.bleeds);
   const svgString = createKnifeSvgElement(
@@ -14,6 +14,8 @@ export function drawBleedLine(
       width: config.rootSvgSize.width,
       height: config.rootSvgSize.height,
       unit: config.unit,
+      side: config.side,
+      pageMargin: config.pageMargin,
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
@@ -31,7 +33,7 @@ export function drawBleedLine(
 
 export function drawFoldLine(
   knifeData: IKnifeData,
-  config: IDrawingBoardConfig
+  config: IDrawingConfigPlus
 ) {
   const foldPath = SvgUtil.folds_to_d(knifeData.folds);
   const svgString = createKnifeSvgElement(
@@ -39,6 +41,8 @@ export function drawFoldLine(
       width: config.rootSvgSize.width,
       height: config.rootSvgSize.height,
       unit: config.unit,
+      side: config.side,
+      pageMargin: config.pageMargin,
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
@@ -56,16 +60,15 @@ export function drawFoldLine(
   return context;
 }
 
-export function drawCutLine(
-  knifeData: IKnifeData,
-  config: IDrawingBoardConfig
-) {
+export function drawCutLine(knifeData: IKnifeData, config: IDrawingConfigPlus) {
   const cutPath = SvgUtil.cut_to_d(knifeData.cuts, knifeData.holes);
   const svgString = createKnifeSvgElement(
     {
       width: config.rootSvgSize.width,
       height: config.rootSvgSize.height,
       unit: config.unit,
+      side: config.side,
+      pageMargin: config.pageMargin,
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),

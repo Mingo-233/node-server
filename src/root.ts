@@ -1,21 +1,22 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import { imgMap } from "./utils/imgUtils";
+import { imgMap, fetchImage, prefixUrl } from "./utils/imgUtils";
 import { createPageApp } from "./core/pdfPage";
 import log from "@/utils/log";
+import { fetchResourceWithCache, assetsMap } from "@/utils/request";
+
 import {
   TYPE_OUTSIDE_DESIGN,
   TYPE_INSIDE_DESIGN,
   TYPE_MARK,
 } from "@/nodes/layerNode";
 import util from "util";
-// import projectData from "./store/info.json";
-// import knifeData from "./store/knife.json";
-
+import projectData from "./store/info.json";
+import knifeData from "./store/knife.json";
 // import projectData from "./store/proInfo.json";
 // import knifeData from "./store/proKnife.json";
 
-import projectData from "./store/tempInfo.json";
-import knifeData from "./store/tempKnife.json";
+// import projectData from "./store/tempInfo.json";
+// import knifeData from "./store/tempKnife.json";
 
 function getMockData() {
   return {
@@ -56,24 +57,30 @@ export async function pdfMain() {
         if (knifeSvgArr) {
           knifeSvgArr.forEach((knifeSvg) => {
             pdfDoc.addSVG(knifeSvg.svgString);
+            // fsSaveFile(knifeSvg.svgString, `svgString-${i}.svg`);
           });
         }
+
         let designSvg = page.face?.designLayer.getSvgString({
           pageMargin: pageApp.pageMargin,
         });
         designSvg &&
           pdfDoc.addSVG(designSvg, 0, 0, {
             imageCallback: function (link) {
-              console.log("imgMap", imgMap);
-
-              return imgMap.get(link);
+              const _link = prefixUrl(link);
+              return assetsMap.get(_link);
             },
           });
         let annotateSvg = page.face?.annotationLayer.getSvgString();
         annotateSvg && pdfDoc.addSVG(annotateSvg);
         pdfDoc.addPage();
         // 只画设计
-        pdfDoc.addSVG(designSvg);
+        pdfDoc.addSVG(designSvg, 0, 0, {
+          imageCallback: function (link) {
+            const _link = prefixUrl(link);
+            return assetsMap.get(_link);
+          },
+        });
         pdfDoc.addPage();
         // 只画刀线
         knifeSvgArr.forEach((knifeSvg) => {

@@ -44,6 +44,7 @@ export interface IDrawingBoardConfig {
   strokeWidth: number;
   bleedLineWidth: number;
 }
+export type IDrawingConfigPlus = IDrawingBoardConfig & Record<string, any>;
 
 export interface IPageApp {
   pageSize: {

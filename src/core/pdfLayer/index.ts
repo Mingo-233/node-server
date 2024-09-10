@@ -8,7 +8,13 @@ import type { IKnifeData } from "@/type/knifeData";
 import type { IProject } from "@/type/projectData";
 import { DPI } from "@/utils/constant";
 import { drawBleedLine, drawCutLine, drawFoldLine } from "./knifeLayer";
-import { drawImgElement, drawShape, drawFace } from "./designLayer";
+import {
+  drawImgElement,
+  drawShape,
+  drawFace,
+  drawGroup,
+  drawBleedClipPath,
+} from "./designLayer";
 import log from "@/utils/log";
 export function usePdfLayer() {
   let _pdfLayer: IPdfLayerMap = {
@@ -41,6 +47,10 @@ export function usePdfLayer() {
         log.info("log-drawShape start");
         const shapeElement = await drawShape(designElement, config);
         _pdfLayer["design-layer"].children.push(shapeElement);
+      } else if (designElement.type === "group") {
+        log.info("log-drawGroup start");
+        const groupElement = await drawGroup(designElement, config, knifeData);
+        _pdfLayer["design-layer"].children.push(groupElement);
       }
     }
 
@@ -78,7 +88,7 @@ function _createPdfLayer<T extends ILayerType>(type: T) {
       // const transform = pageMargin
       //   ? `transform="translate(${pageMargin.left},${pageMargin.top})"`
       //   : "";
-      const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1">${tempString}</svg>`;
+      const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg" data-type="${type}" version="1.1">${tempString}</svg>`;
 
       this.svgString = containerSvg;
       return this.svgString;

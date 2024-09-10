@@ -23,7 +23,7 @@ export type IPdfSvgContainer<T extends ILayerType> = {
 
 interface IPdfLayerNode {
   "knife-layer": "bleedLine" | "cutLine" | "foldLine" | "holeLine";
-  "design-layer": "font" | "img" | "shape" | "group" | "knifeFace";
+  "design-layer": "font" | "img" | "shape" | "group" | "knifeFace" | "clipPath";
   "annotation-layer": "annotation" | "footer" | "locale";
 }
 export type IPdfNode<T extends ILayerType = "knife-layer"> = IPdfLayerNode[T];

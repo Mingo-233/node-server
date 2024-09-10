@@ -52,6 +52,7 @@ export function createPageApp(knifeData, params) {
         holes: layerKnifeData?.holes || [],
         folds: layerKnifeData?.folds || [],
         bleeds: layerKnifeData?.bleeds || [],
+        faces: layerKnifeData?.faces || [],
       };
       _designData = {
         list: projectData.layer.traditional.design_list || [],
@@ -59,15 +60,16 @@ export function createPageApp(knifeData, params) {
       };
       _insideDesignData = {
         list: projectData.layer.traditional.inside_design_list || [],
-        faceBackground: projectData.layer.traditional.face_background || {},
+        faceBackground:
+          projectData.layer.traditional.inside_face_background || {},
       };
       let pageType = 0;
       if (_designData.list.length > 0) {
         pageType |= LAYER_DESIGN;
       }
-      // if (_insideDesignData.list.length > 0) {
-      //   pageType |= LAYER_INSIDE_DESIGN;
-      // }
+      if (_insideDesignData.list.length > 0) {
+        pageType |= LAYER_INSIDE_DESIGN;
+      }
       if (
         _designData.list.length === 0 &&
         _insideDesignData.list.length === 0
@@ -112,7 +114,7 @@ export function createPageApp(knifeData, params) {
         const _insideDesignData = {
           list: projectData.layer[facePaper.name].inside_design_list || [],
           faceBackground:
-            projectData.layer[facePaper.name].face_background || {},
+            projectData.layer[facePaper.name].inside_face_background || {},
         };
 
         const _annotateData = {};
@@ -172,10 +174,14 @@ export function createPageApp(knifeData, params) {
       const page = app.pages[i];
       const { knifeData, designData, annotateData, boardConfig } =
         page.faceData;
+      const _config = {
+        ...boardConfig,
+        side: page.face.side,
+      };
       log.info("log-face.drawKnife start", i);
-      page.face.drawKnife(knifeData, boardConfig);
+      page.face.drawKnife(knifeData, _config);
       log.info("log-face.drawDesign start", i);
-      await page.face.drawDesign(designData, knifeData, boardConfig);
+      await page.face.drawDesign(designData, knifeData, _config);
       log.info("log-face.drawAnnotate start", i);
       page.face.drawAnnotate(annotateData, boardConfig);
     }
