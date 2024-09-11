@@ -1143,6 +1143,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       } else if (func === "scale" && nums.length === 1) {
         result = multiplyMatrix(result, [nums[0], 0, 0, nums[0], 0, 0]);
       } else if (func === "rotate" && nums.length === 3) {
+        console.log("rotate, nums:", nums);
         let a = (nums[0] * Math.PI) / 180;
         result = multiplyMatrix(
           result,

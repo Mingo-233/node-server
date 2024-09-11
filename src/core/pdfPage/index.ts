@@ -67,9 +67,9 @@ export function createPageApp(knifeData, params) {
       if (_designData.list.length > 0) {
         pageType |= LAYER_DESIGN;
       }
-      if (_insideDesignData.list.length > 0) {
-        pageType |= LAYER_INSIDE_DESIGN;
-      }
+      // if (_insideDesignData.list.length > 0) {
+      //   pageType |= LAYER_INSIDE_DESIGN;
+      // }
       if (
         _designData.list.length === 0 &&
         _insideDesignData.list.length === 0

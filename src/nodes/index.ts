@@ -1,4 +1,5 @@
 import type { IHtmlNode, INodeProps, INodeChildren } from "@/type/node";
+import { DPI } from "@/utils/constant";
 export function createElement(
   tagName: string,
   attributes: INodeProps = {},
@@ -32,23 +33,6 @@ export function createElement(
   return element;
 }
 
-// const svgString = createElement(
-//   "svg",
-//   { xmlns: "http://www.w3.org/2000/svg", width: "100", height: "100" },
-//   [
-//     createElement("circle", {
-//       cx: "50",
-//       cy: "50",
-//       r: "40",
-//       stroke: "black",
-//       "stroke-width": "3",
-//       fill: "red",
-//     }),
-//   ]
-// );
-
-// console.log(svgString);
-
 export function createSvgElement(
   rootProps: INodeProps = {},
   children: INodeChildren
@@ -66,12 +50,11 @@ export function createKnifeSvgElement(
     height: number;
     unit: string;
     side: string;
+    pageSize: any;
     pageMargin: any;
   },
   children: INodeChildren
 ) {
-  console.log("rootProps.sid", rootProps.side);
-
   return createSvgElement(
     {
       x: "0",
@@ -82,9 +65,7 @@ export function createKnifeSvgElement(
       viewBox: `0 0 ${rootProps.width} ${rootProps.height}`,
       transform: `${
         rootProps.side === "inside"
-          ? `scale(-1, 1) translate(-${
-              2 * (rootProps.width + rootProps.pageMargin.left)
-            },0)`
+          ? `scale(-1, 1) translate(-${rootProps.width * DPI},0)`
           : ""
       }`,
     },

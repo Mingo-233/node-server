@@ -14,6 +14,7 @@ import {
   drawFace,
   drawGroup,
   drawBleedClipPath,
+  drawFont,
 } from "./designLayer";
 import log from "@/utils/log";
 export function usePdfLayer() {
@@ -39,18 +40,23 @@ export function usePdfLayer() {
 
     for (let i = 0; i < designList.length; i++) {
       const designElement = designList[i];
-      if (designElement.type === "img") {
-        log.info("log-drawImgElement start");
-        const imgElement = await drawImgElement(designElement, config);
-        _pdfLayer["design-layer"].children.push(imgElement);
-      } else if (designElement.type === "shape") {
-        log.info("log-drawShape start");
-        const shapeElement = await drawShape(designElement, config);
-        _pdfLayer["design-layer"].children.push(shapeElement);
-      } else if (designElement.type === "group") {
-        log.info("log-drawGroup start");
-        const groupElement = await drawGroup(designElement, config, knifeData);
-        _pdfLayer["design-layer"].children.push(groupElement);
+      // if (designElement.type === "img") {
+      //   log.info("log-drawImgElement start");
+      //   const imgElement = await drawImgElement(designElement, config);
+      //   _pdfLayer["design-layer"].children.push(imgElement);
+      // } else if (designElement.type === "shape") {
+      //   log.info("log-drawShape start");
+      //   const shapeElement = await drawShape(designElement, config);
+      //   _pdfLayer["design-layer"].children.push(shapeElement);
+      // } else if (designElement.type === "group") {
+      //   log.info("log-drawGroup start");
+      //   const groupElement = await drawGroup(designElement, config, knifeData);
+      //   _pdfLayer["design-layer"].children.push(groupElement);
+      // }
+      if (designElement.type === "font") {
+        log.info("log-drawFont start");
+        const fontElement = await drawFont(designElement, config);
+        _pdfLayer["design-layer"].children.push(fontElement);
       }
     }
 

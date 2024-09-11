@@ -15,6 +15,7 @@ export function drawBleedLine(
       height: config.rootSvgSize.height,
       unit: config.unit,
       side: config.side,
+      pageSize: config.pageSize,
       pageMargin: config.pageMargin,
     },
     createElement("path", {
@@ -42,6 +43,7 @@ export function drawFoldLine(
       height: config.rootSvgSize.height,
       unit: config.unit,
       side: config.side,
+      pageSize: config.pageSize,
       pageMargin: config.pageMargin,
     },
     createElement("path", {
@@ -68,6 +70,7 @@ export function drawCutLine(knifeData: IKnifeData, config: IDrawingConfigPlus) {
       height: config.rootSvgSize.height,
       unit: config.unit,
       side: config.side,
+      pageSize: config.pageSize,
       pageMargin: config.pageMargin,
     },
     createElement("path", {

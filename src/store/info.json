@@ -187,7 +187,7 @@
         "left": 16.5,
         "width": 117.085,
         "height": 48.5299,
-        "rotate": 0,
+        "rotate": 12,
         "opacity": 100,
         "position": "absolute"
       },
@@ -214,7 +214,7 @@
         "left": 242.121,
         "width": 30.7609,
         "height": 30.7609,
-        "rotate": 0,
+        "rotate": 315,
         "opacity": 100
       },
       "owidth": 200,
@@ -226,31 +226,31 @@
   ],
   "inside_design_data": [
     {
-      "type": "shape",
       "id": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
       "src": "https://cdn.pacdora.com/web-assets/c94a6067-6e8d-478c-a57b-2d7881d54cd8.svg",
+      "type": "shape",
       "uuid": "614ff075-85c1-4c3d-af86-d5880e6aaab0",
-      "shapeType": "circle",
-      "can_set_color": 0,
       "fills": [],
-      "owidth": 200,
-      "oheight": 200,
-      "isProportional": false,
       "style": {
-        "strokeWidth": 3.7326139088729016,
-        "strokeWidthTemp": 3.7326139088729016,
-        "radius": 0,
-        "stroke": "#000000",
-        "color": "#cccccc",
-        "left": 107.00269784172662,
         "top": 106.00269784172662,
+        "left": 107.00269784172662,
+        "color": "#cccccc",
         "width": 27.99460431654676,
         "height": 27.99460431654676,
+        "radius": 0,
         "rotate": 0,
+        "stroke": "#000000",
         "opacity": 100,
-        "strokeDashArray": 0
+        "strokeWidth": 3.7326139088729016,
+        "strokeDashArray": 0,
+        "strokeWidthTemp": 3.7326139088729016
       },
-      "_layer_name": "traditional"
+      "owidth": 200,
+      "oheight": 200,
+      "shapeType": "circle",
+      "_layer_name": "traditional",
+      "can_set_color": 0,
+      "isProportional": false
     }
   ],
   "by_project_id": null,
@@ -259,8 +259,8 @@
   "material_mtl": null,
   "is_render": 0,
   "line_guides": null,
-  "screenshot_id": 13512169,
-  "screenshot": "//test-cdn.pacdora.com/render-cover/b5d06a83-4f55-4282-a865-32e58fa79766.png",
+  "screenshot_id": 13512175,
+  "screenshot": "//test-cdn.pacdora.com/render-cover/ac8d3c0f-9e31-4de4-b695-5ed40e418182.png",
   "color_history": null,
   "inside_background": null,
   "face_background": {
@@ -476,7 +476,7 @@
             "left": 16.5,
             "width": 117.085,
             "height": 48.5299,
-            "rotate": 0,
+            "rotate": 12,
             "opacity": 100,
             "position": "absolute"
           },
@@ -503,7 +503,7 @@
             "left": 242.121,
             "width": 30.7609,
             "height": 30.7609,
-            "rotate": 0,
+            "rotate": 315,
             "opacity": 100
           },
           "owidth": 200,
@@ -593,7 +593,7 @@
   "appId": null,
   "create_time": "1722996176129",
   "by_experience_project_id": null,
-  "update_time": "1725960379772",
+  "update_time": "1726025183798",
   "is_delete": 0,
   "science_id": 8,
   "user_id": 1102855,

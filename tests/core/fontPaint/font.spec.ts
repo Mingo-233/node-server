@@ -6,7 +6,7 @@ import opentype from "opentype.js";
 import path from "path";
 import fs from "fs";
 // vitest 在解析opentype.js的时候，会对内容重写。 而opentype.js内部做了 object.frozen，导致会报错。
-describe("字体转曲测试", () => {
+describe("英文字体转曲测试 水平书写", () => {
   let fontApp: any = null;
   beforeAll(async () => {
     try {
@@ -44,6 +44,75 @@ describe("字体转曲测试", () => {
       vertical: 0,
       MaxWidth: 200,
       MaxHeight: 80,
+      textLineHeight: 45,
+    });
+    expect(Object.keys(paths).length).toBe(2);
+    const svgDom = genSvgCode(paths, {
+      position,
+      svgSize,
+      lineHeight,
+      isVertical,
+      pathPartsTransform,
+      pathPartsAlignTransform,
+      domBoxSize,
+      hasCnChar,
+    });
+    // 生成快照
+    expect(svgDom).toMatchSnapshot();
+  });
+  it("英文 单行居中情况", async () => {
+    const {
+      pathParts: paths,
+      pathPartsTransform,
+      pathPartsAlignTransform,
+      position,
+      svgSize,
+      lineHeight,
+      isVertical,
+      domBoxSize,
+      hasCnChar,
+    } = getTextPaths(fontApp, {
+      text: "hello",
+      fontSize: 30,
+      textAlign: "center",
+      vertical: 0,
+      MaxWidth: 200,
+      MaxHeight: 80,
+      textLineHeight: 45,
+    });
+    expect(Object.keys(paths).length).toBe(1);
+    const svgDom = genSvgCode(paths, {
+      position,
+      svgSize,
+      lineHeight,
+      isVertical,
+      pathPartsTransform,
+      pathPartsAlignTransform,
+      domBoxSize,
+      hasCnChar,
+    });
+    // 生成快照
+    expect(svgDom).toMatchSnapshot();
+  });
+  it("英文 超出换行 居中情况", async () => {
+    const {
+      pathParts: paths,
+      pathPartsTransform,
+      pathPartsAlignTransform,
+      position,
+      svgSize,
+      lineHeight,
+      isVertical,
+      domBoxSize,
+      hasCnChar,
+    } = getTextPaths(fontApp, {
+      text: "hello abcdefgh",
+      fontSize: 30,
+      textAlign: "center",
+      vertical: 0,
+      MaxWidth: 200,
+      MaxHeight: 80,
+      textLineHeight: 45,
     });
     expect(Object.keys(paths).length).toBe(2);
     const svgDom = genSvgCode(paths, {
