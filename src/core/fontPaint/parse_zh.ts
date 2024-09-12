@@ -1,19 +1,22 @@
-// @ts-nocheck
-
 import {
   createWordPathContext,
   isChinese,
   isEnd,
   isEnglish,
+  isSpace,
   getPath,
 } from "./utils";
-
+import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 const pathPartType = {
   zh: 1,
   en: 2,
+  space: 3,
 };
 
-export function getVerticalTextPaths(fontApp, config) {
+export function getVerticalTextPaths(
+  fontApp,
+  config: IFontParseParams
+): IFontParse {
   const context = createWordPathContext();
   const position = {
     x1: 0,
@@ -21,12 +24,11 @@ export function getVerticalTextPaths(fontApp, config) {
     x2: 0,
     y2: 0,
   };
-  const svgSize = {
-    width: 0,
-    height: 0,
-  };
-  // let lineHeight = 26.46;
+
   const lineHeightRatio = config.textLineHeight / config.fontSize;
+  // 文字间隙 在浏览器环境中默认值为normal
+  // const letterSpace = 0;
+  const letterSpace = config.fontSize * 0.1;
   let lineHeightTop = 0;
   let lineHeight = 0;
   const isVertical = !!config.vertical;
@@ -40,40 +42,29 @@ export function getVerticalTextPaths(fontApp, config) {
   );
   const { lineNum, breakLineIndex, maxContentHeightArr } = line;
   let currentLine = 1;
-  let colHandleNum = 0;
   let colAccumulatorHeight = 0;
-  let colHandleInfo = {
-    enNum: 0,
-    enHeight: 0,
-    zhNum: 0,
-  };
+  let isFirstWord = true;
   textInfoArr.forEach((textInfo, index) => {
     if (currentLine > lineNum) return;
     if (breakLineIndex.includes(index)) {
       // 当前命中换行索引
       context.nextLine();
       currentLine++;
-      colHandleNum = 0;
       colAccumulatorHeight = 0;
-      colHandleInfo.enHeight = 0;
-      colHandleInfo.enNum = 0;
-      colHandleInfo.zhNum = 0;
+      isFirstWord = true;
+    }
+    if (textInfo.type === pathPartType.space) {
+      const selfHeight = maxItemHeight / 4;
+      colAccumulatorHeight = colAccumulatorHeight + selfHeight;
     }
     if (!textInfo.path) return;
     context.addPath(textInfo.path);
     if (textInfo.type === pathPartType.zh) {
-      const translateX = MAX_WIDTH - maxItemWidth * currentLine;
+      const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
       //当前这列上这个字是第几个,计算垂直方向偏移量
-      console.log("maxItemHeight", maxItemHeight);
-      console.log("lineHeight", lineHeight);
-
-      const lineHeightOffsetY = lineHeightTop;
-      const translateY = colHandleInfo.enNum
-        ? colHandleInfo.enHeight +
-          lineHeight * colHandleInfo.zhNum +
-          lineHeightOffsetY
-        : lineHeight * colHandleNum + lineHeightOffsetY;
-
+      const translateY = isFirstWord
+        ? colAccumulatorHeight
+        : colAccumulatorHeight + letterSpace;
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
 
@@ -82,16 +73,16 @@ export function getVerticalTextPaths(fontApp, config) {
         maxContentHeightArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
-      colHandleNum++;
-      colHandleInfo.zhNum++;
-      colAccumulatorHeight = colAccumulatorHeight + translateY;
+      const selfHeight = isFirstWord
+        ? maxItemHeight
+        : maxItemHeight + letterSpace;
+      colAccumulatorHeight = colAccumulatorHeight + selfHeight;
+      isFirstWord = false;
     } else {
-      console.log("英文", textInfo);
-      const lineHeightOffsetY = lineHeightTop;
-      const translateX = MAX_WIDTH - maxItemWidth * currentLine;
-      //当前这列上这个字是第几个,计算垂直方向偏移量
-      const translateY = maxItemHeight * colHandleNum + lineHeightOffsetY;
-
+      const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
+      const translateY = isFirstWord
+        ? colAccumulatorHeight
+        : colAccumulatorHeight + letterSpace;
       // 先平移到目标位置 然后绕svg左上角圆点旋转90度，然后再平移修复旋转移动的距离
       const transform = `translate(${translateX},${translateY}) rotate(90,${position.x1},${position.y1}) translate(0,-${maxItemWidth})`;
       context.addTransform(transform);
@@ -100,10 +91,17 @@ export function getVerticalTextPaths(fontApp, config) {
         maxContentHeightArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
-      colHandleNum++;
-      colHandleInfo.enNum++;
-      colHandleInfo.enHeight = colHandleInfo.enHeight + textInfo.height;
-      colAccumulatorHeight = colAccumulatorHeight + translateY;
+
+      let selfPathHeight = textInfo.height;
+      if (!selfPathHeight) {
+        const _pathBoundingBox = textInfo.path.getBoundingBox();
+        selfPathHeight = _pathBoundingBox.x2 - _pathBoundingBox.x1;
+      }
+      const selfHeight = isFirstWord
+        ? selfPathHeight
+        : selfPathHeight + letterSpace;
+      colAccumulatorHeight = colAccumulatorHeight + selfHeight;
+      isFirstWord = false;
     }
   });
   //   计算整体的偏移量
@@ -122,10 +120,8 @@ export function getVerticalTextPaths(fontApp, config) {
     }
   }
   function mapText(fontApp, config) {
-    const textInfoArr = [];
+    const textInfoArr: ITextInfoItem[] = [];
     const textArr = config.text.split("");
-    console.log("字符拆分", textArr);
-
     // 每列都水平位移，要找出最大的宽度
     let maxItemWidth = 0;
 
@@ -141,13 +137,14 @@ export function getVerticalTextPaths(fontApp, config) {
       if (textItem === "\n") {
         textInfoArr.push({
           path: null,
-          pathBoundingBox: {},
+          pathBoundingBox: null,
           text: textItem,
           isBreak: true,
           type: pathPartType.zh,
         });
         continue;
       }
+
       if (isChinese(textItem)) {
         const path = getPath(fontApp, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
@@ -173,6 +170,14 @@ export function getVerticalTextPaths(fontApp, config) {
           position.x1 = pathBoundingBox.x1;
           position.y1 = pathBoundingBox.y1;
         }
+      } else if (isSpace(textItem)) {
+        textInfoArr.push({
+          path: null,
+          pathBoundingBox: null,
+          text: textItem,
+          isBreak: false,
+          type: pathPartType.space,
+        });
       } else {
         const result = identifyNext(textItem, i, textArr);
         identifiedIndex = result.lastIndex;
@@ -202,8 +207,9 @@ export function getVerticalTextPaths(fontApp, config) {
   function computedLine(textInfoArr, height) {
     let lineNum = 1;
     // 换行标记索引
-    let breakLineIndex = [];
-    let maxContentHeightArr = [];
+    let breakLineIndex: number[] = [];
+    let maxContentHeightArr: number[] = [];
+    let isFirstWord = true;
     let accumulatorPathHeight = 0;
     for (let index = 0; index < textInfoArr.length; index++) {
       const textInfo = textInfoArr[index];
@@ -211,11 +217,22 @@ export function getVerticalTextPaths(fontApp, config) {
         doBreak(index);
         continue;
       }
+
       const _height = textInfo.height || height;
-      accumulatorPathHeight = accumulatorPathHeight + _height;
+      const _heightAddLetterSpace = isFirstWord
+        ? _height
+        : _height + letterSpace;
+      isFirstWord = false;
+      if (textInfo.type === pathPartType.space) {
+        // 如果是空格，高度是字体的1/4
+        accumulatorPathHeight = accumulatorPathHeight + _height / 4;
+        continue;
+      }
+      accumulatorPathHeight = accumulatorPathHeight + _heightAddLetterSpace;
       if (accumulatorPathHeight > MAX_HIGHT) {
         if (textInfo.chilePath) {
-          let preAccumulatorPathHeight = accumulatorPathHeight - _height;
+          let preAccumulatorPathHeight =
+            accumulatorPathHeight - _heightAddLetterSpace;
           let lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
           let lastPathHeight =
             lastPath.path.getBoundingBox().x2 -
@@ -228,7 +245,6 @@ export function getVerticalTextPaths(fontApp, config) {
               lastPath.path.getBoundingBox().x2 -
               lastPath.path.getBoundingBox().x1;
           }
-          console.log("textInfo.chilePath", textInfo.chilePath);
           //   原本的path 拆分成2个
           const newFirstTextInfo = {
             ...textInfo.chilePath[textInfo.chilePath.length - 1],
@@ -262,14 +278,14 @@ export function getVerticalTextPaths(fontApp, config) {
 
           continue;
         } else {
-          accumulatorPathHeight = accumulatorPathHeight - _height;
+          accumulatorPathHeight = accumulatorPathHeight - _heightAddLetterSpace;
           doBreak(index);
           //   最后一个字符，高度即它本身
           if (index === textInfoArr.length - 1) {
             maxContentHeightArr.push(_height);
           }
           // 刚才扣除的高度再累加回去
-          accumulatorPathHeight = accumulatorPathHeight + _height;
+          accumulatorPathHeight = accumulatorPathHeight + _heightAddLetterSpace;
           continue;
         }
       }
@@ -280,8 +296,8 @@ export function getVerticalTextPaths(fontApp, config) {
     function doBreak(index) {
       lineNum++;
       maxContentHeightArr.push(accumulatorPathHeight);
-      console.warn("maxContentHeightArr", maxContentHeightArr);
       accumulatorPathHeight = 0;
+      isFirstWord = true;
       breakLineIndex.push(index);
     }
     return { lineNum, breakLineIndex, maxContentHeightArr };
@@ -291,7 +307,7 @@ export function getVerticalTextPaths(fontApp, config) {
 
   function identifyNext(char, index, textInfoArr) {
     let nextText = textInfoArr[index + 1];
-    let path = null;
+    let path: any = null;
     const chilePath = [
       {
         text: char,
@@ -311,28 +327,28 @@ export function getVerticalTextPaths(fontApp, config) {
     if (isEnglish(char)) {
       path = getPath(fontApp, char, config.fontSize);
     }
-    const pathBoundingBox = path.getBoundingBox();
+    const pathBoundingBox = path?.getBoundingBox();
     return {
       lastIndex: index,
       path: path,
       text: char,
       pathBoundingBox: pathBoundingBox,
       chilePath,
+      type: pathPartType.en,
+      height: pathBoundingBox.x2 - pathBoundingBox.x1,
     };
   }
 
   return {
-    pathParts: context.pathParts,
-    pathPartsAlignTransform: context.pathPartsAlignTransform,
-    pathPartsTransform: context.pathPartsTransform,
+    pathPart: context.pathPart,
     position,
-    svgSize,
-    lineHeight,
     isVertical,
-    domBoxSize: {
+    svgDomSize: {
       width: config.MaxWidth,
       height: config.MaxHeight,
     },
-    hasCnChar: true,
+    hasSymbolChar: true,
+    color: config.color || "red",
+    colorMode: config.colorMode || "RGB",
   };
 }

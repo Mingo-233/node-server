@@ -1,7 +1,7 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`字体转曲测试 > 英文 /n换行情况 1`] = `
-"<svg xmlns="http://www.w3.org/2000/svg" id="preview" width="200mm" height="80mm" viewBox="1.98 -21 200 80" fill="red">
+exports[`英文字体转曲测试 水平书写 > 英文 /n换行情况 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" width="200mm" height="80mm" viewBox="1.98 -21 200 80" transform="translate(11.3385826773, 11.3385826773)" fill="#ff0000">
       <g >
       
                   <g transform="">
@@ -16,8 +16,8 @@ exports[`字体转曲测试 > 英文 /n换行情况 1`] = `
       </svg>"
 `;
 
-exports[`字体转曲测试 > 英文 单行居中情况 1`] = `
-"<svg xmlns="http://www.w3.org/2000/svg" id="preview" width="200mm" height="80mm" viewBox="1.98 -21 200 80" fill="red">
+exports[`英文字体转曲测试 水平书写 > 英文 单行居中情况 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" width="200mm" height="80mm" viewBox="1.98 -21 200 80" transform="translate(11.3385826773, 11.3385826773)" fill="#ff0000">
       <g >
       
                   <g transform="translate(68.71,0)">
@@ -28,8 +28,8 @@ exports[`字体转曲测试 > 英文 单行居中情况 1`] = `
       </svg>"
 `;
 
-exports[`字体转曲测试 > 英文 超出换行 居中情况 1`] = `
-"<svg xmlns="http://www.w3.org/2000/svg" id="preview" width="200mm" height="80mm" viewBox="1.98 -21 200 80" fill="red">
+exports[`英文字体转曲测试 水平书写 > 英文 超出换行 居中情况 1`] = `
+"<svg xmlns="http://www.w3.org/2000/svg" width="200mm" height="80mm" viewBox="1.98 -21 200 80" transform="translate(11.3385826773, 11.3385826773)" fill="#ff0000">
       <g >
       
                   <g transform="translate(6.36999999999999,0)">

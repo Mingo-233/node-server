@@ -1,16 +1,15 @@
+import { IPathPart } from "@/type/parse";
 export function createWordPathContext() {
   const context = {
     word: "",
     line: 0, //层数
-    pathParts: {
-      0: [],
-    },
-    pathPartsTransform: {
-      0: [],
-    },
-    pathPartsAlignTransform: {
-      0: [],
-    },
+    pathPart: {
+      0: {
+        part: [],
+        transform: [],
+        alignTransform: [],
+      },
+    } as any,
     resetWord() {
       context.word = "";
     },
@@ -21,19 +20,21 @@ export function createWordPathContext() {
       context.word = context.word.slice(0, -1);
     },
     addPath(path) {
-      context.pathParts[context.line].push(path);
+      context.pathPart[context.line].part.push(path);
     },
     nextLine() {
       context.line = context.line + 1;
-      context.pathParts[context.line] = [];
-      context.pathPartsTransform[context.line] = [];
-      context.pathPartsAlignTransform[context.line] = [];
+      context.pathPart[context.line] = {
+        part: [],
+        transform: [],
+        alignTransform: [],
+      };
     },
     addTransform(transform) {
-      context.pathPartsTransform[context.line].push(transform);
+      context.pathPart[context.line].transform.push(transform);
     },
     addAlignTransform(transform) {
-      context.pathPartsAlignTransform[context.line].push(transform);
+      context.pathPart[context.line].alignTransform.push(transform);
     },
   };
   return context;
@@ -47,13 +48,14 @@ export function isEnd(char) {
 }
 
 export function isChinese(char) {
-  if (char === " ") return true;
   // [\u4e00-\u9fff]：匹配中文汉字。
   // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
   // [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
   return /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(char);
 }
-
+export function isSpace(char) {
+  return char === " ";
+}
 export function isEnglish(char) {
   // 英文字母的 Unicode 范围是 A-Z 或 a-z
   return /^[A-Za-z]$/.test(char);

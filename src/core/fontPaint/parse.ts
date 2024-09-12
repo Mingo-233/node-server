@@ -1,12 +1,12 @@
-// @ts-nocheck
 import { createWordPathContext, getPath } from "./utils";
 import { getVerticalTextPaths } from "./parse_zh";
-export function getTextPaths(fontApp, config) {
+import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
+
+export function parseText(fontApp, config: IFontParseParams): IFontParse {
   if (config.vertical && hasCnWords(config.text)) {
     return getVerticalTextPaths(fontApp, config);
   }
   const textArr = config.text.split("");
-  console.log("字符拆分 en", textArr);
   const context = createWordPathContext();
   const position = {
     x1: 0,
@@ -102,18 +102,16 @@ export function getTextPaths(fontApp, config) {
     }
   }
   return {
-    pathParts: context.pathParts,
-    pathPartsAlignTransform: context.pathPartsAlignTransform,
-    pathPartsTransform: context.pathPartsTransform,
+    pathPart: context.pathPart,
     position,
-    svgSize,
-    lineHeight,
     isVertical,
-    hasCnChar: false,
-    domBoxSize: {
+    hasSymbolChar: false,
+    svgDomSize: {
       width: config.MaxWidth,
       height: config.MaxHeight,
     },
+    color: config.color || "red",
+    colorMode: config.colorMode || "RGB",
   };
 }
 

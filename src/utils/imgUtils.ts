@@ -10,7 +10,7 @@ export const imgMap = new Map();
 export function clearImgMap() {
   imgMap.clear();
 }
-export function fetchImage(url, isBuffer = true) {
+export function fetchAssets(url, isBuffer = true) {
   log.info("log-fetchImage start", url);
   const _url = prefixUrl(url);
   return fetchResourceWithCache(_url);

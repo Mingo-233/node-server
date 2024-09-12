@@ -1,11 +1,15 @@
 import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createKnifeSvgElement, createElement } from "@/nodes/index";
-import { imgMap, fetchImage, isSvgUrl } from "@/utils/imgUtils";
+import { imgMap, fetchAssets, isSvgUrl } from "@/utils/imgUtils";
 import { getTransformSvg } from "@/utils/svgImgUtils";
 import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
+import { IFontParseParams } from "@/type/parse";
 import SvgUtil from "@/utils/svgUtils";
 import { DPI, PDFLayoutDPI } from "@/utils/constant";
 import { getShapeContent } from "./shape/index";
+import wawoff from "wawoff2";
+import opentype from "opentype.js";
+import { parseText, transformText, genTextSvg } from "@/core/fontPaint/index";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   const translateX = config.isGroup
@@ -20,7 +24,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       })`
     : "";
   if (isSvgUrl(designItem.src)) {
-    const svgString = (await fetchImage(designItem.src, false)) as string;
+    const svgString = (await fetchAssets(designItem.src, false)) as string;
     const transformSvg = getTransformSvg(svgString, designItem.fills);
     const imgSvg = createElement(
       "svg",
@@ -40,7 +44,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     };
     return context;
   } else {
-    const imageBuffer = await fetchImage(designItem.src);
+    const imageBuffer = await fetchAssets(designItem.src);
     imgMap.set(designItem.src, imageBuffer);
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
     // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
@@ -223,4 +227,40 @@ export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
   return bleedPath;
 }
 
-export function drawFont(designItem, config: IDrawingBoardConfig) {}
+export async function drawFont(designItem, config: IDrawingBoardConfig) {
+  const { style } = designItem;
+  const fontBuffer = await fetchAssets(designItem.src);
+  const data = await wawoff.decompress(fontBuffer);
+  const arrayBuffer = data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.byteLength
+  );
+  let fontApp = opentype.parse(arrayBuffer);
+  const parseParams: IFontParseParams = {
+    text: designItem.value,
+    fontSize: style.fontSize,
+    textLineHeight: style.lineHeight,
+    textAlign: style.textAlign,
+    vertical: !!style.vertical,
+    rotate: style.rotate,
+    MaxWidth: style.width,
+    MaxHeight: style.height,
+  };
+  const parseResult = parseText(fontApp, parseParams);
+  const textConfig = transformText(parseResult, {
+    bleedLineWidth: config.bleedLineWidth,
+    color: style.color,
+    colorMode: config.colorMode,
+    unit: config.unit,
+    style: {
+      left: style.left,
+      top: style.top,
+    },
+  });
+  const svgDom = genTextSvg(textConfig);
+  const context: IPdfSvgContainer<"design-layer"> = {
+    type: "font",
+    svgString: svgDom,
+  };
+  return context;
+}

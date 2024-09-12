@@ -1,5 +1,5 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import { imgMap, fetchImage, prefixUrl } from "./utils/imgUtils";
+import { imgMap, fetchAssets, prefixUrl } from "./utils/imgUtils";
 import { createPageApp } from "./core/pdfPage";
 import log from "@/utils/log";
 import { fetchResourceWithCache, assetsMap } from "@/utils/request";

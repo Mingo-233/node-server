@@ -1,58 +1,48 @@
-// @ts-nocheck
 import { createElement } from "@/nodes/index";
+import type { IFontGenerateParams } from "@/type/parse";
 
-export function genSvgCode(pathWhole, config) {
+export function genTextSvg(config: IFontGenerateParams) {
   const {
+    pathPart,
     position,
     isVertical,
-    pathPartsTransform,
-    pathPartsAlignTransform,
-    domBoxSize,
-    hasCnChar,
-    adobeAiTransform = "",
+    svgDomSize,
+    hasSymbolChar,
+    pageMarginTranslate = "",
     DPI = 1,
   } = config;
   let svgPathString = "";
-  //   判断是个对象
-  if (Object.prototype.toString.call(pathWhole) === "[object Object]") {
-    // console.log(
-    //   "paths",
-    //   pathWhole,
-    //   pathPartsTransform,
-    //   pathPartsAlignTransform
-    // );
-    const lines = Object.keys(pathWhole);
-
-    for (let i = 0; i < lines.length; i++) {
-      let paths = pathWhole[lines[i]];
-      const currentLineTransform = pathPartsTransform[i];
-      const currentAlignTransform = pathPartsAlignTransform[i];
-      paths.forEach((path, index) => {
-        if (!path) return;
-        let pathString = path.toSVG(6);
-        const pathTransform = currentLineTransform[index];
-        if (pathTransform) {
-          pathString = `${pathString.slice(
-            0,
-            5
-          )} transform="${pathTransform}" ${pathString.slice(5)}`;
-        }
-        const alignTransform = currentAlignTransform[index];
-        const template = `
+  const lines = Object.keys(pathPart);
+  for (let i = 0; i < lines.length; i++) {
+    let pathInfo = pathPart[lines[i]];
+    let paths = pathInfo.part;
+    const currentLineTransform = pathInfo.transform;
+    const currentAlignTransform = pathInfo.alignTransform;
+    paths.forEach((path, index) => {
+      if (!path) return;
+      let pathString = path.toSVG(6);
+      const pathTransform = currentLineTransform[index];
+      if (pathTransform) {
+        //  <path 后面插入 transform
+        pathString = `${pathString.slice(
+          0,
+          5
+        )} transform="${pathTransform}" ${pathString.slice(5)}`;
+      }
+      const alignTransform = currentAlignTransform[index];
+      const template = `
                   <g transform="${alignTransform ? alignTransform : ""}">
                       ${pathString}
                   </g>
                   `;
-        svgPathString += template;
-      });
-    }
+      svgPathString += template;
+    });
   }
 
-  // const svgDom = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   let svgDom = "";
   let G_Template = "";
   //   中英文都存在垂直情况
-  if (isVertical && hasCnChar) {
+  if (isVertical && hasSymbolChar) {
     G_Template = `
       <g >
       ${svgPathString}
@@ -62,23 +52,22 @@ export function genSvgCode(pathWhole, config) {
       "svg",
       {
         xmlns: "http://www.w3.org/2000/svg",
-        id: "preview",
-        width: domBoxSize.width + "mm",
-        height: domBoxSize.height + "mm",
+        width: svgDomSize.width + config.unit,
+        height: svgDomSize.height + config.unit,
         viewBox: `${position.x1} ${position.y1} ${
-          position.x2 + domBoxSize.width
-        } ${position.y2 + domBoxSize.height}`,
-        transform: `${adobeAiTransform}`,
-        fill: "red",
+          position.x2 + svgDomSize.width
+        } ${position.y2 + svgDomSize.height}`,
+        transform: `${pageMarginTranslate}`,
+        fill: config.renderColor,
       },
       G_Template
     );
   } else if (isVertical) {
-    let originWidth = domBoxSize.width;
-    let originHeight = domBoxSize.height;
+    let originWidth = svgDomSize.width;
+    let originHeight = svgDomSize.height;
     // 在Ai中
-    const _transform = `${adobeAiTransform}  rotate(90)
-translate(0,-${domBoxSize.width * DPI})
+    const _transform = `${pageMarginTranslate}  rotate(90)
+translate(0,-${svgDomSize.width * DPI})
       `;
     const G_Transform = ``;
     G_Template = `
@@ -90,12 +79,11 @@ translate(0,-${domBoxSize.width * DPI})
       "svg",
       {
         xmlns: "http://www.w3.org/2000/svg",
-        id: "preview",
-        width: domBoxSize.height + "mm",
-        height: domBoxSize.width + "mm",
+        width: svgDomSize.height + config.unit,
+        height: svgDomSize.width + config.unit,
         viewBox: `${position.x1} ${position.y1} ${originHeight} ${originWidth}`,
         transform: `${_transform}`,
-        fill: "red",
+        fill: config.renderColor,
       },
       G_Template
     );
@@ -110,14 +98,13 @@ translate(0,-${domBoxSize.width * DPI})
       "svg",
       {
         xmlns: "http://www.w3.org/2000/svg",
-        id: "preview",
-        width: domBoxSize.width + "mm",
-        height: domBoxSize.height + "mm",
+        width: svgDomSize.width + config.unit,
+        height: svgDomSize.height + config.unit,
         viewBox: `${position.x1} ${position.y1} ${
-          position.x2 + domBoxSize.width
-        } ${position.y2 + domBoxSize.height}`,
-        transform: `${adobeAiTransform}`,
-        fill: "red",
+          position.x2 + svgDomSize.width
+        } ${position.y2 + svgDomSize.height}`,
+        transform: `${pageMarginTranslate}`,
+        fill: config.renderColor,
       },
       G_Template
     );
