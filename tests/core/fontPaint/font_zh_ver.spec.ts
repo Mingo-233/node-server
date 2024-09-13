@@ -10,6 +10,9 @@ import fs from "fs";
 // vitest 在解析opentype.js的时候，会对内容重写。 而opentype.js内部做了 object.frozen，导致会报错。
 describe("中文字体转曲测试 垂直书写", () => {
   let fontApp: any = null;
+  let unitsPerEm = 0;
+  let ascent = 0;
+  let descent = 0;
   beforeAll(async () => {
     try {
       const fontPath = path.join(
@@ -23,13 +26,8 @@ describe("中文字体转曲测试 垂直书写", () => {
         buffer.byteOffset + buffer.byteLength
       );
       fontApp = opentype.parse(arrayBuffer);
-      // const glyph = fontApp.charToGlyph("A"); // Example for the letter 'A'
-      // console.log("Advance width:", glyph.advanceWidth);
-      // console.log("Units per em:", fontApp.unitsPerEm);
-      // const kerningValue = fontApp.getKerningValue(
-      //   fontApp.charToGlyph("A"),
-      //   fontApp.charToGlyph("V")
-      // );
+      unitsPerEm = fontApp.unitsPerEm;
+      ascent = fontApp.ascender;
     } catch (error) {
       console.error("Error reading file:", error);
       throw error; // 重新抛出错误以便 Vitest 能够报告它
@@ -45,6 +43,11 @@ describe("中文字体转曲测试 垂直书写", () => {
       MaxHeight: 200,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        ascent,
+        descent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);
@@ -62,6 +65,11 @@ describe("中文字体转曲测试 垂直书写", () => {
       MaxHeight: 200,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        ascent,
+        descent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(1);
     const config = transformText(parseResult, defaultTransformParams);
@@ -80,6 +88,11 @@ describe("中文字体转曲测试 垂直书写", () => {
       MaxHeight: 200,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        ascent,
+        descent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);
@@ -96,6 +109,11 @@ describe("中文字体转曲测试 垂直书写", () => {
       MaxHeight: 200,
       textLineHeight: 36,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        ascent,
+        descent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);

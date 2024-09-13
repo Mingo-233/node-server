@@ -5,11 +5,7 @@ import { fetchResourceWithCache } from "@/utils/request";
 // const https = require("https");
 // const path = require("path");
 // const log = require("@/utils/log");
-export const imgMap = new Map();
 
-export function clearImgMap() {
-  imgMap.clear();
-}
 export function fetchAssets(url, isBuffer = true) {
   log.info("log-fetchImage start", url);
   const _url = prefixUrl(url);

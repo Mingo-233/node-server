@@ -5,6 +5,7 @@ import {
   isEnglish,
   isSpace,
   getPath,
+  computedFontLineHeight,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 const pathPartType = {
@@ -25,12 +26,17 @@ export function getVerticalTextPaths(
     y2: 0,
   };
 
-  const lineHeightRatio = config.textLineHeight / config.fontSize;
   // 文字间隙 在浏览器环境中默认值为normal
   // const letterSpace = 0;
   const letterSpace = config.fontSize * 0.1;
-  let lineHeightTop = 0;
-  let lineHeight = 0;
+  const { lineHeight, lineHeightTop } = computedFontLineHeight({
+    unitsPerEm: config.fontOption.unitsPerEm,
+    ascent: config.fontOption.ascent,
+    fontSize: config.fontSize,
+    lineHeight: config.textLineHeight,
+    descent: config.fontOption.descent,
+  });
+
   const isVertical = !!config.vertical;
   //   编辑器中的选框大小
   const MAX_WIDTH = config.MaxWidth;
@@ -155,8 +161,6 @@ export function getVerticalTextPaths(
         const currentPathHeight = pathBoundingBox.y2 - pathBoundingBox.y1;
         if (currentPathHeight > maxItemHeight) {
           maxItemHeight = currentPathHeight;
-          lineHeight = currentPathHeight * lineHeightRatio;
-          lineHeightTop = (lineHeight - currentPathHeight) / 2;
         }
 
         textInfoArr.push({

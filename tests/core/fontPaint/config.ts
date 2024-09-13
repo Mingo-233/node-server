@@ -8,3 +8,12 @@ export const defaultTransformParams = {
   colorMode: "rgb",
   unit: "mm",
 } as any;
+
+export function fsSaveFile(context, name = "test.svg") {
+  const fs = require("fs");
+  const path = require("path");
+  const pwdPath = process.cwd();
+  const filePath = path.resolve(pwdPath, "./output");
+  fs.writeFileSync(`${filePath}/${name}`, context);
+  console.log("file saved");
+}

@@ -2784,7 +2784,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           .insertInDocument();
         doc.clip();
       } else if (this.get("overflow") === "hidden") {
-        let tempLength = 1;
+        let tempLength = 0;
         new SvgShape()
           .M(x - tempLength, y - tempLength)
           .L(x + tempLength + width, y - tempLength)

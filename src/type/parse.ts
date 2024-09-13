@@ -18,6 +18,12 @@ export interface IPathPart {
 }
 export interface IFontParseParams {
   fontFamilyUrl?: string;
+  fontOption: {
+    unitsPerEm: number;
+    ascent: number;
+    descent: number;
+    fontName?: string;
+  };
   text: string;
   fontSize: number;
   textLineHeight: number;
@@ -40,6 +46,7 @@ export interface IFontParse {
   hasSymbolChar: boolean;
   color: string;
   colorMode: IColorMode;
+  rotate: number;
 }
 export type IPathCollection = IPathPart[];
 
@@ -72,6 +79,7 @@ export type IFontGenerateParams = {
     height: number;
   };
   hasSymbolChar: boolean;
+  rotate: number;
 } & IFontTransform;
 
 export interface ITextInfoItem {

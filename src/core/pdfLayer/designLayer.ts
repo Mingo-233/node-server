@@ -1,6 +1,6 @@
 import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createKnifeSvgElement, createElement } from "@/nodes/index";
-import { imgMap, fetchAssets, isSvgUrl } from "@/utils/imgUtils";
+import { fetchAssets, isSvgUrl } from "@/utils/imgUtils";
 import { getTransformSvg } from "@/utils/svgImgUtils";
 import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
 import { IFontParseParams } from "@/type/parse";
@@ -45,7 +45,6 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     return context;
   } else {
     const imageBuffer = await fetchAssets(designItem.src);
-    imgMap.set(designItem.src, imageBuffer);
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
     // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
 
@@ -236,6 +235,9 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
     data.byteOffset + data.byteLength
   );
   let fontApp = opentype.parse(arrayBuffer);
+  const unitsPerEm = fontApp.unitsPerEm; // 字体设计单位
+  const ascent = fontApp.ascender; // 字体的上升高度
+  const descent = fontApp.descender; // 字体的下降高度
   const parseParams: IFontParseParams = {
     text: designItem.value,
     fontSize: style.fontSize,
@@ -245,6 +247,12 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
     rotate: style.rotate,
     MaxWidth: style.width,
     MaxHeight: style.height,
+    fontOption: {
+      unitsPerEm,
+      ascent,
+      descent,
+      fontName: designItem.example,
+    },
   };
   const parseResult = parseText(fontApp, parseParams);
   const textConfig = transformText(parseResult, {
@@ -258,9 +266,19 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
     },
   });
   const svgDom = genTextSvg(textConfig);
+  fsSaveFile(svgDom, designItem.value + ".svg");
   const context: IPdfSvgContainer<"design-layer"> = {
     type: "font",
     svgString: svgDom,
   };
   return context;
+}
+
+export function fsSaveFile(context, name = "test.svg") {
+  const fs = require("fs");
+  const path = require("path");
+  const pwdPath = process.cwd();
+  const filePath = path.resolve(pwdPath, "./output");
+  fs.writeFileSync(`${filePath}/${name}`, context);
+  console.log("file saved");
 }

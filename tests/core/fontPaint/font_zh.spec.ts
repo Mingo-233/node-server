@@ -11,6 +11,9 @@ import fs from "fs";
 // vitest 在解析opentype.js的时候，会对内容重写。 而opentype.js内部做了 object.frozen，导致会报错。
 describe("中文字体转曲测试 水平书写", () => {
   let fontApp: any = null;
+  let unitsPerEm = 0;
+  let ascent = 0;
+  let descent = 0;
   beforeAll(async () => {
     try {
       const fontPath = path.join(
@@ -24,6 +27,8 @@ describe("中文字体转曲测试 水平书写", () => {
         buffer.byteOffset + buffer.byteLength
       );
       fontApp = opentype.parse(arrayBuffer);
+      unitsPerEm = fontApp.unitsPerEm;
+      ascent = fontApp.ascender;
     } catch (error) {
       console.error("Error reading file:", error);
       throw error; // 重新抛出错误以便 Vitest 能够报告它
@@ -39,6 +44,11 @@ describe("中文字体转曲测试 水平书写", () => {
       MaxHeight: 80,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        ascent,
+        descent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);
@@ -56,6 +66,11 @@ describe("中文字体转曲测试 水平书写", () => {
       MaxHeight: 80,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        descent,
+        ascent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(1);
     const config = transformText(parseResult, defaultTransformParams);
@@ -72,6 +87,11 @@ describe("中文字体转曲测试 水平书写", () => {
       MaxHeight: 80,
       textLineHeight: 45,
       rotate: 0,
+      fontOption: {
+        unitsPerEm,
+        descent,
+        ascent,
+      },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);

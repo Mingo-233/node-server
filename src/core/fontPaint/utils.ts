@@ -64,3 +64,48 @@ export function isEnglish(char) {
 export function getPath(fontApp, text, fontSize) {
   return fontApp.getPath(text, 0, 0, fontSize);
 }
+const fontFamilyLineSpaceRatio = {
+  default: 0.5,
+  "soul-handwriting_free-version": 0.2,
+};
+export function computedFontLineHeight(option) {
+  const { unitsPerEm, ascent, descent, fontSize, lineHeight, fontName } =
+    option;
+
+  const ascentRatio = ascent / unitsPerEm;
+  // const descentRatio = Math.abs(descent) / unitsPerEm;
+  const lineHeightRatio = lineHeight / fontSize;
+  // 为保证渲染效果 是基线对齐，这里应该忽略下降高度
+  // const lineHeightBase = (ascentRatio + descentRatio) * fontSize;
+  const lineHeightBase = ascentRatio * fontSize;
+  console.log("lineHeightBase", lineHeightBase);
+  const lineHeightResult = lineHeightBase * lineHeightRatio;
+  // 这个top高度的偏移，是用来模拟首行文字上面的间隙。否则首行文字会直接顶在最上面
+  // const top = lineHeight - ascenderHeight;
+  // const r = (ascent + Math.abs(descent)) / unitsPerEm - 1;
+  // const lineHeightTop = (lineHeightResult - lineHeightBase) / 2;
+  const r =
+    fontFamilyLineSpaceRatio[fontName] || fontFamilyLineSpaceRatio.default;
+  const lineHeightTop = (lineHeightResult - lineHeightBase) * r;
+
+  // 基线位置比例
+  // const baseLineRatio = ascent / (ascent + Math.abs(descent));
+  // 溢出高度 比如 ascent>unitsPerEm 的情况， 假设得到数字为5.3 fontsize 16，如果行高倍数为1，那么文字反而要往上缩5.3高度
+  // 如果行高倍数为2 ，那么存在冗余高度，平均分配一下，上面空出 (32-16)/2 = 8 ,那么此时文字是往下移动 8-5.3 = 2.7
+  // const overflowTop =
+  //   // ((ascent - baseLineRatio * unitsPerEm) / unitsPerEm) * fontSize;
+  //   ((ascent - baseLineRatio * ascent) / ascent) * fontSize;
+  // const emptyTopSpace = (lineHeight - fontSize) / 2;
+  // const top = emptyTopSpace - overflowTop;
+
+  // console.log("top", top);
+  // console.log("overflowTop", overflowTop);
+
+  //  v4
+  // const emptyTopSpace = lineHeight - fontSize;
+  // const top = (1 - baseLineRatio) * emptyTopSpace;
+  return {
+    lineHeight: lineHeightResult,
+    lineHeightTop: lineHeightTop,
+  };
+}

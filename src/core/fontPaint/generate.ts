@@ -9,6 +9,7 @@ export function genTextSvg(config: IFontGenerateParams) {
     svgDomSize,
     hasSymbolChar,
     pageMarginTranslate = "",
+    rotate = 0,
     DPI = 1,
   } = config;
   let svgPathString = "";
@@ -57,7 +58,7 @@ export function genTextSvg(config: IFontGenerateParams) {
         viewBox: `${position.x1} ${position.y1} ${
           position.x2 + svgDomSize.width
         } ${position.y2 + svgDomSize.height}`,
-        transform: `${pageMarginTranslate}`,
+        transform: `rotate(${rotate}) ${pageMarginTranslate}`,
         fill: config.renderColor,
       },
       G_Template
@@ -69,11 +70,8 @@ export function genTextSvg(config: IFontGenerateParams) {
     const _transform = `${pageMarginTranslate}  rotate(90)
 translate(0,-${svgDomSize.width * DPI})
       `;
-    const G_Transform = ``;
     G_Template = `
-      <g ${G_Transform}>
       ${svgPathString}
-      </g>
       `;
     svgDom = createElement(
       "svg",
@@ -82,17 +80,14 @@ translate(0,-${svgDomSize.width * DPI})
         width: svgDomSize.height + config.unit,
         height: svgDomSize.width + config.unit,
         viewBox: `${position.x1} ${position.y1} ${originHeight} ${originWidth}`,
-        transform: `${_transform}`,
+        transform: `rotate(${rotate}) ${_transform}`,
         fill: config.renderColor,
       },
       G_Template
     );
   } else {
-    const G_Transform = ``;
     G_Template = `
-      <g ${G_Transform}>
       ${svgPathString}
-      </g>
       `;
     svgDom = createElement(
       "svg",
@@ -103,7 +98,7 @@ translate(0,-${svgDomSize.width * DPI})
         viewBox: `${position.x1} ${position.y1} ${
           position.x2 + svgDomSize.width
         } ${position.y2 + svgDomSize.height}`,
-        transform: `${pageMarginTranslate}`,
+        transform: `rotate(${rotate}) ${pageMarginTranslate}`,
         fill: config.renderColor,
       },
       G_Template
