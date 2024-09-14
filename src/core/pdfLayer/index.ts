@@ -3,6 +3,7 @@ import {
   ILayerType,
   IPdfSvgContainer,
   IPdfLayer,
+  IAnnotationParams,
 } from "@/type/pdfLayer";
 import type { IKnifeData } from "@/type/knifeData";
 import type { IProject } from "@/type/projectData";
@@ -16,6 +17,11 @@ import {
   drawBleedClipPath,
   drawFont,
 } from "./designLayer";
+import {
+  drawAnnotateLabel,
+  drawLocalMarker,
+  drawFooterLabel,
+} from "./annotationLayer";
 import log from "@/utils/log";
 export function usePdfLayer() {
   let _pdfLayer: IPdfLayerMap = {
@@ -40,20 +46,19 @@ export function usePdfLayer() {
 
     for (let i = 0; i < designList.length; i++) {
       const designElement = designList[i];
-      // if (designElement.type === "img") {
-      //   log.info("log-drawImgElement start");
-      //   const imgElement = await drawImgElement(designElement, config);
-      //   _pdfLayer["design-layer"].children.push(imgElement);
-      // } else if (designElement.type === "shape") {
-      //   log.info("log-drawShape start");
-      //   const shapeElement = await drawShape(designElement, config);
-      //   _pdfLayer["design-layer"].children.push(shapeElement);
-      // } else if (designElement.type === "group") {
-      //   log.info("log-drawGroup start");
-      //   const groupElement = await drawGroup(designElement, config, knifeData);
-      //   _pdfLayer["design-layer"].children.push(groupElement);
-      // }
-      if (designElement.type === "font") {
+      if (designElement.type === "img") {
+        log.info("log-drawImgElement start");
+        const imgElement = await drawImgElement(designElement, config);
+        _pdfLayer["design-layer"].children.push(imgElement);
+      } else if (designElement.type === "shape") {
+        log.info("log-drawShape start");
+        const shapeElement = await drawShape(designElement, config);
+        _pdfLayer["design-layer"].children.push(shapeElement);
+      } else if (designElement.type === "group") {
+        log.info("log-drawGroup start");
+        const groupElement = await drawGroup(designElement, config, knifeData);
+        _pdfLayer["design-layer"].children.push(groupElement);
+      } else if (designElement.type === "font") {
         log.info("log-drawFont start");
         const fontElement = await drawFont(designElement, config);
         _pdfLayer["design-layer"].children.push(fontElement);
@@ -66,7 +71,14 @@ export function usePdfLayer() {
       _pdfLayer["design-layer"].children.push(faceElement);
     }
   }
-  function drawAnnotation(annotateData, config) {}
+  function drawAnnotation(annotateData, config) {
+    const annotationLabel = drawAnnotateLabel(annotateData, config);
+    _pdfLayer["annotation-layer"].children.push(annotationLabel);
+    const marker = drawLocalMarker(annotateData, config);
+    _pdfLayer["annotation-layer"].children.push(marker);
+    const footer = drawFooterLabel(annotateData, config);
+    _pdfLayer["annotation-layer"].children.push(footer);
+  }
   function getPdfLayer() {
     return _pdfLayer;
   }
@@ -90,11 +102,14 @@ function _createPdfLayer<T extends ILayerType>(type: T) {
       if (this.svgString) return this.svgString;
       const tempString = this.children.map((item) => item.svgString).join("");
       if (!tempString) return this.svgString;
-      const { pageMargin } = config;
-      // const transform = pageMargin
-      //   ? `transform="translate(${pageMargin.left},${pageMargin.top})"`
-      //   : "";
-      const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg" data-type="${type}" version="1.1">${tempString}</svg>`;
+      let clipLength: any = "";
+      if (type === "annotation-layer") {
+        clipLength = 50;
+      }
+      const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg"  
+      data-clip-len="${clipLength}" 
+      data-type="${type}" version="1.1">
+      ${tempString}</svg>`;
 
       this.svgString = containerSvg;
       return this.svgString;

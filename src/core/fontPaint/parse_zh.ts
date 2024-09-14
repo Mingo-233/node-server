@@ -354,5 +354,6 @@ export function getVerticalTextPaths(
     hasSymbolChar: true,
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
+    rotate: config.rotate,
   };
 }

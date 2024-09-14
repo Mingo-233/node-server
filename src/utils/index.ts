@@ -1,15 +1,18 @@
 import type { IKnifeData } from "@/type/knifeData";
 import type { IProject } from "@/type/projectData";
 
-import { DPI, PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
+import {
+  DPI,
+  PDFLayoutDPI,
+  PAGE_MARGIN,
+  PAGE_MARK_MARGIN,
+} from "@/utils/constant";
 import { IDrawingBoardConfig, IUnit, IColorMode } from "@/type/pdfPage";
 // export type IDrawingBoardConfig = ReturnType<typeof getDrawingBoardConfig>;
 export function getDrawingBoardConfig(
   knifeData: any,
   params: { unit: IUnit; colorMode: IColorMode }
 ): IDrawingBoardConfig {
-  // const scale = 0.37023462996825945;
-  // const strokeWidth = 0.25 / scale / DPI;
   // 原先pdf导出项目中就这样设定的
   const strokeWidth = 0.2;
   const PAGE_MARGIN_TOP = PDFLayoutDPI * PAGE_MARGIN.top;
@@ -18,7 +21,7 @@ export function getDrawingBoardConfig(
   const PAGE_MARGIN_RIGHT = PDFLayoutDPI * PAGE_MARGIN.right;
   const PAGE_MARGIN_Y = PAGE_MARGIN_TOP + PAGE_MARGIN_BOTTOM;
   const PAGE_MARGIN_X = PAGE_MARGIN_LEFT + PAGE_MARGIN_RIGHT;
-
+  const PAGE_MARKER_TOP = PDFLayoutDPI * PAGE_MARK_MARGIN.top;
   let MaxTotalX = knifeData.totalX;
   let MaxTotalY = knifeData.totalY;
   const layerList = knifeData.modeCate.layerList;
@@ -54,6 +57,9 @@ export function getDrawingBoardConfig(
       bottom: PAGE_MARGIN_BOTTOM,
       left: PAGE_MARGIN_LEFT,
       right: PAGE_MARGIN_RIGHT,
+    },
+    pageMarkerTop: {
+      top: PAGE_MARKER_TOP,
     },
     strokeWidth,
     bleedLineWidth: knifeData.bleedline,

@@ -61,7 +61,10 @@ export type IFontTransformParams = {
   unit: IUnit;
 };
 export type IFontTransform = {
-  pageMarginTranslate: string;
+  pageMargin: {
+    left: number;
+    top: number;
+  };
   sideScale: string;
   DPI: number;
   unit: IUnit;

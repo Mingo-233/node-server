@@ -9,8 +9,12 @@ export const DPI = 3.7795275591;
 export const PDFLayoutDPI = 2.834645669291339;
 
 export const PAGE_MARGIN = {
-  top: 100,
+  top: 60,
   bottom: 30,
   left: 30,
   right: 30,
+};
+// 标准时page边距
+export const PAGE_MARK_MARGIN = {
+  top: 10,
 };

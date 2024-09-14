@@ -34,8 +34,8 @@ export interface IPdfLayer {
   getPdfLayer: () => IPdfLayerMap;
 }
 
-interface IAnnotationParams {
-  unit: "mm" | "in";
+export interface IAnnotationParams {
+  unit: "mm" | "inch";
   insideSize: {
     //size
     L: number;

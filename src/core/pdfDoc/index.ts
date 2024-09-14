@@ -3,7 +3,8 @@ import PDFDocument from "pdfkit";
 import SVGtoPDF from "../../../public/svg-to-pdfkit";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
-export function usePdfDoc(pageSize, pageMargin) {
+export function usePdfDoc(options) {
+  const { pageSize, pageMargin, pageMarkerMargin } = options;
   let doc = createPdfDocument(pageSize.width, pageSize.height);
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
@@ -23,7 +24,12 @@ export function usePdfDoc(pageSize, pageMargin) {
   function _paintBefore() {
     doc.translate(pageMargin.left, pageMargin.top);
   }
-
+  function SetPaintAnnotationLabelMargin() {
+    doc.save();
+    // 先位移回原始位置，在位移到标记位置
+    doc.translate(0, -pageMargin.top + pageMarkerMargin.top);
+    return doc.restore;
+  }
   function addSVG(svg, x?, y?, options?) {
     // @ts-ignore
     doc.addSVG(svg, x, y, options);
@@ -62,5 +68,6 @@ export function usePdfDoc(pageSize, pageMargin) {
     addSVG,
     addPage,
     gotoPage,
+    SetPaintAnnotationLabelMargin,
   };
 }

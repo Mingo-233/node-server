@@ -10,13 +10,13 @@ import {
   TYPE_MARK,
 } from "@/nodes/layerNode";
 import util from "util";
-import projectData from "./store/info.json";
-import knifeData from "./store/knife.json";
+// import projectData from "./store/info.json";
+// import knifeData from "./store/knife.json";
 // import projectData from "./store/proInfo.json";
 // import knifeData from "./store/proKnife.json";
 
-// import projectData from "./store/tempInfo.json";
-// import knifeData from "./store/tempKnife.json";
+import projectData from "./store/tempInfo.json";
+import knifeData from "./store/tempKnife.json";
 
 function getMockData() {
   return {
@@ -43,7 +43,11 @@ export async function pdfMain() {
     //   })
     // );
     await pageApp.paint();
-    const pdfDoc = usePdfDoc(pageApp.pageSize, pageApp.pageMargin);
+    const pdfDoc = usePdfDoc({
+      pageSize: pageApp.pageSize,
+      pageMargin: pageApp.pageMargin,
+      pageMarkerMargin: pageApp.pageMakerMargin,
+    });
 
     pdfDoc.pdfInit();
     for (let i = 0; i < pageApp.pages.length; i++) {
@@ -57,7 +61,6 @@ export async function pdfMain() {
         if (knifeSvgArr) {
           knifeSvgArr.forEach((knifeSvg) => {
             pdfDoc.addSVG(knifeSvg.svgString);
-            // fsSaveFile(knifeSvg.svgString, `svgString-${i}.svg`);
           });
         }
 
@@ -72,20 +75,24 @@ export async function pdfMain() {
             },
           });
         let annotateSvg = page.face?.annotationLayer.getSvgString();
-        annotateSvg && pdfDoc.addSVG(annotateSvg);
-        pdfDoc.addPage();
-        // 只画设计
-        pdfDoc.addSVG(designSvg, 0, 0, {
-          imageCallback: function (link) {
-            const _link = prefixUrl(link);
-            return assetsMap.get(_link);
-          },
-        });
-        pdfDoc.addPage();
-        // 只画刀线
-        knifeSvgArr.forEach((knifeSvg) => {
-          pdfDoc.addSVG(knifeSvg.svgString);
-        });
+        // fsSaveFile(annotateSvg, `annotateSvg.svg`);
+        if (annotateSvg) {
+          pdfDoc.SetPaintAnnotationLabelMargin();
+          pdfDoc.addSVG(annotateSvg);
+        }
+        // pdfDoc.addPage();
+        // // 只画设计
+        // pdfDoc.addSVG(designSvg, 0, 0, {
+        //   imageCallback: function (link) {
+        //     const _link = prefixUrl(link);
+        //     return assetsMap.get(_link);
+        //   },
+        // });
+        // pdfDoc.addPage();
+        // // 只画刀线
+        // knifeSvgArr.forEach((knifeSvg) => {
+        //   pdfDoc.addSVG(knifeSvg.svgString);
+        // });
       }
       if (page.pageType & TYPE_MARK) {
         let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();

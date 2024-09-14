@@ -11,12 +11,14 @@ export function transformText(
   // TODO: scale
   const left = (params.style.left + params.bleedLineWidth) * DPI;
   const top = (params.style.top + params.bleedLineWidth) * DPI;
-  const pageMarginTranslate = `translate(${left}, ${top})`;
   const renderColor =
     params.colorMode === "CMYK" ? hexToCMYK(params.color) : params.color;
   return {
     ...config,
-    pageMarginTranslate: pageMarginTranslate,
+    pageMargin: {
+      left: left,
+      top: top,
+    },
     sideScale: "",
     DPI: DPI,
     renderColor: renderColor,

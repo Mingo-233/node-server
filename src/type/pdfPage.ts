@@ -39,6 +39,9 @@ export interface IDrawingBoardConfig {
     left: number;
     right: number;
   };
+  pageMarkerTop: {
+    top: number;
+  };
   colorMode: IColorMode;
   unit: IUnit;
   strokeWidth: number;

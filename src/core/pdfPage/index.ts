@@ -2,6 +2,7 @@ import { getDrawingBoardConfig, isTraditional } from "@/utils/index";
 import { createFace } from "@/core/pdfFace/index";
 import { IPage } from "@/type/pdfPage";
 import log from "@/utils/log";
+import type { IAnnotationParams } from "@/type/pdfLayer";
 import {
   LAYER_KNIFE,
   LAYER_MARK,
@@ -24,12 +25,15 @@ export function createPageApp(knifeData, params) {
       left: 0,
       right: 0,
     },
+    pageMakerMargin: {
+      top: 0,
+    },
     pages: [] as IPage[],
   };
   const boardConfig = getDrawingBoardConfig(knifeData, params);
   app.pageSize = boardConfig.pageSize;
   app.pageMargin = boardConfig.pageMargin;
-
+  app.pageMakerMargin = boardConfig.pageMarkerTop;
   function registerFace(knifeData, projectData) {
     const layerList = knifeData.modeCate.layerList;
     let _knifeData = {};
@@ -41,7 +45,31 @@ export function createPageApp(knifeData, params) {
       list: [],
       faceBackground: {},
     };
-    let _annotateData = {};
+    let _annotateData: IAnnotationParams = {
+      unit: boardConfig.unit,
+      insideSize: {
+        L: knifeData.size.L,
+        W: knifeData.size.W,
+        H: knifeData.size.H,
+      },
+      outsideSize: {
+        L: knifeData.outSize.L,
+        W: knifeData.outSize.W,
+        H: knifeData.outSize.H,
+      },
+      manufactureSize: {
+        L: knifeData.knifeSize.L,
+        W: knifeData.knifeSize.W,
+        H: knifeData.knifeSize.H,
+      },
+      material: knifeData.science.name,
+      thickness: knifeData.science.thickness,
+      dielineID: knifeData.cate_no,
+      designArea: {
+        width: knifeData.totalX.toFixed(1),
+        height: knifeData.totalY.toFixed(1),
+      },
+    };
 
     if (isTraditional(layerList)) {
       log.info("log-registerFace traditional");

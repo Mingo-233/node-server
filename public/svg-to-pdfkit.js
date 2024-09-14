@@ -2777,6 +2777,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     };
     this.drawInDocument = function (isClip, isMask) {
       doc.save();
+      const clipLen = this.attr("data-clip-len");
       if (this.attr("data-clip")) {
         new SvgShape()
           .path(this.attr("data-clip"))
@@ -2784,7 +2785,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           .insertInDocument();
         doc.clip();
       } else if (this.get("overflow") === "hidden") {
-        let tempLength = 0;
+        let tempLength = clipLen?.length > 0 ? Number(clipLen) : 1;
+        // let tempLength = 10;
         new SvgShape()
           .M(x - tempLength, y - tempLength)
           .L(x + tempLength + width, y - tempLength)

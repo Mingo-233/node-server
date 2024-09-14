@@ -8,11 +8,18 @@ export function genTextSvg(config: IFontGenerateParams) {
     isVertical,
     svgDomSize,
     hasSymbolChar,
-    pageMarginTranslate = "",
+    pageMargin,
     rotate = 0,
     DPI = 1,
   } = config;
   let svgPathString = "";
+  const pageMarginTranslate = `translate(${pageMargin.left}, ${pageMargin.top})`;
+  // 旋转中心点
+  const rotateCenter = rotate
+    ? `${pageMargin.left + (svgDomSize.width / 2) * DPI},${
+        pageMargin.top + (svgDomSize.height / 2) * DPI
+      }`
+    : `0,0`;
   const lines = Object.keys(pathPart);
   for (let i = 0; i < lines.length; i++) {
     let pathInfo = pathPart[lines[i]];
@@ -58,7 +65,7 @@ export function genTextSvg(config: IFontGenerateParams) {
         viewBox: `${position.x1} ${position.y1} ${
           position.x2 + svgDomSize.width
         } ${position.y2 + svgDomSize.height}`,
-        transform: `rotate(${rotate}) ${pageMarginTranslate}`,
+        transform: `rotate(${rotate},${rotateCenter}) ${pageMarginTranslate}`,
         fill: config.renderColor,
       },
       G_Template
@@ -73,6 +80,7 @@ translate(0,-${svgDomSize.width * DPI})
     G_Template = `
       ${svgPathString}
       `;
+
     svgDom = createElement(
       "svg",
       {
@@ -80,7 +88,7 @@ translate(0,-${svgDomSize.width * DPI})
         width: svgDomSize.height + config.unit,
         height: svgDomSize.width + config.unit,
         viewBox: `${position.x1} ${position.y1} ${originHeight} ${originWidth}`,
-        transform: `rotate(${rotate}) ${_transform}`,
+        transform: `rotate(${rotate},${rotateCenter}) ${_transform}`,
         fill: config.renderColor,
       },
       G_Template
@@ -89,6 +97,7 @@ translate(0,-${svgDomSize.width * DPI})
     G_Template = `
       ${svgPathString}
       `;
+
     svgDom = createElement(
       "svg",
       {
@@ -98,7 +107,7 @@ translate(0,-${svgDomSize.width * DPI})
         viewBox: `${position.x1} ${position.y1} ${
           position.x2 + svgDomSize.width
         } ${position.y2 + svgDomSize.height}`,
-        transform: `rotate(${rotate}) ${pageMarginTranslate}`,
+        transform: `rotate(${rotate},${rotateCenter}) ${pageMarginTranslate}`,
         fill: config.renderColor,
       },
       G_Template
