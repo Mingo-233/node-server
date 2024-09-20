@@ -6,7 +6,13 @@ import {
 import { getVerticalTextPaths } from "./parse_zh";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
-export function parseText(fontApp, config: IFontParseParams): IFontParse {
+export function parseText(
+  fontApp,
+  config: IFontParseParams,
+  defaultFontApp?
+): IFontParse {
+  console.log("hasCnWords(config.text", hasCnWords(config.text));
+
   if (config.vertical && hasCnWords(config.text)) {
     return getVerticalTextPaths(fontApp, config);
   }

@@ -42,17 +42,26 @@ export function createWordPathContext() {
 //   截止判断
 export function isEnd(char) {
   // 1. 遇到中文
-  if (isChinese(char)) return true;
+  if (isSymbolChar(char)) return true;
   // 2. 字符结束
   if (char === undefined || char === null) return true;
 }
-
-export function isChinese(char) {
-  // [\u4e00-\u9fff]：匹配中文汉字。
-  // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
-  // [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
-  return /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(char);
+// [\u4e00-\u9fff]：匹配中文汉字。
+// [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
+// [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
+const symbolCharRule = /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/;
+export function isSymbolChar(char) {
+  return symbolCharRule.test(char);
 }
+export function matchSymbol(char) {
+  return char.match(symbolCharRule);
+}
+// 检查该字体文件是否支持当前字符
+export function isCharSupported(font, chineseChar) {
+  const glyph = font.charToGlyph(chineseChar);
+  return glyph.unicode !== undefined;
+}
+
 export function isSpace(char) {
   return char === " ";
 }

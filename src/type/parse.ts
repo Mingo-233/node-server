@@ -59,6 +59,7 @@ export type IFontTransformParams = {
   color: string;
   colorMode: IColorMode;
   unit: IUnit;
+  isGroup?: boolean;
 };
 export type IFontTransform = {
   pageMargin: {

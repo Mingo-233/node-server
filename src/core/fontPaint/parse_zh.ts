@@ -1,6 +1,7 @@
+import { fetchAssets } from "@/utils/request";
 import {
   createWordPathContext,
-  isChinese,
+  isSymbolChar,
   isEnd,
   isEnglish,
   isSpace,
@@ -8,6 +9,7 @@ import {
   computedFontLineHeight,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
+import opentype from "opentype.js";
 const pathPartType = {
   zh: 1,
   en: 2,
@@ -151,7 +153,7 @@ export function getVerticalTextPaths(
         continue;
       }
 
-      if (isChinese(textItem)) {
+      if (isSymbolChar(textItem)) {
         const path = getPath(fontApp, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
@@ -356,4 +358,15 @@ export function getVerticalTextPaths(
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,
   };
+}
+
+export async function getDefaultFontApp() {
+  const defaultFontURL = "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf";
+  const data = await fetchAssets(defaultFontURL);
+  const arrayBuffer = data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.byteLength
+  );
+  let fontApp = opentype.parse(arrayBuffer);
+  return fontApp;
 }

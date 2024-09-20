@@ -6,6 +6,19 @@ import log from "@/utils/log";
 
 export const assetsMap = new Map();
 let _cacheDirName = "default";
+const _defaultDirName = "default";
+const DEFAULT_CACHE_DIR = path.resolve(
+  __dirname,
+  `../../cache/${_defaultDirName}/NotoSansCJK-Regular.ttf`
+);
+assetsMap.set(
+  "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf",
+  DEFAULT_CACHE_DIR
+);
+const defaultAssetsArr = [
+  "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf",
+];
+
 const generateHash = (url) => {
   return crypto.createHash("md5").update(url).digest("hex");
 };
@@ -102,9 +115,11 @@ export function queryResource(jsonData) {
 export async function cacheResource(jsonData) {
   // _cacheDirName = Math.random().toString(36).substring(7);
   const srcValues = queryResource(jsonData);
-  console.log("srcValues", srcValues);
 
   const promiseTask: any[] = [];
+  defaultAssetsArr.forEach((src) => {
+    promiseTask.push(fetchAssets(src));
+  });
   srcValues.forEach((src) => {
     promiseTask.push(fetchAssets(src));
   });

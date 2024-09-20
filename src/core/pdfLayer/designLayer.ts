@@ -9,7 +9,14 @@ import { DPI, PDFLayoutDPI } from "@/utils/constant";
 import { getShapeContent } from "./shape/index";
 import wawoff from "wawoff2";
 import opentype from "opentype.js";
-import { parseText, transformText, genTextSvg } from "@/core/fontPaint/index";
+import {
+  parseText,
+  transformText,
+  genTextSvg,
+  matchSymbol,
+  isCharSupported,
+  getDefaultFontApp,
+} from "@/core/fontPaint/index";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   const translateX = config.isGroup
@@ -38,7 +45,6 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       },
       transformSvg
     );
-    fsSaveFile(imgSvg, designItem.src.slice(0, 5) + ".svg");
     const context: IPdfSvgContainer<"design-layer"> = {
       type: "img",
       svgString: imgSvg,
@@ -198,6 +204,12 @@ export async function drawGroup(
         isGroup: true,
       });
       storeList.push(shapeElement);
+    } else if (designElement.type === "font") {
+      const fontElement = await drawFont(designElement, {
+        ...config,
+        isGroup: true,
+      });
+      storeList.push(fontElement);
     }
   }
   const svgString = storeList.map((item) => item.svgString).join("");
@@ -233,7 +245,7 @@ export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
   return bleedPath;
 }
 
-export async function drawFont(designItem, config: IDrawingBoardConfig) {
+export async function drawFont(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   const fontBuffer = await fetchAssets(designItem.src);
   const data = await wawoff.decompress(fontBuffer);
@@ -242,6 +254,18 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
     data.byteOffset + data.byteLength
   );
   let fontApp = opentype.parse(arrayBuffer);
+  let defaultFontApp: any = undefined;
+  const matchResult = matchSymbol(designItem.value);
+  console.log("matchResult", matchResult);
+
+  if (matchResult) {
+    const matchChar = matchResult[0];
+    const isSup = isCharSupported(fontApp, matchChar);
+    if (!isSup) {
+      defaultFontApp = await getDefaultFontApp();
+    }
+  }
+
   const unitsPerEm = fontApp.unitsPerEm; // 字体设计单位
   const ascent = fontApp.ascender; // 字体的上升高度
   const descent = fontApp.descender; // 字体的下降高度
@@ -261,7 +285,7 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
       fontName: designItem.example,
     },
   };
-  const parseResult = parseText(fontApp, parseParams);
+  const parseResult = parseText(fontApp, parseParams, defaultFontApp);
   const textConfig = transformText(parseResult, {
     bleedLineWidth: config.bleedLineWidth,
     color: style.color,
@@ -271,6 +295,7 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
       left: style.left,
       top: style.top,
     },
+    isGroup: config.isGroup,
   });
   const svgDom = genTextSvg(textConfig);
   const context: IPdfSvgContainer<"design-layer"> = {

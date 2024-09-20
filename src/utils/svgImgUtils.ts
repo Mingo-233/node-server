@@ -63,7 +63,6 @@ function beautySvg(svgDom, win) {
         for (let k = 0; k < ruleDoms.length; k++) {
           ["fill", "stroke"].forEach((type) => {
             ruleDoms[k].style[type] = rule.style.getPropertyValue(type);
-            console.log("ruleDoms", ruleDoms);
           });
         }
       }

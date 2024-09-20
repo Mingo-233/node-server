@@ -123,11 +123,11 @@ export function createPageApp(knifeData, params) {
         console.log("处理存在刀线层、标注层的逻辑", pageType);
         pagePush(_knifeData, null, _annotateData, face, pageType);
       }
-      // if (pageType & TYPE_OUTSIDE_DESIGN) {
-      //   console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
-      //   const face = createFace(facePaper.name, boardType, "outside");
-      //   pagePush(_knifeData, _designData, _annotateData, face, pageType);
-      // }
+      if (pageType & TYPE_OUTSIDE_DESIGN) {
+        console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
+        const face = createFace(facePaper.name, boardType, "outside");
+        pagePush(_knifeData, _designData, _annotateData, face, pageType);
+      }
       if (pageType & TYPE_INSIDE_DESIGN) {
         console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);
         const face = createFace(facePaper.name, boardType, "inside");
