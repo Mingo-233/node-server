@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 // import SVGtoPDF from "svg-to-pdfkit";
-import SVGtoPDF from "../../../public/svg-to-pdfkit";
+// import SVGtoPDF from "../../../public/svg-to-pdfkit-old";
+import SVGtoPDF from "../../../public/svg-to-pdfkit.js";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
 export function usePdfDoc(options) {
@@ -8,8 +9,6 @@ export function usePdfDoc(options) {
   let doc = createPdfDocument(pageSize.width, pageSize.height);
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
-    console.log("sizeWidth", sizeWidth);
-
     const docInstance = new PDFDocument({
       size: [sizeWidth, sizeHeight],
     });
@@ -63,6 +62,7 @@ export function usePdfDoc(options) {
   }
 
   return {
+    doc,
     pdfInit: init,
     end,
     addSVG,

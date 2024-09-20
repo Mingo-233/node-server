@@ -1,6 +1,6 @@
 import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createKnifeSvgElement, createElement } from "@/nodes/index";
-import { fetchAssets, isSvgUrl } from "@/utils/imgUtils";
+import { fetchAssets, isSvgUrl } from "@/utils/request";
 import { getTransformSvg } from "@/utils/svgImgUtils";
 import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
 import { IFontParseParams } from "@/type/parse";
@@ -38,6 +38,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       },
       transformSvg
     );
+    fsSaveFile(imgSvg, designItem.src.slice(0, 5) + ".svg");
     const context: IPdfSvgContainer<"design-layer"> = {
       type: "img",
       svgString: imgSvg,
@@ -47,7 +48,13 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     const imageBuffer = await fetchAssets(designItem.src);
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
     // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
-
+    const _opacity = (style.opacity && style.opacity / 100) || 1;
+    let _flip = "";
+    if (style.rotateX) {
+      _flip = `scale(-1,1) translate(${-style.width * DPI},0)`;
+    } else if (style.rotateY) {
+      _flip = `scale(1,-1) translate(0,${-style.height * DPI})`;
+    }
     const imgSvg = createElement(
       "svg",
       {
@@ -63,14 +70,16 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       [
         createElement("image", {
           "xlink:href": designItem.src,
+          opacity: _opacity.toString(),
           width: designItem.bg.width + config.unit,
           height: designItem.bg.height + config.unit,
-          transform: `translate(${designItem.bg.x * DPI},${
-            designItem.bg.y * DPI
-          })`,
+          transform: `${_flip ? _flip : ""} translate(${
+            designItem.bg.x * DPI
+          },${designItem.bg.y * DPI})`,
         }),
       ]
     );
+
     const context: IPdfSvgContainer<"design-layer"> = {
       type: "img",
       svgString: imgSvg,
@@ -198,9 +207,7 @@ export async function drawGroup(
   data-clip="${clipPathSvg}"
   width="${style.width + config.unit}" 
   height="${style.height + config.unit}"
-   transform="translate(${(style.left + config.bleedLineWidth) * DPI}, ${
-    (style.top + config.bleedLineWidth) * DPI
-  })"
+   transform="translate(${style.left * DPI}, ${style.top * DPI})"
     >
   ${svgString}
   </svg>`;
@@ -266,7 +273,6 @@ export async function drawFont(designItem, config: IDrawingBoardConfig) {
     },
   });
   const svgDom = genTextSvg(textConfig);
-  fsSaveFile(svgDom, designItem.value + ".svg");
   const context: IPdfSvgContainer<"design-layer"> = {
     type: "font",
     svgString: svgDom,

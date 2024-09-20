@@ -61,4 +61,5 @@ export interface IAnnotationParams {
     width: number;
     height: number;
   };
+  faceName: "Outer" | "Inner" | string;
 }

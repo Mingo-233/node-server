@@ -601,11 +601,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       initial: "hidden",
       values: { hidden: "hidden", scroll: "hidden", visible: "visible" },
     },
-    "vector-effect": {
-      inherit: true,
-      initial: "none",
-      values: { none: "none", "non-scaling-stroke": "non-scaling-stroke" },
-    },
   };
 
   function docBeginGroup(bbox) {
@@ -681,13 +676,11 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     doc.addContent("/" + name + " gs");
   }
   function docCreatePattern(group, dx, dy, matrix) {
-    let pattern = {
-      type: "PDFPattern",
-      group: group,
-      dx: dx,
-      dy: dy,
-      matrix: matrix || [1, 0, 0, 1, 0, 0],
-    };
+    let pattern = new (function PDFPattern() {})();
+    pattern.group = group;
+    pattern.dx = dx;
+    pattern.dy = dy;
+    pattern.matrix = matrix || [1, 0, 0, 1, 0, 0];
     return pattern;
   }
   function docUsePattern(pattern, stroke) {
@@ -747,69 +740,14 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     let mode = fill && stroke ? 2 : stroke ? 1 : fill ? 0 : 3;
     doc.addContent(mode + " Tr");
   }
-  function docWriteGlyphs(positions, font) {
-    let commands = [];
-    let commandStr = "";
-    const skew = font.fauxItalic ? -0.25 : 0;
-
-    // Add the given character to the 'TJ' command string.
-    function addChar(char) {
-      commandStr += char.glyph;
-      if (char.kern === 0) return;
-      commands.push(`<${commandStr}> ${validateNumber(char.kern)}`);
-      commandStr = "";
-    }
-
-    // Flush the current TJ command string to the output stream.
-    function flush() {
-      if (commandStr.length) {
-        commands.push(`<${commandStr}> 0`);
-        commandStr = "";
-      }
-      if (commands.length) {
-        doc.addContent(`[${commands.join(" ")}] TJ`);
-        commands = [];
-      }
-    }
-
-    for (let i = 0; i < positions.length; i++) {
-      const pos = positions[i];
-
-      if (pos.hidden || isEqual(pos.width, 0)) {
-        flush();
-        continue;
-      }
-
-      if (pos.continuous) {
-        addChar(pos);
-        continue;
-      }
-
-      // If this character is non-continuous, flush the command buffer.
-      flush();
-
-      // Start a new TJ command after writing a Text Matrix (Tm)
-      const cos = Math.cos(pos.rotate);
-      const sin = Math.sin(pos.rotate);
-      docSetTextMatrix(
-        cos * pos.scale,
-        sin * pos.scale,
-        cos * skew - sin,
-        sin * skew + cos,
-        pos.x,
-        pos.y
-      );
-      addChar(pos);
-    }
-
-    // Flush any remaining characters in the buffer.
-    flush();
+  function docWriteGlyph(glyph) {
+    doc.addContent("<" + glyph + "> Tj");
   }
   function docEndText() {
     doc.addContent("ET");
   }
   function docFillColor(color) {
-    if (color[0].type === "PDFPattern") {
+    if (color[0].constructor.name === "PDFPattern") {
       doc.fillOpacity(color[1]);
       docUsePattern(color[0], false);
     } else {
@@ -817,129 +755,12 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     }
   }
   function docStrokeColor(color) {
-    if (color[0].type === "PDFPattern") {
+    if (color[0].constructor.name === "PDFPattern") {
       doc.strokeOpacity(color[1]);
       docUsePattern(color[0], true);
     } else {
       doc.strokeColor(color[0], color[1]);
     }
-  }
-  // PDFKit doesn't accept any 0s in the dash array, but that's perfectly
-  // valid in SVG. So this function applys a dash array and offset, detecting
-  // any 0s in the dash array and updating it and the dash offset as needed to
-  // remove the zeros, but preserve the end result.
-  //
-  // `dashArray` must have an even number of elements
-  function docApplyDash(dashArray, dashOffset) {
-    let index;
-    // Anytime there's a 0 that isn't the first or last element of the array,
-    // we can remove it by combining the previous or next value. If it's a
-    // dash, then it's a zero-length dash between two spaces, so the dash can
-    // be eliminated and spaces combined by summing them, replacing all three
-    // values with the sum of the two spaces. If the 0 value is a space, then
-    // it's a zero-length space between two dashes, and the dashes can be
-    // similarly combined. So first we run that logic iteratively to remove
-    // all the 0s from the dash array that aren't the first or last element.
-    // Note that because we replace 3 values with one value, this doesn't
-    // change the even-ness of the length of dashArray.
-    while ((index = dashArray.slice(1, -1).indexOf(0)) !== -1) {
-      let actualIndex = index + 1;
-      let replacementValue =
-        dashArray[actualIndex - 1] + dashArray[actualIndex + 1];
-      dashArray = dashArray
-        .slice(0, actualIndex - 1)
-        .concat([replacementValue])
-        .concat(dashArray.slice(actualIndex + 2));
-    }
-
-    // The stroke array only having two elements (a dash value and space
-    // value) is a special case.
-    if (dashArray.length === 2) {
-      if (dashArray[0] === 0) {
-        // Regardless of the space value, the dash length is zero, so we're
-        // not actually drawing a stroke. We can't describe that in a
-        // doc.dash() call in a way that PDFKit will accept, so we set the
-        // stroke opacity to zero as our best approximation.
-        doc.strokeOpacity(0);
-        return;
-      } else if (dashArray[1] === 0) {
-        // Regardless of the dash value, the space value is zero, meaning
-        // we're actually drawing a solid stroke, not a dashed one. We can
-        // make this happen by just emptying out the dash array.
-        dashArray = [];
-      }
-    } else {
-      if (dashArray[0] === 0) {
-        // The first dash is zero-length. We fix this by combining the first
-        // space (just after the first dash) with the last space and updating
-        // the dash offset accordingly. For example, if we had
-        //
-        // [ 0 4 3 2 5 1 ] (dash offset 0)
-        //
-        // ␣␣␣␣---␣␣-----␣
-        // ⎸
-        //
-        // we'd end up with
-        //
-        // [ 3 2 5 5 ] (dash offset -4)
-        //
-        // ---␣␣-----␣␣␣␣␣
-        //            ⎸
-        //
-        // Another example where the dash array also ends with a 0:
-        //
-        // [ 0 4 3 2 5 0 ] (dash offset 0)
-        //
-        // ␣␣␣␣---␣␣-----
-        // ⎸
-        //
-        // we'd end up with
-        //
-        // [ 3 2 5 4 ] (dash offset -4)
-        //
-        // ---␣␣-----␣␣␣␣
-        //           ⎸
-        dashOffset -= dashArray[1];
-        dashArray[dashArray.length - 1] += dashArray[1];
-        dashArray = dashArray.slice(2);
-      }
-      if (dashArray[dashArray.length - 1] === 0) {
-        // The last space is zero-length. We fix this by combining the last dash
-        // (just before the last space) with the first dash and updating the
-        // dash offset accordingly. For example, if we had
-        //
-        // [ 1 4 3 2 5 0 ] (dash offset 0)
-        //
-        // -␣␣␣␣---␣␣-----
-        // ⎸
-        //
-        // we'd end up with
-        //
-        // [ 6 4 3 2 ] (dash offset 5)
-        //
-        // ------␣␣␣␣---␣␣
-        //      ⎸
-        //
-        dashOffset += dashArray[dashArray.length - 2];
-        dashArray[0] += dashArray[dashArray.length - 2];
-        dashArray = dashArray.slice(0, -2);
-      }
-    }
-
-    // Ensure the dash offset is non-negative (because of crbug.com/660850).
-    // First compute the total length of the dash array so we can add it to
-    // dash offset until dash offset is non-negative.
-    let length = 0;
-    for (let i = 0; i < dashArray.length; i++) {
-      length += dashArray[i];
-    }
-    if (length > 0) {
-      while (dashOffset < 0) {
-        dashOffset += length;
-      }
-    }
-
-    doc.dash(dashArray, { phase: dashOffset });
   }
   function docInsertLink(x, y, w, h, url) {
     let ref = doc.ref({
@@ -1247,11 +1068,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       .transform(inverseMatrix(getGlobalMatrix()))
       .getBoundingBox();
   }
-  function getPageScale() {
-    const bbox = getPageBBox();
-    const width = doc.page.width;
-    return width / bbox[2];
-  }
   function inverseMatrix(m) {
     let dt = m[0] * m[3] - m[1] * m[2];
     return [
@@ -1551,7 +1367,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       }
     }
     for (let i = 0; i < selector.classes.length; i++) {
-      // if (!elem.classList.contains(selector.classes[i])) {
       if (elem.classList.indexOf(selector.classes[i]) === -1) {
         return false;
       }
@@ -1662,7 +1477,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       data.push({
         glyph: hex[i],
         unicode: unicode,
-        kern: pos[i].advanceWidth - pos[i].xAdvance,
         width: (pos[i].advanceWidth * size) / 1000,
         xOffset: (pos[i].xOffset * size) / 1000,
         yOffset: (pos[i].yOffset * size) / 1000,
@@ -2642,6 +2456,15 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
               break;
             case "stroke-dashoffset":
               result = this.computeLength(value, this.getViewport());
+              if (result != null) {
+                if (result < 0) {
+                  // fix for crbug.com/660850
+                  let dasharray = this.get("stroke-dasharray");
+                  for (let j = 0; j < dasharray.length; j++) {
+                    result += dasharray[j];
+                  }
+                }
+              }
               break;
           }
           if (result != null) {
@@ -2708,11 +2531,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     this.clip = function () {
       if (this.get("clip-path") !== "none") {
         let clipPath = new SvgElemClipPath(this.get("clip-path"), null);
-        clipPath.useMask(
-          clipPath.attr("clipPathUnits") === "objectBoundingBox"
-            ? this.getBoundingBox()
-            : null
-        );
+        clipPath.useMask(this.getBoundingBox());
         return true;
       }
     };
@@ -2815,9 +2634,11 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     SvgElemHasChildren.call(this, obj, inherits);
     this.drawContent = function (isClip, isMask) {
       this.transform();
+      // console.log("c-test-1");
       let clipped = this.clip(),
         masked = this.mask(),
         group;
+
       if ((this.get("opacity") < 1 || clipped || masked) && !isClip) {
         group = docBeginGroup(getPageBBox());
       }
@@ -2981,6 +2802,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         doc.clip();
       } else if (this.get("overflow") === "hidden") {
         let tempLength = clipLen?.length > 0 ? Number(clipLen) : 0;
+        // let tempLength = 10;
         new SvgShape()
           .M(x - tempLength, y - tempLength)
           .L(x + tempLength + width, y - tempLength)
@@ -2990,6 +2812,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           .transform(this.get("transform"))
           .insertInDocument();
         doc.clip();
+        // console.log("c-test-2");
       }
       this.drawContent(isClip, isMask);
       doc.restore();
@@ -3055,8 +2878,11 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       this.transform();
       if (this.get("overflow") === "hidden") {
         doc.rect(x, y, width, height).clip();
+        // console.log("c-test-3");
       }
       this.clip();
+      // console.log("c-test-4");
+
       this.mask();
       doc.translate(x, y);
       doc.transform.apply(
@@ -3368,6 +3194,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
                 ? child.getPercent("offset", 0)
                 : 1 - child.getPercent("offset", 0)
             );
+            console.log("stopColor", stopColor);
             if (i === 0 && stopColor[0].length === 4) {
               grad._colorSpace = "DeviceCMYK";
             } // Fix until PR #763 is merged into PDFKit
@@ -3406,12 +3233,10 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         return;
       }
       doc.save();
-      if (this.get("vector-effect") === "non-scaling-stroke") {
-        this.shape.transform(this.getTransformation());
-      } else {
-        this.transform();
-      }
+      this.transform();
       this.clip();
+      // console.log("c-test-5");
+
       if (!isClip) {
         let masked = this.mask(),
           group;
@@ -3423,11 +3248,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           stroke = this.getStroke(isClip, isMask),
           lineWidth = this.get("stroke-width"),
           lineCap = this.get("stroke-linecap");
-
-        if (this.get("vector-effect") === "non-scaling-stroke") {
-          lineWidth = lineWidth / getPageScale();
-        }
-
         if (fill || stroke) {
           if (fill) {
             docFillColor(fill);
@@ -3474,8 +3294,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
               .lineWidth(lineWidth)
               .miterLimit(this.get("stroke-miterlimit"))
               .lineJoin(this.get("stroke-linejoin"))
-              .lineCap(lineCap);
-            docApplyDash(dashArray, dashOffset);
+              .lineCap(lineCap)
+              .dash(dashArray, { phase: dashOffset });
           }
           for (let j = 0; j < subPaths.length; j++) {
             if (subPaths[j].totalLength > 0) {
@@ -3499,7 +3319,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           markerEnd !== "none"
         ) {
           let markersPos = this.shape.getMarkers();
-          if (markerStart !== "none" && markersPos.length > 0) {
+          if (markerStart !== "none") {
             let marker = new SvgElemMarker(markerStart, null);
             marker.drawMarker(false, isMask, markersPos[0], lineWidth);
           }
@@ -3509,7 +3329,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
               marker.drawMarker(false, isMask, markersPos[i], lineWidth);
             }
           }
-          if (markerEnd !== "none" && markersPos.length > 0) {
+          if (markerEnd !== "none") {
             let marker = new SvgElemMarker(markerEnd, null);
             marker.drawMarker(
               false,
@@ -3716,6 +3536,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
             height
           )
           .clip();
+        // console.log("c-test-6");
       }
       doc.transform.apply(doc, aspectRatioMatrix);
       doc.translate(-refX, -refY);
@@ -3738,7 +3559,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     this.useMask = function (bBox) {
       let group = docBeginGroup(getPageBBox());
       doc.save();
-      doc.transform.apply(doc, this.get("transform"));
       if (this.attr("clipPathUnits") === "objectBoundingBox") {
         doc.transform(
           bBox[2] - bBox[0],
@@ -3750,6 +3570,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         );
       }
       this.clip();
+      // console.log("c-test-7");
+
       this.drawChildren(true, false);
       doc.restore();
       docEndGroup(group);
@@ -3797,6 +3619,9 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           this.getLength("height", this.getVHeight(), 1.2) *
           (bBox[3] - bBox[1]);
       }
+      doc.rect(x, y, w, h).clip();
+      // console.log("c-test-8");
+
       if (this.attr("maskContentUnits") === "objectBoundingBox") {
         doc.transform(
           bBox[2] - bBox[0],
@@ -3808,6 +3633,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         );
       }
       this.clip();
+      // console.log("c-test-9");
+
       this.drawChildren(false, true);
       doc.restore();
       docEndGroup(group);
@@ -3896,15 +3723,29 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
                   .lineWidth(strokeWidth)
                   .miterLimit(this.get("stroke-miterlimit"))
                   .lineJoin(this.get("stroke-linejoin"))
-                  .lineCap(this.get("stroke-linecap"));
-                docApplyDash(
-                  this.get("stroke-dasharray"),
-                  this.get("stroke-dashoffset")
-                );
+                  .lineCap(this.get("stroke-linecap"))
+                  .dash(this.get("stroke-dasharray"), {
+                    phase: this.get("stroke-dashoffset"),
+                  });
               }
               docBeginText(this._font.font, this._font.size);
               docSetTextMode(!!fill, !!stroke);
-              docWriteGlyphs(childElem._pos, this._font);
+              for (let j = 0, pos = childElem._pos; j < pos.length; j++) {
+                if (!pos[j].hidden && isNotEqual(pos[j].width, 0)) {
+                  let cos = Math.cos(pos[j].rotate),
+                    sin = Math.sin(pos[j].rotate),
+                    skew = this._font.fauxItalic ? -0.25 : 0;
+                  docSetTextMatrix(
+                    cos * pos[j].scale,
+                    sin * pos[j].scale,
+                    cos * skew - sin,
+                    sin * skew + cos,
+                    pos[j].x,
+                    pos[j].y
+                  );
+                  docWriteGlyph(pos[j].glyph);
+                }
+              }
               docEndText();
             }
             break;
@@ -3933,11 +3774,10 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           .lineWidth(this.get("stroke-width"))
           .miterLimit(this.get("stroke-miterlimit"))
           .lineJoin(this.get("stroke-linejoin"))
-          .lineCap(this.get("stroke-linecap"));
-        docApplyDash(
-          this.get("stroke-dasharray"),
-          this.get("stroke-dashoffset")
-        );
+          .lineCap(this.get("stroke-linecap"))
+          .dash(this.get("stroke-dasharray"), {
+            phase: this.get("stroke-dashoffset"),
+          });
       }
       for (let j = 0, pos = this._pos; j < pos.length; j++) {
         if (!pos[j].hidden && isNotEqual(pos[j].width, 0)) {
@@ -4047,7 +3887,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           let textScale = length / (endX - startX);
           if (textScale > 0 && textScale < Infinity) {
             for (let j = 0; j < pos.length; j++) {
-              pos[j].continuous = false;
               pos[j].x = startX + textScale * (pos[j].x - startX);
               pos[j].scale *= textScale;
               pos[j].width *= textScale;
@@ -4057,7 +3896,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           if (pos.length >= 2) {
             let spaceDiff = (length - (endX - startX)) / (pos.length - 1);
             for (let j = 0; j < pos.length; j++) {
-              pos[j].continuous = false;
               pos[j].x += j * spaceDiff;
             }
           }
@@ -4106,8 +3944,7 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           warningCallback(
             'SVGElemText: failed to open font "' +
               fontNameorLink +
-              '" in PDFKit: ' +
-              e.message
+              '" in PDFKit'
           );
         }
         currentElem._pos = [];
@@ -4129,31 +3966,12 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
           letterSpacing = currentElem.get("letter-spacing"),
           textAnchor = currentElem.get("text-anchor"),
           textDirection = currentElem.get("direction"),
-          // `alignment-baseline` and `baseline-shift` have no effect on
-          // `<text>` elements according to the SVG spec. So, detect when
-          // we're styling a `<text>` element and ignore
-          // `alignment-baseline` (only factoring in `dominant-baseline`)
-          // and `baseline-shift` (which can only have the default value of
-          // `baseline`).
-          //
-          // Note that Chrome (as of v99) incorrectly factors in
-          // `alignment-baseline` on `<text>` elements, while Firefox
-          // correctly follows the spec and ignores it. This means that our
-          // output will differ from Chrome's in these cases, but conform to
-          // SVG specification.
-          isTextElem = currentElem.name === "text",
-          baselineAttr = isTextElem
-            ? currentElem.get("dominant-baseline")
-            : currentElem.get("alignment-baseline") ||
-              currentElem.get("dominant-baseline"),
-          baselineShiftAttr = isTextElem
-            ? "baseline"
-            : currentElem.get("baseline-shift"),
           baseline = getBaseline(
             currentElem._font.font,
             currentElem._font.size,
-            baselineAttr,
-            baselineShiftAttr
+            currentElem.get("alignment-baseline") ||
+              currentElem.get("dominant-baseline"),
+            currentElem.get("baseline-shift")
           );
         if (currentElem.name === "textPath") {
           doAnchoring();
@@ -4207,12 +4025,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
                     dyAttr = currentElem._dy[index],
                     rotAttr = currentElem._rot[index],
                     continuous = !(w === 0 && j === 0);
-                  if (letterSpacing !== 0) {
-                    continuous = false;
-                  }
-                  if (wordSpacing !== 0) {
-                    continuous = false;
-                  }
                   if (xAttr !== undefined) {
                     continuous = false;
                     doAnchoring();
@@ -4240,7 +4052,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
                       (Math.PI / 180) *
                       currentElem.chooseValue(rotAttr, currentElem._defRot),
                     x: currentX + pos[j].xOffset,
-                    kern: pos[j].kern,
                     y: currentY + baseline + pos[j].yOffset,
                     width: pos[j].width,
                     ascent: getAscent(
@@ -4348,6 +4159,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       doc.save();
       this.transform();
       this.clip();
+      // console.log("c-test-10");
+
       let masked = this.mask(),
         group;
       if (masked) {

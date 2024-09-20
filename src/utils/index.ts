@@ -1,6 +1,3 @@
-import type { IKnifeData } from "@/type/knifeData";
-import type { IProject } from "@/type/projectData";
-
 import {
   DPI,
   PDFLayoutDPI,
@@ -42,9 +39,11 @@ export function getDrawingBoardConfig(
     height:
       (MaxTotalY + 2 * knifeData.bleedline) * PDFLayoutDPI + PAGE_MARGIN_Y,
   };
-  const rootSvgWidth = MaxTotalX + 2 * knifeData.bleedline + 2 * strokeWidth;
+  const rootSvgWidth = MaxTotalX + 2 * knifeData.bleedline;
+  // + 2 * strokeWidth;
 
-  const rootSvgHeight = MaxTotalY + 2 * knifeData.bleedline + 2 * strokeWidth;
+  const rootSvgHeight = MaxTotalY + 2 * knifeData.bleedline;
+  // + 2 * strokeWidth;
 
   return {
     pageSize,
@@ -58,7 +57,7 @@ export function getDrawingBoardConfig(
       left: PAGE_MARGIN_LEFT,
       right: PAGE_MARGIN_RIGHT,
     },
-    pageMarkerTop: {
+    pageMarkerMargin: {
       top: PAGE_MARKER_TOP,
     },
     strokeWidth,

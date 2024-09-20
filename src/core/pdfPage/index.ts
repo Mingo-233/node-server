@@ -33,92 +33,19 @@ export function createPageApp(knifeData, params) {
   const boardConfig = getDrawingBoardConfig(knifeData, params);
   app.pageSize = boardConfig.pageSize;
   app.pageMargin = boardConfig.pageMargin;
-  app.pageMakerMargin = boardConfig.pageMarkerTop;
+  app.pageMakerMargin = boardConfig.pageMarkerMargin;
   function registerFace(knifeData, projectData) {
     const layerList = knifeData.modeCate.layerList;
-    let _knifeData = {};
-    let _designData = {
-      list: [],
-      faceBackground: {},
-    };
-    let _insideDesignData = {
-      list: [],
-      faceBackground: {},
-    };
-    let _annotateData: IAnnotationParams = {
-      unit: boardConfig.unit,
-      insideSize: {
-        L: knifeData.size.L,
-        W: knifeData.size.W,
-        H: knifeData.size.H,
-      },
-      outsideSize: {
-        L: knifeData.outSize.L,
-        W: knifeData.outSize.W,
-        H: knifeData.outSize.H,
-      },
-      manufactureSize: {
-        L: knifeData.knifeSize.L,
-        W: knifeData.knifeSize.W,
-        H: knifeData.knifeSize.H,
-      },
-      material: knifeData.science.name,
-      thickness: knifeData.science.thickness,
-      dielineID: knifeData.cate_no,
-      designArea: {
-        width: knifeData.totalX.toFixed(1),
-        height: knifeData.totalY.toFixed(1),
-      },
-    };
-
     if (isTraditional(layerList)) {
       log.info("log-registerFace traditional");
-
-      const layerKnifeData = knifeData.layer.traditional;
-      _knifeData = {
-        cuts: layerKnifeData?.cuts || [],
-        holes: layerKnifeData?.holes || [],
-        folds: layerKnifeData?.folds || [],
-        bleeds: layerKnifeData?.bleeds || [],
-        faces: layerKnifeData?.faces || [],
+      const facePaper = {
+        name: "traditional",
+        friendlyName: "Outer",
       };
-      _designData = {
-        list: projectData.layer.traditional.design_list || [],
-        faceBackground: projectData.layer.traditional.face_background || {},
+      const params = {
+        boardType: "traditional",
       };
-      _insideDesignData = {
-        list: projectData.layer.traditional.inside_design_list || [],
-        faceBackground:
-          projectData.layer.traditional.inside_face_background || {},
-      };
-      let pageType = 0;
-      if (_designData.list.length > 0) {
-        pageType |= LAYER_DESIGN;
-      }
-      // if (_insideDesignData.list.length > 0) {
-      //   pageType |= LAYER_INSIDE_DESIGN;
-      // }
-      if (
-        _designData.list.length === 0 &&
-        _insideDesignData.list.length === 0
-      ) {
-        pageType |= LAYER_MARK;
-      }
-      if (pageType & TYPE_MARK) {
-        const face = createFace("traditional", "traditional", "outside");
-        console.log("处理存在刀线层、标注层的逻辑", pageType);
-        pagePush(_knifeData, null, _annotateData, face, pageType);
-      }
-      if (pageType & TYPE_OUTSIDE_DESIGN) {
-        console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
-        const face = createFace("traditional", "traditional", "outside");
-        pagePush(_knifeData, _designData, _annotateData, face, pageType);
-      }
-      if (pageType & TYPE_INSIDE_DESIGN) {
-        console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);
-        const face = createFace("traditional", "traditional", "inside");
-        pagePush(_knifeData, _insideDesignData, _annotateData, face, pageType);
-      }
+      _registerFaceItem(facePaper, params);
     } else {
       log.info("log-registerFace 精品盒");
       // 精品盒
@@ -126,66 +53,100 @@ export function createPageApp(knifeData, params) {
         const isGrey = facePaper.isGrey;
         const boardType = isGrey ? "greyBoard" : "facePaper";
 
-        const layerKnifeData = knifeData.layer[facePaper.name];
-        const _knifeData = {
-          cuts: layerKnifeData?.cuts || [],
-          holes: layerKnifeData?.holes || [],
-          folds: layerKnifeData?.folds || [],
-          bleeds: layerKnifeData?.bleeds || [],
-          faces: layerKnifeData?.faces || [],
+        const params = {
+          boardType,
         };
-        _designData = {
-          list: projectData.layer[facePaper.name].design_list || [],
-          faceBackground:
-            projectData.layer[facePaper.name].face_background || {},
-        };
-        const _insideDesignData = {
-          list: projectData.layer[facePaper.name].inside_design_list || [],
-          faceBackground:
-            projectData.layer[facePaper.name].inside_face_background || {},
-        };
-
-        const _annotateData = {};
-        let pageType = 0;
-        if (_designData.list.length > 0) {
-          pageType |= LAYER_DESIGN;
-        }
-        if (_insideDesignData.list.length > 0) {
-          pageType |= LAYER_INSIDE_DESIGN;
-        }
-        if (
-          _designData.list.length === 0 &&
-          _insideDesignData.list.length === 0
-        ) {
-          pageType |= LAYER_MARK;
-        }
-        if (pageType & TYPE_MARK) {
-          const face = createFace(facePaper.name, boardType, "outside");
-          console.log("处理存在刀线层、标注层的逻辑", pageType);
-          pagePush(_knifeData, null, _annotateData, face, pageType);
-        }
-        if (pageType & TYPE_OUTSIDE_DESIGN) {
-          console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
-          const face = createFace(facePaper.name, boardType, "outside");
-          pagePush(_knifeData, _designData, _annotateData, face, pageType);
-        }
-        if (pageType & TYPE_INSIDE_DESIGN) {
-          console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);
-          const face = createFace(facePaper.name, boardType, "inside");
-          pagePush(
-            _knifeData,
-            _insideDesignData,
-            _annotateData,
-            face,
-            pageType
-          );
-        }
+        _registerFaceItem(facePaper, params);
       });
     }
+    function _registerFaceItem(facePaper, params) {
+      const { boardType } = params;
+      const layerKnifeData = knifeData.layer[facePaper.name];
+      const _knifeData = {
+        cuts: layerKnifeData?.cuts || [],
+        holes: layerKnifeData?.holes || [],
+        folds: layerKnifeData?.folds || [],
+        bleeds: layerKnifeData?.bleeds || [],
+        faces: layerKnifeData?.faces || [],
+      };
+      const _designData = {
+        list: projectData.layer[facePaper.name].design_list || [],
+        faceBackground: projectData.layer[facePaper.name].face_background || {},
+      };
+      const _insideDesignData = {
+        list: projectData.layer[facePaper.name].inside_design_list || [],
+        faceBackground:
+          projectData.layer[facePaper.name].inside_face_background || {},
+      };
 
+      let _annotateData: IAnnotationParams = {
+        unit: boardConfig.unit,
+        insideSize: {
+          L: knifeData.size.L,
+          W: knifeData.size.W,
+          H: knifeData.size.H,
+        },
+        outsideSize: {
+          L: knifeData.outSize.L,
+          W: knifeData.outSize.W,
+          H: knifeData.outSize.H,
+        },
+        manufactureSize: {
+          L: knifeData.knifeSize.L,
+          W: knifeData.knifeSize.W,
+          H: knifeData.knifeSize.H,
+        },
+        material: knifeData.science.name,
+        thickness: layerKnifeData.thickness,
+        dielineID: knifeData.cate_no,
+        designArea: {
+          width: layerKnifeData.totalX.toFixed(1),
+          height: layerKnifeData.totalY.toFixed(1),
+        },
+        faceName: facePaper.friendlyName,
+      };
+      let pageType = 0;
+      if (_designData.list.length > 0) {
+        pageType |= LAYER_DESIGN;
+      }
+      if (_insideDesignData.list.length > 0) {
+        pageType |= LAYER_INSIDE_DESIGN;
+      }
+      if (
+        _designData.list.length === 0 &&
+        _insideDesignData.list.length === 0
+      ) {
+        pageType |= LAYER_MARK;
+      }
+      if (pageType & TYPE_MARK) {
+        const face = createFace(facePaper.name, boardType, "outside");
+        console.log("处理存在刀线层、标注层的逻辑", pageType);
+        pagePush(_knifeData, null, _annotateData, face, pageType);
+      }
+      // if (pageType & TYPE_OUTSIDE_DESIGN) {
+      //   console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
+      //   const face = createFace(facePaper.name, boardType, "outside");
+      //   pagePush(_knifeData, _designData, _annotateData, face, pageType);
+      // }
+      if (pageType & TYPE_INSIDE_DESIGN) {
+        console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);
+        const face = createFace(facePaper.name, boardType, "inside");
+        const _annotateDataInner =
+          facePaper.name === "traditional"
+            ? { ..._annotateData, faceName: "Inner" }
+            : _annotateData;
+
+        pagePush(
+          _knifeData,
+          _insideDesignData,
+          _annotateDataInner,
+          face,
+          pageType
+        );
+      }
+    }
     function pagePush(knifeData, designData, annotateData, face, pageType) {
       app.pages.push({
-        pageNum: 1,
         face,
         pageType,
         faceData: {

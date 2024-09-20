@@ -2,7 +2,12 @@ import { IPdfSvgContainer } from "@/type/pdfLayer";
 import { createKnifeSvgElement, createElement } from "@/nodes/index";
 import SvgUtil from "@/utils/svgUtils";
 import type { IKnifeData } from "@/type/knifeData";
-import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
+import {
+  IColorMode,
+  IDrawingBoardConfig,
+  IDrawingConfigPlus,
+} from "@/type/pdfPage";
+import { hexToCMYK } from "@/utils/color";
 
 export function drawBleedLine(
   knifeData: IKnifeData,
@@ -20,7 +25,7 @@ export function drawBleedLine(
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: "#00ff00",
+      stroke: _fitColor("#00ff00", config.colorMode),
       fill: "none",
       d: bleedPath,
     })
@@ -48,7 +53,7 @@ export function drawFoldLine(
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: "#ff0000",
+      stroke: _fitColor("#ff0000", config.colorMode),
       fill: "none",
       d: foldPath,
       transform: `translate(${config.bleedLineWidth}, ${config.bleedLineWidth})`,
@@ -75,7 +80,7 @@ export function drawCutLine(knifeData: IKnifeData, config: IDrawingConfigPlus) {
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: "#0000ff",
+      stroke: _fitColor("#0000ff", config.colorMode),
       fill: "none",
       d: cutPath,
       transform: `translate(${config.bleedLineWidth}, ${config.bleedLineWidth})`,
@@ -86,4 +91,8 @@ export function drawCutLine(knifeData: IKnifeData, config: IDrawingConfigPlus) {
     svgString,
   };
   return context;
+}
+
+function _fitColor(color: string, colorMode: IColorMode) {
+  return colorMode === "CMYK" ? hexToCMYK(color) : color;
 }

@@ -1,5 +1,6 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
+const SVGtoPDF = require("../public/svg-to-pdfkit");
 
 // import PDFDocument from "pdfkit";
 // import fs from "fs";
@@ -67,15 +68,27 @@ function opentypeParse(data) {
   // (doc as any).addSVG(svgDom, 0, 0);
   //   doc.addPage();
 }
-// PDFDocument.prototype.addSVG = function (svg, x, y, options) {
-//   return SVGtoPDF(this, svg, x, y, options);
-// };
+PDFDocument.prototype.addSVG = function (svg, x, y, options) {
+  return SVGtoPDF(this, svg, x, y, options);
+};
 
 const doc = new PDFDocument();
-doc.text("Hello world!", 100, 100);
-doc.circle(100, 50, 50).lineWidth(3).fillOpacity(0.8).fill("#ff0000");
 
-// .fill("cmyk(55%, 30%, 10%, 5%)");
+doc.text("Hello world!", 100, 100);
+// doc
+//   .circle(100, 50, 50)
+//   .lineWidth(3)
+//   .fillOpacity(0.8)
+//   .fill("cmyk(55%, 30%, 10%, 5%)");
+// // .fill("#ff0000");
+
+const mockSvg = ` <svg xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="78.6863mm" height="78.6863mm" 
+transform=" translate(0, 5.3710317034472154e-14) ">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109.66 109.66" width="100%" height="100%"><defs></defs><g id="图层_2" data-name="图层 2"><g id="图层_1-2" data-name="图层 1"><circle class="cls-1" cx="54.83" cy="54.83" r="54.83" style="fill: rgba(83, 36, 115, 1);">
+</circle></g></g>
+<style>.cls-1{fill:#405b2f;}</style>
+</svg></svg>`;
+doc.addSVG(mockSvg, 0, 0);
 end();
 function end() {
   const randomName = Math.random().toString(36).substring(7);

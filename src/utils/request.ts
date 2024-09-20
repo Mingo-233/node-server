@@ -2,17 +2,13 @@ import axios from "axios";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import log from "@/utils/log";
 
-const CACHE_DIR = path.resolve(__dirname, "../../cache");
 export const assetsMap = new Map();
+let _cacheDirName = "default";
 const generateHash = (url) => {
   return crypto.createHash("md5").update(url).digest("hex");
 };
-
-// 确保缓存目录存在
-if (!fs.existsSync(CACHE_DIR)) {
-  fs.mkdirSync(CACHE_DIR);
-}
 
 /**
  * 获取缓存文件的路径
@@ -20,6 +16,11 @@ if (!fs.existsSync(CACHE_DIR)) {
  * @returns {string} - 缓存文件路径
  */
 const getCacheFilePath = (url) => {
+  const CACHE_DIR = path.resolve(__dirname, `../../cache/${_cacheDirName}`);
+  // 确保缓存目录存在
+  if (!fs.existsSync(CACHE_DIR)) {
+    fs.mkdirSync(CACHE_DIR);
+  }
   const hash = generateHash(url);
   const extension = path.extname(url).split("?")[0] || ""; // 根据 URL 的扩展名生成文件名
   return path.join(CACHE_DIR, `${hash}${extension}`);
@@ -64,13 +65,61 @@ export const fetchResourceWithCache = async (url) => {
     throw error;
   }
 };
+export function fetchAssets(url, isBuffer = true) {
+  log.info("log-fetchImage start", url);
+  const _url = prefixUrl(url);
+  return fetchResourceWithCache(_url);
+}
 
-// async function mockRequest() {
-//   const url = "https://cloud.pacdora.com/effect/pattern/2000007.svg"; // 替换为实际的资源 URL
-//   try {
-//     const data = await fetchResourceWithCache(url);
-//     console.log(`获取到资源大小：${data.length} 字节`);
-//   } catch (err) {
-//     console.error("获取资源失败", err);
-//   }
-// }
+export function prefixUrl(url) {
+  if (url.startsWith("//")) return `https:${url}`;
+  return url;
+}
+export function isSvgUrl(url) {
+  return url.toLowerCase().endsWith(".svg");
+}
+
+export function queryResource(jsonData) {
+  const srcValues = new Set();
+
+  function traverse(obj) {
+    if (Array.isArray(obj)) {
+      obj.forEach((item) => traverse(item));
+    } else if (typeof obj === "object" && obj !== null) {
+      for (const key in obj) {
+        if (key === "src") {
+          srcValues.add(obj[key]);
+        }
+        traverse(obj[key]);
+      }
+    }
+  }
+
+  traverse(jsonData);
+  return srcValues;
+}
+
+export async function cacheResource(jsonData) {
+  // _cacheDirName = Math.random().toString(36).substring(7);
+  const srcValues = queryResource(jsonData);
+  console.log("srcValues", srcValues);
+
+  const promiseTask: any[] = [];
+  srcValues.forEach((src) => {
+    promiseTask.push(fetchAssets(src));
+  });
+  await Promise.all(promiseTask)
+    .then((res) => {
+      console.log("所有资源缓存完成");
+    })
+    .catch((err) => {
+      console.error("资源下载失败", err);
+    });
+}
+
+export function clearCache() {
+  const CACHE_DIR = path.resolve(__dirname, `../../cache/${_cacheDirName}`);
+  fs.rm(CACHE_DIR, { recursive: true, force: true }, () =>
+    console.log("缓存已清空")
+  );
+}

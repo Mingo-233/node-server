@@ -1,56 +1,265 @@
 {
-  "id": 10119924,
+  "id": 10120547,
   "length": 120.6,
   "width": 60.6,
-  "height": 161.6,
+  "height": 161.1,
   "thickness": 0.5,
   "inless": 0.3,
   "outless": 0.2,
   "background": null,
-  "userId": 1102855,
+  "userId": 1102968,
   "images": null,
   "membrane_id": null,
   "is_mode": 0,
   "design_data": [
     {
       "type": "font",
-      "id": "61775a11-382a-426c-96c8-2add5f5a5211",
-      "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
-      "uuid": "61775a11-382a-426c-96c8-2add5f5a5211",
-      "value": "Your text here",
-      "example": "Crimson-Roman",
+      "id": "5ba06a03-7d0f-4ff9-a18a-2f7ed5d27633",
+      "src": "https://cdn.pacdora.com/font/2398781c-6c06-49b8-b9e8-a919a646f065.woff2",
+      "uuid": "5ba06a03-7d0f-4ff9-a18a-2f7ed5d27633",
+      "value": "cookie red",
+      "example": " barbaro",
       "style": {
         "vertical": 0,
-        "left": 154.966,
-        "top": 107.733,
-        "width": 205.072,
-        "height": 24.6087,
-        "fontSize": 16.4058,
-        "lineHeight": 24.6087,
-        "fontFamily": "f99066",
+        "left": 167.283,
+        "top": 100.228,
+        "width": 186.002,
+        "height": 22.225,
+        "fontSize": 14.8748,
+        "lineHeight": 22.3122,
+        "fontFamily": "f316",
         "textAlign": "center",
         "color": "#191919",
-        "rotate": 37,
+        "rotate": 0,
         "opacity": 100
       },
       "bg": {
         "x": 0,
         "y": 0,
-        "width": 775.0770284241302,
-        "height": 193.76925710603254
+        "width": 702.7481248721838,
+        "height": 175.68703121804595
+      },
+      "_layer_name": "traditional"
+    },
+    {
+      "type": "img",
+      "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/6d1ca59a-6e95-42e3-a404-47cf2b94cb01.png",
+      "uuid": "90f114a1-e472-4e8d-8db8-8ec6729284ff",
+      "can_set_color": 0,
+      "fills": [],
+      "owidth": 300,
+      "oheight": 227,
+      "isProportional": false,
+      "style": {
+        "position": "absolute",
+        "width": 79.375,
+        "height": 60.0604,
+        "top": 95.5935,
+        "left": 36.612,
+        "rotate": 0,
+        "opacity": 50,
+        "rotateX": true
+      },
+      "bg": {
+        "x": 0,
+        "y": 0,
+        "width": 79.375,
+        "height": 60.0604
       },
       "_layer_name": "traditional"
     }
   ],
-  "inside_design_data": [],
+  "inside_design_data": [
+    {
+      "style": {
+        "left": 266.404,
+        "top": 97.69989999999999,
+        "width": 78.68629999999996,
+        "height": 78.68630000000002,
+        "rotate": 0
+      },
+      "type": "group",
+      "designs": [
+        {
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 58.33217778632169,
+            "height": 58.332177786321736
+          },
+          "id": 2261045,
+          "src": "//yun.baoxiaohe.com/user-materials/53f0b04b-e4e2-4cff-9937-030ffd6c1a05.svg",
+          "type": "img",
+          "uuid": "1b9c4f0a-68b6-4327-a092-68d2ef968b52",
+          "fills": [
+            {
+              "type": "fill",
+              "class": "Mp8YijVN",
+              "color": "rgba(83, 36, 115, 1)",
+              "value": "#405B2F",
+              "tagName": "circle"
+            }
+          ],
+          "style": {
+            "top": 1.4210854715202004e-14,
+            "left": 0,
+            "width": 78.6863,
+            "crafts": {},
+            "height": 78.6863,
+            "rotate": 0,
+            "opacity": 100,
+            "rotateX": false,
+            "rotateY": false,
+            "position": "absolute",
+            "lengthLock": false
+          },
+          "_level": 2,
+          "_opers": [],
+          "locked": false,
+          "_loaded": false,
+          "isCutout": false,
+          "_selected": false,
+          "layerName": "图形-资源 162.svg",
+          "_side_name": "outside",
+          "_layer_name": "traditional",
+          "original_src": "//yun.baoxiaohe.com/user-materials/53f0b04b-e4e2-4cff-9937-030ffd6c1a05.svg",
+          "can_set_color": 1
+        },
+        {
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 50.869647345136784,
+            "height": 50.869647345136805
+          },
+          "id": 108688,
+          "src": "//cdn.baoxiaohe.com/f2ac216a-308d-479b-b73e-385427b6d6b4.svg",
+          "type": "img",
+          "uuid": "1a988695-6f62-4574-aff2-57cd7a905dd7",
+          "fills": [
+            {
+              "type": "fill",
+              "class": "ou9Cx7nJ",
+              "color": "rgba(255, 202, 76, 0)",
+              "value": "NONE",
+              "tagName": "circle"
+            },
+            {
+              "type": "stroke",
+              "class": "O31bvvHG",
+              "color": "rgba(255, 255, 255, 1)",
+              "value": "#000000",
+              "tagName": "circle"
+            }
+          ],
+          "style": {
+            "top": 6.748100000000008,
+            "left": 6.7479999999999905,
+            "width": 65.1903,
+            "crafts": {},
+            "height": 65.1903,
+            "rotate": 0,
+            "opacity": 100,
+            "rotateX": false,
+            "rotateY": false,
+            "position": "absolute",
+            "lengthLock": false
+          },
+          "_level": 2,
+          "_opers": [],
+          "locked": false,
+          "_loaded": false,
+          "isCutout": false,
+          "_selected": false,
+          "layerName": "图形-圆形",
+          "_side_name": "outside",
+          "_layer_name": "traditional",
+          "original_src": "//cdn.baoxiaohe.com/f2ac216a-308d-479b-b73e-385427b6d6b4.svg",
+          "can_set_color": 1
+        },
+        {
+          "x": 102.04724409569994,
+          "y": null,
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 33.98049367340765,
+            "height": 4.244438076447894
+          },
+          "id": 108780,
+          "src": "//yun.baoxiaohe.com/font/ac92249f-50af-487a-8824-95ef932ef639.woff2",
+          "load": false,
+          "type": "font",
+          "uuid": "20049d13-3dfe-4dc8-954a-56bcfd660e13",
+          "style": {
+            "top": 17.473100000000017,
+            "left": 17.535000000000025,
+            "color": "rgba(255, 255, 255, 1)",
+            "width": 42.4389,
+            "crafts": {},
+            "height": 42.3333,
+            "rotate": 0,
+            "opacity": 100,
+            "rotateX": false,
+            "rotateY": false,
+            "colorObj": {
+              "color": "rgba(255, 255, 255, 1)",
+              "_color_ColorInfo": {
+                "cmyk": {
+                  "c": 0,
+                  "k": 0,
+                  "m": 0,
+                  "y": 0
+                },
+                "rgba": "rgba(255, 255, 255, 1)"
+              },
+              "_color_ColorMode": "rgba"
+            },
+            "fontSize": 17.7018,
+            "position": "absolute",
+            "vertical": 0,
+            "fontStyle": "normal",
+            "textAlign": "center",
+            "fontFamily": "f108780",
+            "fontShadow": [],
+            "fontStroke": [],
+            "fontWeight": "normal",
+            "lengthLock": false,
+            "lineHeight": 21.24216,
+            "fontResultRatio": 50
+          },
+          "value": "N1\nM2",
+          "_level": 2,
+          "_opers": [],
+          "locked": false,
+          "_loaded": false,
+          "example": "Oswald-Medium",
+          "_editing": false,
+          "selected": false,
+          "_selected": true,
+          "layerName": "文字-双击修改文字",
+          "valueHTML": "<div>YOUR</div><div>TEXT</div>",
+          "_side_name": "outside",
+          "_layer_name": "traditional",
+          "fontResultId": 0,
+          "original_src": "//yun.baoxiaohe.com/font/ac92249f-50af-487a-8824-95ef932ef639.woff2"
+        }
+      ],
+      "uuid": "fac78285-4fa6-43e6-a6ae-24dd1cb18238",
+      "locked": false,
+      "_opers": [],
+      "_layer_name": "traditional",
+      "_side_name": "inside"
+    }
+  ],
   "by_project_id": null,
   "material_obj": null,
   "material_jpg": null,
   "material_mtl": null,
   "is_render": 0,
   "line_guides": null,
-  "screenshot_id": 13512418,
-  "screenshot": "//test-cdn.pacdora.com/render-cover/c7456c3e-c22d-4d16-bd8c-c4b6bbd30c26.png",
+  "screenshot_id": 13512514,
+  "screenshot": "//test-cdn.pacdora.com/render-cover/4c3de799-caea-4353-ab3e-375809e1e973.png",
   "color_history": null,
   "inside_background": null,
   "face_background": null,
@@ -63,7 +272,7 @@
   "by_work_id": null,
   "by_ai_project_id": 0,
   "by_share_project_id": 0,
-  "blankSettingId": 16352,
+  "blankSettingId": 389,
   "rotate": 0,
   "extend_attrs": {
     "trademark": "",
@@ -86,30 +295,57 @@
           "bg": {
             "x": 0,
             "y": 0,
-            "width": 775.0770284241302,
-            "height": 193.76925710603257
+            "width": 702.7481248721838,
+            "height": 175.68703121804597
           },
-          "id": "61775a11-382a-426c-96c8-2add5f5a5211",
-          "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
+          "id": "5ba06a03-7d0f-4ff9-a18a-2f7ed5d27633",
+          "src": "https://cdn.pacdora.com/font/2398781c-6c06-49b8-b9e8-a919a646f065.woff2",
           "type": "font",
-          "uuid": "61775a11-382a-426c-96c8-2add5f5a5211",
+          "uuid": "5ba06a03-7d0f-4ff9-a18a-2f7ed5d27633",
           "style": {
-            "top": 107.733,
-            "left": 154.966,
+            "top": 100.228,
+            "left": 167.283,
             "color": "#191919",
-            "width": 205.072,
-            "height": 24.6087,
-            "rotate": 37,
+            "width": 186.002,
+            "height": 22.225,
+            "rotate": 0,
             "opacity": 100,
-            "fontSize": 16.4058,
+            "fontSize": 14.8748,
             "vertical": 0,
             "textAlign": "center",
-            "fontFamily": "f99066",
-            "lineHeight": 24.6087
+            "fontFamily": "f316",
+            "lineHeight": 22.3122
           },
-          "value": "Your text here",
-          "example": "Crimson-Roman",
+          "value": "cookie red",
+          "example": " barbaro",
           "_layer_name": "traditional"
+        },
+        {
+          "bg": {
+            "x": 0,
+            "y": 0,
+            "width": 79.375,
+            "height": 60.0604
+          },
+          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/6d1ca59a-6e95-42e3-a404-47cf2b94cb01.png",
+          "type": "img",
+          "uuid": "90f114a1-e472-4e8d-8db8-8ec6729284ff",
+          "fills": [],
+          "style": {
+            "top": 95.5935,
+            "left": 36.612,
+            "width": 79.375,
+            "height": 60.0604,
+            "rotate": 0,
+            "opacity": 50,
+            "rotateX": true,
+            "position": "absolute"
+          },
+          "owidth": 300,
+          "oheight": 227,
+          "_layer_name": "traditional",
+          "can_set_color": 0,
+          "isProportional": false
         }
       ],
       "line_guides": null,
@@ -120,7 +356,189 @@
       "def_line_color": "#999999",
       "face_background": null,
       "inside_background": null,
-      "inside_design_list": [],
+      "inside_design_list": [
+        {
+          "type": "group",
+          "uuid": "fac78285-4fa6-43e6-a6ae-24dd1cb18238",
+          "style": {
+            "top": 97.6999,
+            "left": 266.404,
+            "width": 78.68629999999996,
+            "height": 78.68630000000002,
+            "rotate": 0
+          },
+          "_opers": [],
+          "locked": false,
+          "designs": [
+            {
+              "bg": {
+                "x": 0,
+                "y": 0,
+                "width": 58.33217778632169,
+                "height": 58.332177786321736
+              },
+              "id": 2261045,
+              "src": "//yun.baoxiaohe.com/user-materials/53f0b04b-e4e2-4cff-9937-030ffd6c1a05.svg",
+              "type": "img",
+              "uuid": "1b9c4f0a-68b6-4327-a092-68d2ef968b52",
+              "fills": [
+                {
+                  "type": "fill",
+                  "class": "Mp8YijVN",
+                  "color": "rgba(83, 36, 115, 1)",
+                  "value": "#405B2F",
+                  "tagName": "circle"
+                }
+              ],
+              "style": {
+                "top": 1.4210854715202004e-14,
+                "left": 0,
+                "width": 78.6863,
+                "crafts": {},
+                "height": 78.6863,
+                "rotate": 0,
+                "opacity": 100,
+                "rotateX": false,
+                "rotateY": false,
+                "position": "absolute",
+                "lengthLock": false
+              },
+              "_level": 2,
+              "_opers": [],
+              "locked": false,
+              "_loaded": false,
+              "isCutout": false,
+              "_selected": false,
+              "layerName": "图形-资源 162.svg",
+              "_side_name": "outside",
+              "_layer_name": "traditional",
+              "original_src": "//yun.baoxiaohe.com/user-materials/53f0b04b-e4e2-4cff-9937-030ffd6c1a05.svg",
+              "can_set_color": 1
+            },
+            {
+              "bg": {
+                "x": 0,
+                "y": 0,
+                "width": 50.869647345136784,
+                "height": 50.869647345136805
+              },
+              "id": 108688,
+              "src": "//cdn.baoxiaohe.com/f2ac216a-308d-479b-b73e-385427b6d6b4.svg",
+              "type": "img",
+              "uuid": "1a988695-6f62-4574-aff2-57cd7a905dd7",
+              "fills": [
+                {
+                  "type": "fill",
+                  "class": "ou9Cx7nJ",
+                  "color": "rgba(255, 202, 76, 0)",
+                  "value": "NONE",
+                  "tagName": "circle"
+                },
+                {
+                  "type": "stroke",
+                  "class": "O31bvvHG",
+                  "color": "rgba(255, 255, 255, 1)",
+                  "value": "#000000",
+                  "tagName": "circle"
+                }
+              ],
+              "style": {
+                "top": 6.748100000000008,
+                "left": 6.7479999999999905,
+                "width": 65.1903,
+                "crafts": {},
+                "height": 65.1903,
+                "rotate": 0,
+                "opacity": 100,
+                "rotateX": false,
+                "rotateY": false,
+                "position": "absolute",
+                "lengthLock": false
+              },
+              "_level": 2,
+              "_opers": [],
+              "locked": false,
+              "_loaded": false,
+              "isCutout": false,
+              "_selected": false,
+              "layerName": "图形-圆形",
+              "_side_name": "outside",
+              "_layer_name": "traditional",
+              "original_src": "//cdn.baoxiaohe.com/f2ac216a-308d-479b-b73e-385427b6d6b4.svg",
+              "can_set_color": 1
+            },
+            {
+              "x": 102.04724409569994,
+              "y": null,
+              "bg": {
+                "x": 0,
+                "y": 0,
+                "width": 33.98049367340765,
+                "height": 4.244438076447894
+              },
+              "id": 108780,
+              "src": "//yun.baoxiaohe.com/font/ac92249f-50af-487a-8824-95ef932ef639.woff2",
+              "load": false,
+              "type": "font",
+              "uuid": "20049d13-3dfe-4dc8-954a-56bcfd660e13",
+              "style": {
+                "top": 17.473100000000017,
+                "left": 17.535000000000025,
+                "color": "rgba(255, 255, 255, 1)",
+                "width": 42.4389,
+                "crafts": {},
+                "height": 42.3333,
+                "rotate": 0,
+                "opacity": 100,
+                "rotateX": false,
+                "rotateY": false,
+                "colorObj": {
+                  "color": "rgba(255, 255, 255, 1)",
+                  "_color_ColorInfo": {
+                    "cmyk": {
+                      "c": 0,
+                      "k": 0,
+                      "m": 0,
+                      "y": 0
+                    },
+                    "rgba": "rgba(255, 255, 255, 1)"
+                  },
+                  "_color_ColorMode": "rgba"
+                },
+                "fontSize": 17.7018,
+                "position": "absolute",
+                "vertical": 0,
+                "fontStyle": "normal",
+                "textAlign": "center",
+                "fontFamily": "f108780",
+                "fontShadow": [],
+                "fontStroke": [],
+                "fontWeight": "normal",
+                "lengthLock": false,
+                "lineHeight": 21.24216,
+                "fontResultRatio": 50
+              },
+              "value": "N1\nM2",
+              "_level": 2,
+              "_opers": [],
+              "locked": false,
+              "_loaded": false,
+              "example": "Oswald-Medium",
+              "_editing": false,
+              "selected": false,
+              "_selected": true,
+              "layerName": "文字-双击修改文字",
+              "valueHTML": "<div>YOUR</div><div>TEXT</div>",
+              "_side_name": "outside",
+              "_layer_name": "traditional",
+              "fontResultId": 0,
+              "original_src": "//yun.baoxiaohe.com/font/ac92249f-50af-487a-8824-95ef932ef639.woff2"
+            }
+          ],
+          "_side_name": "inside",
+          "_layer_name": "traditional"
+        }
+      ],
       "inside_membrane_id": null,
       "inside_membrane_name": "",
       "inside_face_background": null
@@ -148,18 +566,18 @@
     "partThemeColorData": {
       "color": "",
       "recentColors": [],
-      "blankSettingId": 16352
+      "blankSettingId": 389
     }
   },
   "type": "mockup-detail",
   "appId": null,
-  "create_time": "1725343048950",
+  "create_time": "1726728962836",
   "by_experience_project_id": null,
-  "update_time": "1726222897830",
+  "update_time": "1726728968576",
   "is_delete": 0,
   "science_id": 8,
-  "user_id": 1102855,
-  "cate_id": 41,
+  "user_id": 1102968,
+  "cate_id": 9,
   "commentCount": 0,
   "unread": false,
   "collaborate": {
@@ -167,7 +585,7 @@
     "ioToken": "",
     "memberCount": 0
   },
-  "project_name": "Double tray boxes storage with front opening cardboard mailer mockup 100103",
+  "project_name": "Tuck end boxes auto bottome snap lock paper mockup 102010",
   "price": 0,
   "can_print": true,
   "supportSciences": [
@@ -181,37 +599,18 @@
     14
   ],
   "cate": {
-    "id": 41,
-    "name": "锁扣飞机式插锁盒",
-    "image": "//yun.baoxiaohe.com/render/20220113/100103.jpg",
-    "sort": 100103,
-    "remarks": "锁扣飞机式插锁盒",
+    "id": 9,
+    "name": "扣底盒",
+    "image": "//yun.baoxiaohe.com/render/20220113/102010.jpg",
+    "sort": 102010,
+    "remarks": "扣底盒",
     "faces": "[]",
-    "cate_no": "100103",
-    "defaultSize": [
-      {
-        "length": "120",
-        "width": "80",
-        "height": "200",
-        "remark": ""
-      },
-      {
-        "length": "120",
-        "width": "60",
-        "height": "160",
-        "remark": ""
-      },
-      {
-        "length": "90",
-        "width": "90",
-        "height": "90",
-        "remark": ""
-      }
-    ],
+    "cate_no": "102010",
+    "defaultSize": [],
     "lengthLimit": "15,2000",
     "widthLimit": "10,2000",
-    "heightLimit": "15,2000",
-    "code": "PairAircraftWithLock",
+    "heightLimit": "20,2000",
+    "code": "PairBuckle",
     "minThickness": "0.2",
     "price": "0.00",
     "discount": 1,
@@ -248,7 +647,7 @@
     "partGroup": {},
     "appId": "",
     "create_time": "1585550467392",
-    "update_time": "1672724285655",
+    "update_time": "1714284910320",
     "is_delete": 0,
     "cate_top_id": 1,
     "modelClassId": 181

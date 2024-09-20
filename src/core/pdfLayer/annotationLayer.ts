@@ -71,7 +71,7 @@ export function drawAnnotateLabel(
     <g transform="translate(500,0)">
       ${idLabelSvgString}
     </g>
-    <g transform="translate(800,0)">
+    <g transform="translate(850,0)">
       ${lineLabelSvgString}
     </g>
   </svg>
@@ -83,10 +83,18 @@ export function drawAnnotateLabel(
   return context;
 }
 // 定位标记
-export function drawLocalMarker(params, config: IDrawingConfigPlus) {
+export function drawLocalMarker(
+  params: IAnnotationParams,
+  config: IDrawingConfigPlus
+) {
   let svgString = "";
   const markerLength = 20;
   const topMargin = (PAGE_MARGIN.top - PAGE_MARK_MARGIN.top) * DPI;
+
+  const rootSvgWidth =
+    (Number(params.designArea.width) + 2 * config.bleedLineWidth) * DPI;
+  const rootSvgHeight =
+    (Number(params.designArea.height) + 2 * config.bleedLineWidth) * DPI;
   const leftTopMarker = [
     { x: 0, y: -markerLength },
     { x: 0, y: 0 },
@@ -119,7 +127,7 @@ export function drawLocalMarker(params, config: IDrawingConfigPlus) {
     height: "20",
     fill: "none",
     stroke: "black",
-    strokeWidth: "1",
+    strokeWidth: "0.2",
     overflow: "visible",
   };
   let markerSvg = createSvgElement(
@@ -134,7 +142,7 @@ export function drawLocalMarker(params, config: IDrawingConfigPlus) {
     createSvgElement(
       {
         ...markerSvgProps,
-        transform: `translate(${config.rootSvgSize.width * DPI},${topMargin})`,
+        transform: `translate(${rootSvgWidth},${topMargin})`,
       },
       createElement("path", { d: getMarkerPath(rightTopMarker) })
     );
@@ -143,9 +151,7 @@ export function drawLocalMarker(params, config: IDrawingConfigPlus) {
     createSvgElement(
       {
         ...markerSvgProps,
-        transform: `translate(${config.rootSvgSize.width * DPI},${
-          topMargin + config.rootSvgSize.height * DPI
-        })`,
+        transform: `translate(${rootSvgWidth},${topMargin + rootSvgHeight})`,
       },
       createElement("path", { d: getMarkerPath(rightBottomMarker) })
     );
@@ -154,9 +160,7 @@ export function drawLocalMarker(params, config: IDrawingConfigPlus) {
     createSvgElement(
       {
         ...markerSvgProps,
-        transform: `translate(0,${
-          topMargin + config.rootSvgSize.height * DPI
-        })`,
+        transform: `translate(0,${topMargin + rootSvgHeight})`,
       },
       createElement("path", { d: getMarkerPath(leftBottomMarker) })
     );
@@ -168,17 +172,28 @@ export function drawLocalMarker(params, config: IDrawingConfigPlus) {
   return context;
 }
 
-export function drawFooterLabel(
-  params: IAnnotationParams,
-  config: IDrawingConfigPlus
-) {
+export function drawFooterLabel(params, config: IDrawingConfigPlus) {
+  const footerLabelWidth = params.text.length * 12.5 || 100;
+  const rootSvgWidth =
+    Number(params.designArea.width) + 2 * config.bleedLineWidth;
+  const translateX = (rootSvgWidth * DPI - footerLabelWidth) / 2;
   let svgString = createSvgElement(
     {
-      width: "100",
-      height: "100",
-      transform: `translate(0,${config.rootSvgSize.height * DPI})`,
+      width: footerLabelWidth.toString(),
+      height: "50",
+      transform: `translate(${translateX},${
+        (config.rootSvgSize.height + PAGE_MARGIN.top) * DPI
+      })`,
     },
-    createElement("text", {}, "footer")
+    createElement(
+      "text",
+      {
+        x: "0",
+        y: "25",
+        "font-size": "24",
+      },
+      params.text
+    )
   );
   const context: IPdfSvgContainer<"annotation-layer"> = {
     type: "footer",

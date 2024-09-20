@@ -1,8 +1,12 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import { fetchAssets, prefixUrl } from "./utils/imgUtils";
+import { fetchAssets, prefixUrl, clearCache } from "./utils/request";
 import { createPageApp } from "./core/pdfPage";
 import log from "@/utils/log";
-import { fetchResourceWithCache, assetsMap } from "@/utils/request";
+import {
+  fetchResourceWithCache,
+  assetsMap,
+  cacheResource,
+} from "@/utils/request";
 
 import {
   TYPE_OUTSIDE_DESIGN,
@@ -25,16 +29,17 @@ function getMockData() {
     params: {},
   };
 }
-export async function pdfMain() {
+export async function pdfMain(knifeData, projectData, options) {
   try {
     console.time("export task");
-
+    // await cacheResource(projectData);
     const pageApp = createPageApp(knifeData, {
       unit: "mm",
+      // colorMode: options?.colorMode || "RGB",
       colorMode: "RGB",
     });
     log.info("log-", "registerFace start");
-    pageApp.registerFace(getMockData().knifeData, getMockData().projectData);
+    pageApp.registerFace(knifeData, projectData);
     console.log(pageApp);
     // console.log(
     //   util.inspect(pageApp.pages[0], {
@@ -57,13 +62,12 @@ export async function pdfMain() {
         page.pageType & TYPE_OUTSIDE_DESIGN ||
         page.pageType & TYPE_INSIDE_DESIGN
       ) {
-        let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
-        if (knifeSvgArr) {
-          knifeSvgArr.forEach((knifeSvg) => {
-            pdfDoc.addSVG(knifeSvg.svgString);
-          });
+        let annotateSvg = page.face?.annotationLayer.getSvgString();
+        if (annotateSvg) {
+          const recover = pdfDoc.SetPaintAnnotationLabelMargin();
+          pdfDoc.addSVG(annotateSvg);
+          recover.call(pdfDoc.doc);
         }
-
         let designSvg = page.face?.designLayer.getSvgString({
           pageMargin: pageApp.pageMargin,
         });
@@ -74,35 +78,40 @@ export async function pdfMain() {
               return assetsMap.get(_link);
             },
           });
-        let annotateSvg = page.face?.annotationLayer.getSvgString();
-        // fsSaveFile(annotateSvg, `annotateSvg.svg`);
-        if (annotateSvg) {
-          pdfDoc.SetPaintAnnotationLabelMargin();
-          pdfDoc.addSVG(annotateSvg);
-        }
-        // pdfDoc.addPage();
-        // // 只画设计
-        // pdfDoc.addSVG(designSvg, 0, 0, {
-        //   imageCallback: function (link) {
-        //     const _link = prefixUrl(link);
-        //     return assetsMap.get(_link);
-        //   },
-        // });
-        // pdfDoc.addPage();
-        // // 只画刀线
-        // knifeSvgArr.forEach((knifeSvg) => {
-        //   pdfDoc.addSVG(knifeSvg.svgString);
-        // });
-      }
-      if (page.pageType & TYPE_MARK) {
+
         let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
         if (knifeSvgArr) {
           knifeSvgArr.forEach((knifeSvg) => {
             pdfDoc.addSVG(knifeSvg.svgString);
           });
         }
+        pdfDoc.addPage();
+        // 只画设计
+        pdfDoc.addSVG(designSvg, 0, 0, {
+          imageCallback: function (link) {
+            const _link = prefixUrl(link);
+            return assetsMap.get(_link);
+          },
+        });
+        pdfDoc.addPage();
+        // 只画刀线
+        knifeSvgArr.forEach((knifeSvg) => {
+          pdfDoc.addSVG(knifeSvg.svgString);
+        });
+      }
+      if (page.pageType & TYPE_MARK) {
         let annotateSvg = page.face?.annotationLayer.getSvgString();
-        annotateSvg && pdfDoc.addSVG(annotateSvg);
+        if (annotateSvg) {
+          const recover = pdfDoc.SetPaintAnnotationLabelMargin();
+          pdfDoc.addSVG(annotateSvg);
+          recover.call(pdfDoc.doc);
+        }
+        let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
+        if (knifeSvgArr) {
+          knifeSvgArr.forEach((knifeSvg) => {
+            pdfDoc.addSVG(knifeSvg.svgString);
+          });
+        }
       }
 
       if (i !== pageApp.pages.length - 1) {
@@ -111,12 +120,13 @@ export async function pdfMain() {
     }
 
     pdfDoc.end();
+    // clearCache();
     console.timeEnd("export task");
   } catch (error) {
     console.error("出现错误", error);
   }
 }
-pdfMain();
+
 function fsSaveFile(context, name = "test.svg") {
   const fs = require("fs");
   const path = require("path");
@@ -124,3 +134,7 @@ function fsSaveFile(context, name = "test.svg") {
   fs.writeFileSync(`${filePath}/${name}`, context);
   console.log("file saved");
 }
+
+pdfMain(getMockData().knifeData, getMockData().projectData, {
+  colorMode: "CMYK",
+});

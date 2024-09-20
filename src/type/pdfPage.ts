@@ -39,7 +39,7 @@ export interface IDrawingBoardConfig {
     left: number;
     right: number;
   };
-  pageMarkerTop: {
+  pageMarkerMargin: {
     top: number;
   };
   colorMode: IColorMode;
@@ -57,7 +57,6 @@ export interface IPageApp {
   pages: IPage[];
 }
 export interface IPage {
-  pageNum: number;
   face: IFace;
   faceData: IFaceData;
   pageType: number;

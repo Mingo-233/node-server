@@ -76,7 +76,10 @@ export function usePdfLayer() {
     _pdfLayer["annotation-layer"].children.push(annotationLabel);
     const marker = drawLocalMarker(annotateData, config);
     _pdfLayer["annotation-layer"].children.push(marker);
-    const footer = drawFooterLabel(annotateData, config);
+    const footer = drawFooterLabel(
+      { designArea: annotateData.designArea, text: annotateData.faceName },
+      config
+    );
     _pdfLayer["annotation-layer"].children.push(footer);
   }
   function getPdfLayer() {

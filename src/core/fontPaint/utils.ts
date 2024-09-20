@@ -78,7 +78,6 @@ export function computedFontLineHeight(option) {
   // 为保证渲染效果 是基线对齐，这里应该忽略下降高度
   // const lineHeightBase = (ascentRatio + descentRatio) * fontSize;
   const lineHeightBase = ascentRatio * fontSize;
-  console.log("lineHeightBase", lineHeightBase);
   const lineHeightResult = lineHeightBase * lineHeightRatio;
   // 这个top高度的偏移，是用来模拟首行文字上面的间隙。否则首行文字会直接顶在最上面
   // const top = lineHeight - ascenderHeight;

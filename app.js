@@ -10,9 +10,16 @@ app.all("*", function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Content-Type");
   next();
 });
+// 中间件：解析 JSON 格式的请求体
+app.use(express.json({ limit: "10mb" }));
+
 app.post("/pdf", function (req, res, next) {
   console.log("pdf start -----");
-  pdf.pdfMain();
+  console.log(req.body);
+  const { knife, project } = req.body;
+  pdf.pdfMain(knife, project, {
+    colorMode: "CMYK",
+  });
   console.log("pdf end ------");
 
   res.send("ok");

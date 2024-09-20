@@ -45,7 +45,7 @@ export function getTransformSvg(svgString, fillsConfig = []) {
   svgDom.setAttribute("width", `100%`);
   svgDom.setAttribute("height", `100%`);
   let resultSvgString = dom.querySelector("svg")?.outerHTML ?? "";
-  return resultSvgString;
+  return removeStyleTags(resultSvgString);
 }
 
 function beautySvg(svgDom, win) {
@@ -153,4 +153,7 @@ function colorEqual(c1, c2) {
     c1Rgba.b === c2Rgba.b &&
     c1Rgba.a === c2Rgba.a
   );
+}
+function removeStyleTags(input) {
+  return input.replace(/<style[\s\S]*?<\/style>/gi, "");
 }
