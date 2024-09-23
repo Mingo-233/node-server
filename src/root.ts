@@ -7,7 +7,7 @@ import {
   assetsMap,
   cacheResource,
 } from "@/utils/request";
-
+import type { ICreatePdfOptions } from "@/type/pdf";
 import {
   TYPE_OUTSIDE_DESIGN,
   TYPE_INSIDE_DESIGN,
@@ -21,6 +21,7 @@ import util from "util";
 
 import projectData from "./store/tempInfo.json";
 import knifeData from "./store/tempKnife.json";
+const path = require("path");
 
 function getMockData() {
   return {
@@ -29,14 +30,18 @@ function getMockData() {
     params: {},
   };
 }
-export async function pdfMain(knifeData, projectData, options) {
+export async function pdfMain(
+  knifeData,
+  projectData,
+  options: ICreatePdfOptions
+) {
   try {
     console.time("export task");
     // await cacheResource(projectData);
     const pageApp = createPageApp(knifeData, {
       unit: "mm",
-      // colorMode: options?.colorMode || "RGB",
       colorMode: "RGB",
+      ...options,
     });
     log.info("log-", "registerFace start");
     pageApp.registerFace(knifeData, projectData);
@@ -52,6 +57,7 @@ export async function pdfMain(knifeData, projectData, options) {
       pageSize: pageApp.pageSize,
       pageMargin: pageApp.pageMargin,
       pageMarkerMargin: pageApp.pageMakerMargin,
+      filePath: options.filePath,
     });
 
     pdfDoc.pdfInit();
@@ -129,12 +135,13 @@ export async function pdfMain(knifeData, projectData, options) {
 
 function fsSaveFile(context, name = "test.svg") {
   const fs = require("fs");
-  const path = require("path");
+
   const filePath = path.resolve(__dirname, "../../output");
   fs.writeFileSync(`${filePath}/${name}`, context);
   console.log("file saved");
 }
 
 pdfMain(getMockData().knifeData, getMockData().projectData, {
-  colorMode: "CMYK",
+  isOnlyKnife: true,
+  filePath: path.resolve(__dirname, "../../dist/a.pdf"),
 });

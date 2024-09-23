@@ -5,7 +5,7 @@ import SVGtoPDF from "../../../public/svg-to-pdfkit.js";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
 export function usePdfDoc(options) {
-  const { pageSize, pageMargin, pageMarkerMargin } = options;
+  const { pageSize, pageMargin, pageMarkerMargin, filePath } = options;
   let doc = createPdfDocument(pageSize.width, pageSize.height);
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
@@ -35,11 +35,13 @@ export function usePdfDoc(options) {
   }
   function _paintAfter() {}
   function _paintEnd() {
-    const randomName = Math.random().toString(36).substring(4);
+    const randomName = Math.random().toString(36).substring(6);
+    const days = new Date().getDate();
     const hours = new Date().getHours();
     const minutes = new Date().getMinutes();
-    const fileName = `${hours}-${minutes}-${randomName}.pdf`;
-    doc.pipe(fs.createWriteStream(`./output/${fileName}`));
+    const fileName = `${days}-${hours}-${minutes}-${randomName}.pdf`;
+    const outputPath = filePath || `./output/${fileName}`;
+    doc.pipe(fs.createWriteStream(`${outputPath}`));
     // doc.pipe(fs.createWriteStream(`dist/pdf/${randomName}.pdf`));
     doc.end();
   }

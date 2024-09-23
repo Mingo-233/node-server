@@ -17,21 +17,31 @@ async function main() {
   const font2 = await opentype.load(tempFontPath);
 
   const font1 = await opentype.load(fontPath);
-  console.log(font2.glyphs);
-
+  const font2GlyphsNum = font1.glyphs.numGlyphs;
   // 创建一个新的字体对象
-  const glyphs = [];
-  return;
-  // 从第一个字体中提取所需的字形
-  font1.glyphs.glyphs.forEach(function (glyph) {
-    glyphs.push(glyph);
+  const glyphsMerge = font1.glyphs.glyphs;
+  let font2GlyphsArr = Object.keys(font2.glyphs.glyphs);
+  console.log("font1GlyphsArr", font2GlyphsArr);
+  font2GlyphsArr.forEach((i) => {
+    let newIndex = Number(i) + Number(font2GlyphsNum) + 1;
+    glyphsMerge[newIndex] = font2.glyphs.glyphs[i];
   });
+  console.log("font1.unitsPerEm", font1.unitsPerEm);
+  function objToArray(obj) {
+    let arr = [];
+    for (let i in obj) {
+      arr.push(obj[i]);
+    }
+    return arr;
+  }
+  // 假设 font1 和 font2 都有 kerningPairs 属性
+  const mergedKerningPairs = { ...font1.kerningPairs, ...font2.kerningPairs };
 
-  // 从第二个字体中提取所需的字形
-  font2.glyphs.glyphs.forEach(function (glyph) {
-    glyphs.push(glyph);
-  });
-
+  for (const [pair, value] of Object.entries(font2.kerningPairs)) {
+    // 根据需要调整字距对的键
+    // 这里假设 simple merging
+    mergedKerningPairs[pair] = value;
+  }
   // 创建新字体
   const newFont = new opentype.Font({
     familyName: "MergedFont",
@@ -39,17 +49,32 @@ async function main() {
     unitsPerEm: font1.unitsPerEm,
     ascender: font1.ascender,
     descender: font1.descender,
-    glyphs: glyphs,
+    glyphs: [objToArray(glyphsMerge)].flat(),
+    kerningPairs: mergedKerningPairs,
   });
 
   // 导出新字体文件
   //   const arrayBuffer = newFont.toArrayBuffer();
   //   const blob = new Blob([arrayBuffer], { type: "font/ttf" });
 
+  // Ensure all characters are present
+  const text = "啊你嗯";
+  const missingGlyphs = [];
   // 使用新字体绘制文字轮廓
-  const path = newFont.getPath("Hello", 0, 150, 72);
-  console.log("path", path);
+  for (const char of text) {
+    const glyph = newFont.charToGlyph(char);
+    if (!glyph) {
+      missingGlyphs.push(char);
+    }
+  }
 
+  if (missingGlyphs.length > 0) {
+    console.error("Missing glyphs for characters:", missingGlyphs.join(", "));
+  } else {
+    // Use the new font to draw the text path
+    const path = newFont.getPath(text, 0, 150, 72);
+    console.log("path", path.toSVG());
+  }
   //   path.draw(ctx); // 假设你已经有了一个canvas上下文 `ctx`
 }
 

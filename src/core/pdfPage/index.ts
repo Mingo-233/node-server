@@ -3,6 +3,7 @@ import { createFace } from "@/core/pdfFace/index";
 import { IPage } from "@/type/pdfPage";
 import log from "@/utils/log";
 import type { IAnnotationParams } from "@/type/pdfLayer";
+
 import {
   LAYER_KNIFE,
   LAYER_MARK,
@@ -12,8 +13,9 @@ import {
   TYPE_INSIDE_DESIGN,
   TYPE_OUTSIDE_DESIGN,
 } from "@/nodes/layerNode";
+import { ICreatePageAppOptions } from "@/type/pdf";
 
-export function createPageApp(knifeData, params) {
+export function createPageApp(knifeData, params: ICreatePageAppOptions) {
   const app = {
     pageSize: {
       width: 0,
@@ -29,11 +31,13 @@ export function createPageApp(knifeData, params) {
       top: 0,
     },
     pages: [] as IPage[],
+    isOnlyKnife: true,
   };
   const boardConfig = getDrawingBoardConfig(knifeData, params);
   app.pageSize = boardConfig.pageSize;
   app.pageMargin = boardConfig.pageMargin;
   app.pageMakerMargin = boardConfig.pageMarkerMargin;
+  app.isOnlyKnife = params.isOnlyKnife;
   function registerFace(knifeData, projectData) {
     const layerList = knifeData.modeCate.layerList;
     if (isTraditional(layerList)) {
@@ -106,15 +110,15 @@ export function createPageApp(knifeData, params) {
         faceName: facePaper.friendlyName,
       };
       let pageType = 0;
-      if (_designData.list.length > 0) {
+      if (_designData.list.length > 0 && !app.isOnlyKnife) {
         pageType |= LAYER_DESIGN;
       }
-      if (_insideDesignData.list.length > 0) {
+      if (_insideDesignData.list.length > 0 && !app.isOnlyKnife) {
         pageType |= LAYER_INSIDE_DESIGN;
       }
       if (
-        _designData.list.length === 0 &&
-        _insideDesignData.list.length === 0
+        app.isOnlyKnife ||
+        (_designData.list.length === 0 && _insideDesignData.list.length === 0)
       ) {
         pageType |= LAYER_MARK;
       }

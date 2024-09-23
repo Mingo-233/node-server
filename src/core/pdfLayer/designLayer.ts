@@ -7,6 +7,7 @@ import { IFontParseParams } from "@/type/parse";
 import SvgUtil from "@/utils/svgUtils";
 import { DPI, PDFLayoutDPI } from "@/utils/constant";
 import { getShapeContent } from "./shape/index";
+import { getDefaultFontApp } from "@/core/fontPaint/index";
 import wawoff from "wawoff2";
 import opentype from "opentype.js";
 import {
@@ -15,7 +16,6 @@ import {
   genTextSvg,
   matchSymbol,
   isCharSupported,
-  getDefaultFontApp,
 } from "@/core/fontPaint/index";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;

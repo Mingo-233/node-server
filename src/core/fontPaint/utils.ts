@@ -1,3 +1,5 @@
+import opentype from "opentype.js";
+import { fetchAssets } from "@/utils/request";
 import { IPathPart } from "@/type/parse";
 export function createWordPathContext() {
   const context = {
@@ -45,6 +47,7 @@ export function isEnd(char) {
   if (isSymbolChar(char)) return true;
   // 2. 字符结束
   if (char === undefined || char === null) return true;
+  if (char === "\n") return true;
 }
 // [\u4e00-\u9fff]：匹配中文汉字。
 // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
@@ -116,4 +119,15 @@ export function computedFontLineHeight(option) {
     lineHeight: lineHeightResult,
     lineHeightTop: lineHeightTop,
   };
+}
+
+export async function getDefaultFontApp() {
+  const defaultFontURL = "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf";
+  const data = await fetchAssets(defaultFontURL);
+  const arrayBuffer = data.buffer.slice(
+    data.byteOffset,
+    data.byteOffset + data.byteLength
+  );
+  let fontApp = opentype.parse(arrayBuffer);
+  return fontApp;
 }

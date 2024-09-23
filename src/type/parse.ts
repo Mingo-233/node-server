@@ -93,6 +93,7 @@ export interface ITextInfoItem {
   isBreak: boolean;
   type: any;
   height?: number;
+  width?: number;
   chilePath?: IChilePath[];
 }
 interface IChilePath {

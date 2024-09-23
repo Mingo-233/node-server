@@ -4,6 +4,7 @@ import {
   computedFontLineHeight,
 } from "./utils";
 import { getVerticalTextPaths } from "./parse_zh";
+import { parseTextV2 } from "./parse_en_v2";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
 export function parseText(
@@ -11,10 +12,10 @@ export function parseText(
   config: IFontParseParams,
   defaultFontApp?
 ): IFontParse {
-  console.log("hasCnWords(config.text", hasCnWords(config.text));
-
   if (config.vertical && hasCnWords(config.text)) {
     return getVerticalTextPaths(fontApp, config);
+  } else {
+    return parseTextV2(fontApp, config, defaultFontApp);
   }
   const textArr = config.text.split("");
   const context = createWordPathContext();
@@ -38,13 +39,14 @@ export function parseText(
   //   编辑器中的选框大小
   const MAX_WIDTH = isVertical ? config.MaxHeight : config.MaxWidth;
   const MAX_HIGHT = isVertical ? config.MaxWidth : config.MaxHeight;
+  let rowAccumulatorWeight = 0;
+  let offsetX = 0;
   for (let i = 0; i < textArr.length; i++) {
     const text = textArr[i];
     if (text === "\n") {
-      settlePath(context, false);
+      settleRow(context);
       context.nextLine();
       // 跳过 换行字符的处理
-      // i++;
       continue;
     }
     context.addWord(text);
@@ -54,30 +56,32 @@ export function parseText(
       position.x1 = pathBoundingBox.x1;
       position.y1 = pathBoundingBox.y1;
     }
-
+    const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
+    rowAccumulatorWeight = rowAccumulatorWeight + currentPathWidth;
     // 超出选框边界
-    if (pathBoundingBox.x2 > MAX_WIDTH) {
-      context.backWord();
-      settlePath(context, false);
-      context.addWord(text);
+    if (rowAccumulatorWeight > MAX_WIDTH) {
+      settleRow(context);
       context.nextLine();
+      // 回退一步
+      i--;
+      continue;
     }
     //   end 最后一个字符
     if (i === textArr.length - 1) {
-      settlePath(context, false);
+      settleRow(context);
+      continue;
     }
+    context.addPath(path);
+    context.addTransform(`translate(${offsetX},0)`);
+    offsetX = offsetX + currentPathWidth;
   }
-  //   结算当前路径
-  function settlePath(context, isBreak = true) {
-    const path = getPath(fontApp, context.word, config.fontSize);
-    const pathBoundingBox = path.getBoundingBox();
+  //   结算当前行
+  function settleRow(context) {
     const transform = computedAlignTransform(
       config.textAlign,
       MAX_WIDTH,
-      MAX_HIGHT,
-      pathBoundingBox
+      rowAccumulatorWeight
     );
-    context.addPath(path);
     context.addAlignTransform(transform);
 
     const translateY = lineHeight * context.line + lineHeightTop;
@@ -87,16 +91,16 @@ export function parseText(
     context.addTransform(pathTransform);
 
     context.resetWord();
+    rowAccumulatorWeight = 0;
   }
-  function computedAlignTransform(textAlign, width, height, pathBoundingBox) {
-    const pathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
-    let translateX;
+  function computedAlignTransform(textAlign, maxWidth, currentWidth) {
+    let translateX = 0;
     switch (textAlign) {
       case "center":
-        translateX = (width - pathWidth) / 2;
+        translateX = (maxWidth - currentWidth) / 2;
         return `translate(${translateX},0)`;
       case "right":
-        translateX = width - pathWidth;
+        translateX = maxWidth - currentWidth;
         return `translate(${translateX},0)`;
 
       default:

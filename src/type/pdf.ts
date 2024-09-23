@@ -1,11 +1,10 @@
 import { IProject } from "./projectData";
 import { IKnifeData } from "./knifeData";
-interface ICreatePdfParams {
-  projectData: IProject;
-  knifeData: IKnifeData;
-  config: {
-    unit: "mm";
-    colorMode: "RGB" | "CMYK";
-    filePath: string;
-  };
+export interface ICreatePdfOptions {
+  filePath: string;
+  isOnlyKnife: boolean;
 }
+export type ICreatePageAppOptions = {
+  unit: "mm";
+  colorMode: "RGB";
+} & ICreatePdfOptions;
