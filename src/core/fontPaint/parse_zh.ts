@@ -18,7 +18,8 @@ const pathPartType = {
 
 export function getVerticalTextPaths(
   fontApp,
-  config: IFontParseParams
+  config: IFontParseParams,
+  defaultFontApp?
 ): IFontParse {
   const context = createWordPathContext();
   const position = {
@@ -154,7 +155,8 @@ export function getVerticalTextPaths(
       }
 
       if (isSymbolChar(textItem)) {
-        const path = getPath(fontApp, textItem, config.fontSize);
+        const app = config.isSupCnMainFontApp ? fontApp : defaultFontApp;
+        const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
         if (currentPathWidth > maxItemWidth) {

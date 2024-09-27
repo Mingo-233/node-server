@@ -67,6 +67,7 @@ export async function convertAndInvertImage(inputPath, outputPath) {
     const inputBuffer = await fs.promises.readFile(inputPath);
     await sharp(inputBuffer)
       .toColorspace("cmyk")
+      .withMetadata({ icc: "cmyk-adobe-japan-2001-coated.icc" })
       // 反转颜色
       .negate()
       // 保存为JPEG (CMYK兼容)

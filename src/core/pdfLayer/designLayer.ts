@@ -254,6 +254,9 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     data.byteOffset + data.byteLength
   );
   let fontApp = opentype.parse(arrayBuffer);
+  // 主字体文件是否支持中文
+  //TODO: 当前判断条件是字体文件的字形数量是否大于5000 ，待完善
+  let isSupCnMainFontApp = fontApp.glyphs?.length > 5000;
   let defaultFontApp: any = undefined;
   const matchResult = matchSymbol(designItem.value);
 
@@ -282,6 +285,7 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
       ascent,
       descent,
       fontName: designItem.example,
+      isSupCnMainFontApp: isSupCnMainFontApp,
     },
   };
   const parseResult = parseText(fontApp, parseParams, defaultFontApp);

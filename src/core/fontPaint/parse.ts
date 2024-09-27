@@ -13,7 +13,7 @@ export function parseText(
   defaultFontApp?
 ): IFontParse {
   if (config.vertical && hasCnWords(config.text)) {
-    return getVerticalTextPaths(fontApp, config);
+    return getVerticalTextPaths(fontApp, config, defaultFontApp);
   } else {
     return parseTextV2(fontApp, config, defaultFontApp);
   }

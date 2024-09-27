@@ -23,6 +23,7 @@ export interface IFontParseParams {
     ascent: number;
     descent: number;
     fontName?: string;
+    isSupCnMainFontApp: boolean;
   };
   text: string;
   fontSize: number;
