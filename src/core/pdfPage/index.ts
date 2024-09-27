@@ -107,7 +107,7 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
           width: layerKnifeData.totalX.toFixed(1),
           height: layerKnifeData.totalY.toFixed(1),
         },
-        faceName: facePaper.friendlyName,
+        faceName: facePaper?.friendlyName_en || facePaper.friendlyName,
       };
       let pageType = 0;
       if (_designData.list.length > 0 && !app.isOnlyKnife) {

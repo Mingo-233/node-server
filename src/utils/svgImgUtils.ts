@@ -83,7 +83,6 @@ function getSvg(dom, type, value) {
       continue;
     }
     const style = i.style;
-    // console.log("elem", i, i.style);
     if (colorEqual(style.getPropertyValue(type) ?? "", value)) {
       result.push({ el: i, type: "style" });
     }

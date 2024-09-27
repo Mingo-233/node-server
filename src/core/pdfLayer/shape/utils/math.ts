@@ -156,7 +156,6 @@ export function getIntersectionPoint(
   const y4 = line1[1].y;
 
   const denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-  console.log("denominator===>", denominator);
   if (denominator === 0) {
     // 两条线段平行或共线，无交点
     return null;

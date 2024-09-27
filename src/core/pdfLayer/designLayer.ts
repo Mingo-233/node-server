@@ -256,7 +256,6 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   let fontApp = opentype.parse(arrayBuffer);
   let defaultFontApp: any = undefined;
   const matchResult = matchSymbol(designItem.value);
-  console.log("matchResult", matchResult);
 
   if (matchResult) {
     const matchChar = matchResult[0];
@@ -303,13 +302,4 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     svgString: svgDom,
   };
   return context;
-}
-
-export function fsSaveFile(context, name = "test.svg") {
-  const fs = require("fs");
-  const path = require("path");
-  const pwdPath = process.cwd();
-  const filePath = path.resolve(pwdPath, "./output");
-  fs.writeFileSync(`${filePath}/${name}`, context);
-  console.log("file saved");
 }

@@ -8,7 +8,7 @@ export function createSvgTable(params, options?) {
   const defaultOption = {
     fontSize: 14,
     fontFamily: "Arial",
-    textColor: "#000",
+    textColor: "",
     xOffset: 10,
     yOffset: 15,
     lineStartOffset: 100, // 线条起始偏移位置
@@ -20,13 +20,13 @@ export function createSvgTable(params, options?) {
   const {
     fontSize,
     fontFamily,
-    textColor,
     xOffset,
     yOffset,
     lineStartOffset,
     lineLength,
     lineArray,
     type,
+    textColor,
   } = _option;
 
   const svgNS = "http://www.w3.org/2000/svg";
@@ -36,6 +36,8 @@ export function createSvgTable(params, options?) {
     let svgHeight = rows * cellHeight;
     svg.setAttribute("height", svgHeight);
     svg.setAttribute("width", svgWidth);
+    svg.setAttribute("fill", textColor);
+
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         const textIndex = i * cols + j;
@@ -47,7 +49,7 @@ export function createSvgTable(params, options?) {
         textElement.setAttribute("y", y);
         textElement.setAttribute("font-size", fontSize);
         textElement.setAttribute("font-family", fontFamily);
-        textElement.setAttribute("fill", textColor);
+        // textElement.setAttribute("fill", textColor);
         textElement.textContent = textContent;
 
         svg.appendChild(textElement);
@@ -58,6 +60,8 @@ export function createSvgTable(params, options?) {
     let svgHeight = rows * cellHeight;
     svg.setAttribute("height", svgHeight);
     svg.setAttribute("width", svgWidth);
+    svg.setAttribute("fill", textColor);
+
     for (let i = 0; i < rows; i++) {
       const y = i * cellHeight + yOffset;
 
@@ -68,19 +72,20 @@ export function createSvgTable(params, options?) {
       textElement.setAttribute("y", y);
       textElement.setAttribute("font-size", fontSize);
       textElement.setAttribute("font-family", fontFamily);
-      textElement.setAttribute("fill", textColor);
+      // textElement.setAttribute("fill", textColor);
       textElement.textContent = textContent;
       svg.appendChild(textElement);
 
       // 添加线条
       const lineOptions = lineArray[i] || {};
-      const lineColor = lineOptions.color || "#000";
+      const lineColor = lineOptions.color || "";
       const lineWidth = lineOptions.width || 2;
       const lineElement = document.createElementNS(svgNS, "line");
       lineElement.setAttribute("x1", lineStartOffset);
       lineElement.setAttribute("y1", y - fontSize / 2);
       lineElement.setAttribute("x2", lineStartOffset + lineLength);
       lineElement.setAttribute("y2", y - fontSize / 2);
+      // lineElement.setAttribute("stroke", lineColor);
       lineElement.setAttribute("stroke", lineColor);
       lineElement.setAttribute("stroke-width", lineWidth);
       svg.appendChild(lineElement);

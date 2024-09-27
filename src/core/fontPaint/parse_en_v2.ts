@@ -37,8 +37,8 @@ export function parseTextV2(
 
   const isVertical = !!config.vertical;
   //   编辑器中的选框大小
-  const MAX_WIDTH = config.MaxWidth;
-  const MAX_HIGHT = config.MaxHeight;
+  const MAX_WIDTH = isVertical ? config.MaxHeight : config.MaxWidth;
+  const MAX_HIGHT = isVertical ? config.MaxWidth : config.MaxHeight;
 
   const { textInfoArr, maxItemHeight, maxItemWidth, line } = mapText(
     fontApp,
@@ -81,8 +81,6 @@ export function parseTextV2(
     } else {
       const translateX = colAccumulatorWidth;
       const translateY = lineHeight * (currentLine - 1) + lineHeightTop;
-      console.log("colAccumulatorWidth", colAccumulatorWidth);
-      console.log("maxItemWidth", maxItemWidth);
 
       const transform = `translate(${translateX},${translateY}) `;
       context.addTransform(transform);
@@ -148,7 +146,6 @@ export function parseTextV2(
         if (currentPathWidth > maxItemWidth) {
           maxItemWidth = currentPathWidth;
         }
-        console.log("currentPathWidth", currentPathWidth);
 
         const currentPathHeight = pathBoundingBox.y2 - pathBoundingBox.y1;
         if (currentPathHeight > maxItemHeight) {
@@ -290,7 +287,6 @@ export function parseTextV2(
       accumulatorPathWidth = 0;
       breakLineIndex.push(index);
     }
-    console.log("breakLineIndex", breakLineIndex);
 
     return { lineNum, breakLineIndex, maxContentWidthArr };
   }
@@ -337,7 +333,7 @@ export function parseTextV2(
       width: config.MaxWidth,
       height: config.MaxHeight,
     },
-    hasSymbolChar: true,
+    hasSymbolChar: false,
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,

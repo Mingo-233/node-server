@@ -109,9 +109,6 @@ export function computedFontLineHeight(option) {
   // const emptyTopSpace = (lineHeight - fontSize) / 2;
   // const top = emptyTopSpace - overflowTop;
 
-  // console.log("top", top);
-  // console.log("overflowTop", overflowTop);
-
   //  v4
   // const emptyTopSpace = lineHeight - fontSize;
   // const top = (1 - baseLineRatio) * emptyTopSpace;

@@ -54,7 +54,6 @@ export default class extends Node {
       const start1 = points[(i + 2) % points.length];
       // const segment0 = getRatioSegment([start0, end0], this.radius * 2);
       // const segment1 = getRatioSegment([end0, start1], this.radius * 2);
-      // console.log('ratio===>', this.radius, segment0, start0, start1);
       const circle = getCircleByLines(
         [start0, end0] as [Point, Point],
         [start1, end0] as [Point, Point],

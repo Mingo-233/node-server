@@ -15,10 +15,7 @@ describe("英文字体转曲测试 垂直书写", () => {
   let descent = 0;
   beforeAll(async () => {
     try {
-      const fontPath = path.join(
-        __dirname,
-        "../../../example/fonts/font.woff2"
-      );
+      const fontPath = path.join(__dirname, "../../../example/fonts/en.woff2");
       const buffer = await fs.promises.readFile(fontPath);
       const data = await wawoff.decompress(buffer);
       const arrayBuffer = data.buffer.slice(
@@ -38,13 +35,13 @@ describe("英文字体转曲测试 垂直书写", () => {
   });
   it.only("英文 /n换行情况", async () => {
     const parseResult = parseText(fontApp, {
-      text: "hello\nworld",
-      fontSize: 30,
+      text: "Your text here \nabc",
+      fontSize: 16,
       textAlign: "left",
       vertical: true,
-      MaxWidth: 80,
-      MaxHeight: 200,
-      textLineHeight: 30,
+      MaxWidth: 64,
+      MaxHeight: 199.926,
+      textLineHeight: 32,
       rotate: 0,
       fontOption: {
         unitsPerEm,

@@ -57,7 +57,6 @@ export default class extends Node {
       [p12, p1] as [Point, Point],
       this.radius
     );
-    console.log("radius===>", circle0.radius, circle1.radius, circle2.radius);
     const path = `
       M${p12.x} ${p12.y} L${circle0.from.x} ${circle0.from.y}
       A${circle0.radius} ${circle0.radius} ${

@@ -3,13 +3,12 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import log from "@/utils/log";
-
+import { convertAndInvertImage } from "@/utils/color";
 export const assetsMap = new Map();
 let _cacheDirName = "default";
-const _defaultDirName = "default";
 const DEFAULT_CACHE_DIR = path.resolve(
   __dirname,
-  `../../cache/${_defaultDirName}/NotoSansCJK-Regular.ttf`
+  `../../../cache/NotoSansCJK-Regular.ttf`
 );
 assetsMap.set(
   "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf",
@@ -46,20 +45,16 @@ const getCacheFilePath = (url) => {
  */
 export const fetchResourceWithCache = async (url) => {
   if (assetsMap.get(url)) {
-    console.log("命中assetsMap缓存", url);
-
     return fs.promises.readFile(assetsMap.get(url));
   }
   const cacheFilePath = getCacheFilePath(url);
   assetsMap.set(url, cacheFilePath);
   // 检查缓存文件是否存在
   if (fs.existsSync(cacheFilePath)) {
-    console.log(`从缓存读取：${url}`);
     return fs.promises.readFile(cacheFilePath);
   }
 
   try {
-    console.log(`请求资源：${url}`);
     const response = await axios({
       url,
       method: "GET",
@@ -88,20 +83,34 @@ export function prefixUrl(url) {
   if (url.startsWith("//")) return `https:${url}`;
   return url;
 }
+export function getCmykImgPath(url) {
+  return `${extractPath(url)}_cmyk.jpg`;
+}
+function extractPath(filename) {
+  const regex = /(.*)(\.[^.]+)$/; // 匹配路径及文件名，直到最后一个点（.）
+  const match = filename.match(regex);
+  return match ? match[1] : "";
+}
 export function isSvgUrl(url) {
   return url.toLowerCase().endsWith(".svg");
 }
-
+function isImage(url) {
+  return url.match(/\.(jpeg|jpg|png)$/);
+}
 export function queryResource(jsonData) {
   const srcValues = new Set();
-
+  const imgSrcValues = new Set();
   function traverse(obj) {
     if (Array.isArray(obj)) {
       obj.forEach((item) => traverse(item));
     } else if (typeof obj === "object" && obj !== null) {
       for (const key in obj) {
         if (key === "src") {
-          srcValues.add(obj[key]);
+          const srcValue = obj[key];
+          srcValues.add(srcValue);
+          if (isImage(srcValue)) {
+            imgSrcValues.add(srcValue);
+          }
         }
         traverse(obj[key]);
       }
@@ -109,27 +118,39 @@ export function queryResource(jsonData) {
   }
 
   traverse(jsonData);
-  return srcValues;
+  return [srcValues, imgSrcValues];
 }
 
 export async function cacheResource(jsonData) {
-  // _cacheDirName = Math.random().toString(36).substring(7);
-  const srcValues = queryResource(jsonData);
+  return new Promise<void>(async (resolve, reject) => {
+    // _cacheDirName = Math.random().toString(36).substring(7);
+    const [srcValues, imgsSrcValues] = queryResource(jsonData);
 
-  const promiseTask: any[] = [];
-  defaultAssetsArr.forEach((src) => {
-    promiseTask.push(fetchAssets(src));
-  });
-  srcValues.forEach((src) => {
-    promiseTask.push(fetchAssets(src));
-  });
-  await Promise.all(promiseTask)
-    .then((res) => {
-      console.log("所有资源缓存完成");
-    })
-    .catch((err) => {
-      console.error("资源下载失败", err);
+    const promiseTask: any[] = [];
+    defaultAssetsArr.forEach((src) => {
+      promiseTask.push(fetchAssets(src));
     });
+    srcValues.forEach((src) => {
+      promiseTask.push(fetchAssets(src));
+    });
+    await Promise.all(promiseTask)
+      .then(async (res) => {
+        console.log("所有资源缓存完成");
+        const imgSrcArr = Array.from(imgsSrcValues);
+        for (let i = 0; i < imgSrcArr.length; i++) {
+          const url = prefixUrl(imgSrcArr[i]);
+          const inputFilePath = assetsMap.get(url);
+          // /a/b/c/123.png => /a/b/c/cmyk_123.png
+          const outputFilePath = getCmykImgPath(inputFilePath);
+          await convertAndInvertImage(inputFilePath, outputFilePath);
+        }
+        resolve();
+      })
+      .catch((err) => {
+        console.error("资源下载失败", err);
+        reject(err);
+      });
+  });
 }
 
 export function clearCache() {

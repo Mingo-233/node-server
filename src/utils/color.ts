@@ -1,3 +1,6 @@
+import sharp from "sharp";
+import fs from "fs";
+import { IColorMode } from "@/type/pdfPage";
 export function hexToCMYK(hex) {
   // 去掉 '#' 符号
   hex = hex.replace(/^#/, "");
@@ -10,7 +13,7 @@ export function hexToCMYK(hex) {
   // 计算 K 值
   let k = 1 - Math.max(r, g, b);
   if (k === 1) {
-    const result = { c: 0, m: 0, y: 0, k: 1 };
+    const result = { c: 0, m: 0, y: 0, k: 100 };
     return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
   }
 
@@ -56,4 +59,24 @@ function rgbToCmyk(r, g, b) {
     k: Math.round(k * 100),
   };
   return `cmyk(${result.c}%, ${result.m}%, ${result.y}%, ${result.k}%)`;
+}
+
+// 将 RGB 图片转换为 CMYK，逆转 CMYK 通道并保存
+export async function convertAndInvertImage(inputPath, outputPath) {
+  try {
+    const inputBuffer = await fs.promises.readFile(inputPath);
+    await sharp(inputBuffer)
+      .toColorspace("cmyk")
+      // 反转颜色
+      .negate()
+      // 保存为JPEG (CMYK兼容)
+      .jpeg({ quality: 100 })
+      .toFile(outputPath);
+  } catch (error) {
+    console.error("处理cymk图片时出错:", error);
+  }
+}
+
+export function fitColor(color: string, colorMode: IColorMode) {
+  return colorMode === "CMYK" ? hexToCMYK(color) : color;
 }

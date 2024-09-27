@@ -8,7 +8,7 @@ import { createSvgTable } from "./annotation/index";
 import type { IKnifeData } from "@/type/knifeData";
 import { IDrawingConfigPlus } from "@/type/pdfPage";
 import { DPI, PAGE_MARGIN, PAGE_MARK_MARGIN } from "@/utils/constant";
-import { height } from "pdfkit/js/page";
+import { fitColor } from "@/utils/color";
 
 export function drawAnnotateLabel(
   params: IAnnotationParams,
@@ -28,51 +28,63 @@ export function drawAnnotateLabel(
     "Thickness",
     `${params.thickness}${unit}`,
   ];
-  const sizeLabelSvgString = createSvgTable({
-    rows: 5,
-    cols: 2,
-    cellWidth: 220,
-    cellHeight,
-    textArray,
-  });
-  const idLabelSvgString = createSvgTable({
-    rows: 2,
-    cols: 2,
-    cellWidth: 150,
-    cellHeight,
-    textArray: [
-      "Design Area",
-      `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
-      "Dieline ID",
-      params.dielineID,
-    ],
-  });
+  const sizeLabelSvgString = createSvgTable(
+    {
+      rows: 5,
+      cols: 2,
+      cellWidth: 220,
+      cellHeight,
+      textArray,
+    },
+    {
+      textColor: fitColor("#000000", config.colorMode),
+    }
+  );
+  const idLabelSvgString = createSvgTable(
+    {
+      rows: 2,
+      cols: 2,
+      cellWidth: 150,
+      cellHeight,
+      textArray: [
+        "Design Area",
+        `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
+        "Dieline ID",
+        params.dielineID,
+      ],
+    },
+    {
+      textColor: fitColor("#000000", config.colorMode),
+    }
+  );
   const lineLabelSvgString = createSvgTable(
     {
       rows: 3,
       cellWidth: 100,
       cellHeight: 30,
       textArray: ["BLEED", "TRIM", "CREASE"],
+      textColor: fitColor("#000000", config.colorMode),
     },
     {
       type: "line",
       lineArray: [
-        { color: "green", width: 5 },
-        { color: "blue", width: 5 },
-        { color: "red", width: 5 },
+        { color: fitColor("#00ff00", config.colorMode), width: 5 },
+        { color: fitColor("#0000ff", config.colorMode), width: 5 },
+        { color: fitColor("#ff0000", config.colorMode), width: 5 },
       ],
+      textColor: fitColor("#000000", config.colorMode),
     }
   );
 
   const svgString = ` <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
     <g transform="translate(0,0)">
-      ${sizeLabelSvgString}
+    ${sizeLabelSvgString}
     </g>
     <g transform="translate(500,0)">
-      ${idLabelSvgString}
+    ${idLabelSvgString}
     </g>
     <g transform="translate(850,0)">
-      ${lineLabelSvgString}
+     ${lineLabelSvgString}
     </g>
   </svg>
   `;
@@ -126,7 +138,7 @@ export function drawLocalMarker(
     width: "20",
     height: "20",
     fill: "none",
-    stroke: "black",
+    stroke: fitColor("#000000", config.colorMode),
     strokeWidth: "0.2",
     overflow: "visible",
   };
@@ -191,6 +203,7 @@ export function drawFooterLabel(params, config: IDrawingConfigPlus) {
         x: "0",
         y: "25",
         "font-size": "24",
+        fill: fitColor("#000000", config.colorMode),
       },
       params.text
     )

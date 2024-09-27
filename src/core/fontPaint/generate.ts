@@ -49,6 +49,8 @@ export function genTextSvg(config: IFontGenerateParams) {
 
   let svgDom = "";
   let G_Template = "";
+  console.log("isVertical123", isVertical, hasSymbolChar);
+
   //   中英文都存在垂直情况
   if (isVertical && hasSymbolChar) {
     G_Template = `
@@ -77,6 +79,8 @@ export function genTextSvg(config: IFontGenerateParams) {
     const _transform = `${pageMarginTranslate}  rotate(90)
 translate(0,-${svgDomSize.width * DPI})
       `;
+    console.log("_transform", _transform);
+
     G_Template = `
       ${svgPathString}
       `;

@@ -1,5 +1,10 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import { fetchAssets, prefixUrl, clearCache } from "./utils/request";
+import {
+  fetchAssets,
+  prefixUrl,
+  clearCache,
+  getCmykImgPath,
+} from "./utils/request";
 import { createPageApp } from "./core/pdfPage";
 import log from "@/utils/log";
 import {
@@ -14,15 +19,15 @@ import {
   TYPE_MARK,
 } from "@/nodes/layerNode";
 import util from "util";
-// import projectData from "./store/info.json";
-// import knifeData from "./store/knife.json";
+import projectData from "./store/info.json";
+import knifeData from "./store/knife.json";
 // import projectData from "./store/proInfo.json";
 // import knifeData from "./store/proKnife.json";
 
-import projectData from "./store/tempInfo.json";
-import knifeData from "./store/tempKnife.json";
+// import projectData from "./store/tempInfo.json";
+// import knifeData from "./store/tempKnife.json";
 const path = require("path");
-
+const fs = require("fs");
 function getMockData() {
   return {
     projectData,
@@ -37,15 +42,13 @@ export async function pdfMain(
 ) {
   try {
     console.time("export task");
-    // await cacheResource(projectData);
+    await cacheResource(projectData);
     const pageApp = createPageApp(knifeData, {
       unit: "mm",
-      colorMode: "RGB",
       ...options,
     });
     log.info("log-", "registerFace start");
     pageApp.registerFace(knifeData, projectData);
-    console.log(pageApp);
     // console.log(
     //   util.inspect(pageApp.pages[0], {
     //     depth: null,
@@ -81,7 +84,12 @@ export async function pdfMain(
           pdfDoc.addSVG(designSvg, 0, 0, {
             imageCallback: function (link) {
               const _link = prefixUrl(link);
-              return assetsMap.get(_link);
+              const imgUrl =
+                options.colorMode === "CMYK"
+                  ? getCmykImgPath(assetsMap.get(_link))
+                  : assetsMap.get(_link);
+
+              return imgUrl;
             },
           });
 
@@ -96,7 +104,11 @@ export async function pdfMain(
         pdfDoc.addSVG(designSvg, 0, 0, {
           imageCallback: function (link) {
             const _link = prefixUrl(link);
-            return assetsMap.get(_link);
+            const imgUrl =
+              options.colorMode === "CMYK"
+                ? getCmykImgPath(assetsMap.get(_link))
+                : assetsMap.get(_link);
+            return imgUrl;
           },
         });
         pdfDoc.addPage();
@@ -125,7 +137,7 @@ export async function pdfMain(
       }
     }
 
-    pdfDoc.end();
+    await pdfDoc.end();
     // clearCache();
     console.timeEnd("export task");
   } catch (error) {
@@ -133,15 +145,14 @@ export async function pdfMain(
   }
 }
 
-function fsSaveFile(context, name = "test.svg") {
-  const fs = require("fs");
-
-  const filePath = path.resolve(__dirname, "../../output");
-  fs.writeFileSync(`${filePath}/${name}`, context);
-  console.log("file saved");
+async function mockRequest() {
+  let outputPath = path.resolve(__dirname, "../../output/a.pdf");
+  await pdfMain(getMockData().knifeData, getMockData().projectData, {
+    isOnlyKnife: false,
+    colorMode: "RGB",
+    filePath: "",
+    // filePath: outputPath,
+  });
 }
 
-pdfMain(getMockData().knifeData, getMockData().projectData, {
-  isOnlyKnife: true,
-  filePath: path.resolve(__dirname, "../../dist/a.pdf"),
-});
+mockRequest();

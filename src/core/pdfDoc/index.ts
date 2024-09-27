@@ -18,7 +18,6 @@ export function usePdfDoc(options) {
     PDFDocument.prototype.addSVG = function (svg, x, y, options) {
       return SVGtoPDF(this, svg, x, y, options);
     };
-    console.log("_onCreated is called");
   }
   function _paintBefore() {
     doc.translate(pageMargin.left, pageMargin.top);
@@ -34,16 +33,22 @@ export function usePdfDoc(options) {
     doc.addSVG(svg, x, y, options);
   }
   function _paintAfter() {}
-  function _paintEnd() {
-    const randomName = Math.random().toString(36).substring(6);
-    const days = new Date().getDate();
-    const hours = new Date().getHours();
-    const minutes = new Date().getMinutes();
-    const fileName = `${days}-${hours}-${minutes}-${randomName}.pdf`;
-    const outputPath = filePath || `./output/${fileName}`;
-    doc.pipe(fs.createWriteStream(`${outputPath}`));
-    // doc.pipe(fs.createWriteStream(`dist/pdf/${randomName}.pdf`));
-    doc.end();
+  async function _paintEnd() {
+    return new Promise<void>(async (resolve, reject) => {
+      const randomName = Math.random().toString(36).substring(6);
+      const days = new Date().getDate();
+      const hours = new Date().getHours();
+      const minutes = new Date().getMinutes();
+      const fileName = `${days}-${hours}-${minutes}-${randomName}.pdf`;
+      const outputPath = filePath || `./dist/output/${fileName}`;
+      const writeStream = fs.createWriteStream(`${outputPath}`);
+      writeStream.on("finish", () => {
+        resolve();
+      });
+      writeStream.on("error", reject);
+      await doc.pipe(writeStream);
+      await doc.end();
+    });
   }
   function addPage() {
     doc.addPage({
@@ -58,9 +63,9 @@ export function usePdfDoc(options) {
     _onCreated();
     _paintBefore();
   }
-  function end() {
+  async function end() {
     _paintAfter();
-    _paintEnd();
+    await _paintEnd();
   }
 
   return {
