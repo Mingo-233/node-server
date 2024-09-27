@@ -2,14 +2,16 @@ import axios from "axios";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
-import log from "@/utils/log";
+import log, { isDevMode } from "@/utils/log";
 import { convertAndInvertImage } from "@/utils/color";
 export const assetsMap = new Map();
 let _cacheDirName = "default";
-const DEFAULT_CACHE_DIR = path.resolve(
-  __dirname,
-  `../../../cache/NotoSansCJK-Regular.ttf`
-);
+const cacheRootDir = path.resolve(__dirname, `../../../cache`);
+const DEFAULT_CACHE_DIR = path.join(cacheRootDir, "NotoSansCJK-Regular.ttf");
+// const DEFAULT_CACHE_DIR = path.resolve(
+//   __dirname,
+//   `../../../../cache/NotoSansCJK-Regular.ttf`
+// );
 assetsMap.set(
   "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf",
   DEFAULT_CACHE_DIR
@@ -28,7 +30,7 @@ const generateHash = (url) => {
  * @returns {string} - 缓存文件路径
  */
 const getCacheFilePath = (url) => {
-  const CACHE_DIR = path.resolve(__dirname, `../../cache/${_cacheDirName}`);
+  const CACHE_DIR = path.join(cacheRootDir, _cacheDirName);
   // 确保缓存目录存在
   if (!fs.existsSync(CACHE_DIR)) {
     fs.mkdirSync(CACHE_DIR);
@@ -45,6 +47,7 @@ const getCacheFilePath = (url) => {
  */
 export const fetchResourceWithCache = async (url) => {
   if (assetsMap.get(url)) {
+    console.log("读取到本地缓存文件", url);
     return fs.promises.readFile(assetsMap.get(url));
   }
   const cacheFilePath = getCacheFilePath(url);
@@ -123,7 +126,11 @@ export function queryResource(jsonData) {
 
 export async function cacheResource(jsonData) {
   return new Promise<void>(async (resolve, reject) => {
-    // _cacheDirName = Math.random().toString(36).substring(7);
+    if (isDevMode) {
+      _cacheDirName = "default";
+    } else {
+      _cacheDirName = Math.random().toString(36).substring(7);
+    }
     const [srcValues, imgsSrcValues] = queryResource(jsonData);
 
     const promiseTask: any[] = [];
@@ -154,7 +161,7 @@ export async function cacheResource(jsonData) {
 }
 
 export function clearCache() {
-  const CACHE_DIR = path.resolve(__dirname, `../../cache/${_cacheDirName}`);
+  const CACHE_DIR = path.join(cacheRootDir, _cacheDirName);
   fs.rm(CACHE_DIR, { recursive: true, force: true }, () =>
     console.log("缓存已清空")
   );

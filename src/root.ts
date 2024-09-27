@@ -6,7 +6,7 @@ import {
   getCmykImgPath,
 } from "./utils/request";
 import { createPageApp } from "./core/pdfPage";
-import log from "@/utils/log";
+import log, { enableDevMode, isDevMode } from "@/utils/log";
 import {
   fetchResourceWithCache,
   assetsMap,
@@ -19,15 +19,16 @@ import {
   TYPE_MARK,
 } from "@/nodes/layerNode";
 import util from "util";
-import projectData from "./store/info.json";
-import knifeData from "./store/knife.json";
+// import projectData from "./store/info.json";
+// import knifeData from "./store/knife.json";
 // import projectData from "./store/proInfo.json";
 // import knifeData from "./store/proKnife.json";
 
-// import projectData from "./store/tempInfo.json";
-// import knifeData from "./store/tempKnife.json";
+import projectData from "./store/tempInfo.json";
+import knifeData from "./store/tempKnife.json";
 const path = require("path");
 const fs = require("fs");
+// enableDevMode();
 function getMockData() {
   return {
     projectData,
@@ -61,6 +62,7 @@ export async function pdfMain(
       pageMargin: pageApp.pageMargin,
       pageMarkerMargin: pageApp.pageMakerMargin,
       filePath: options.filePath,
+      colorMode: options.colorMode,
     });
 
     pdfDoc.pdfInit();
@@ -138,7 +140,7 @@ export async function pdfMain(
     }
 
     await pdfDoc.end();
-    // clearCache();
+    isDevMode ? null : clearCache();
     console.timeEnd("export task");
   } catch (error) {
     console.error("出现错误", error);
@@ -149,10 +151,10 @@ async function mockRequest() {
   let outputPath = path.resolve(__dirname, "../../output/a.pdf");
   await pdfMain(getMockData().knifeData, getMockData().projectData, {
     isOnlyKnife: false,
-    colorMode: "RGB",
+    colorMode: "CMYK",
     filePath: "",
     // filePath: outputPath,
   });
 }
 
-mockRequest();
+// mockRequest();

@@ -1,6 +1,8 @@
+import { fitColor } from "./color";
+
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-export function getTransformSvg(svgString, fillsConfig = []) {
+export function getTransformSvg(svgString, fillsConfig = [], options) {
   //   const fillsConfig = [
   //     {
   //       type: "fill",
@@ -14,8 +16,7 @@ export function getTransformSvg(svgString, fillsConfig = []) {
   );
   const window = jsDom.window;
   const document = jsDom.window.document;
-  //   let width = 100;
-  //   let height = 100;
+
   const dom = document.createElement("div");
   dom.innerHTML = svgString;
   const svgDom = dom.querySelector("svg");
@@ -27,6 +28,7 @@ export function getTransformSvg(svgString, fillsConfig = []) {
   for (let i = 0; i < fillsConfig.length; i++) {
     const configItem: any = fillsConfig[i];
     const { type, value, color } = configItem;
+    let renderColor = fitColor(color, options.colorMode);
     const eles: any = getSvg(svgDom, type, value);
     if (eles.length === 0) {
       styleDom.innerHTML += `.pac-${configItem.class}{${type}:${color}}`;
@@ -34,13 +36,14 @@ export function getTransformSvg(svgString, fillsConfig = []) {
     } else {
       eles.forEach((vo) => {
         if (vo.type === "attr") {
-          vo.el.setAttribute(type, color);
+          vo.el.setAttribute(type, renderColor);
         } else {
-          vo.el.style[type] = color;
+          vo.el.style[type] = renderColor;
         }
       });
     }
   }
+
   svgDom.appendChild(styleDom);
   svgDom.setAttribute("width", `100%`);
   svgDom.setAttribute("height", `100%`);

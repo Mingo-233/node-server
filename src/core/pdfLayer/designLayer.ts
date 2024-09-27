@@ -17,6 +17,7 @@ import {
   matchSymbol,
   isCharSupported,
 } from "@/core/fontPaint/index";
+import { fitColor } from "@/utils/color";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   const translateX = config.isGroup
@@ -32,7 +33,9 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     : "";
   if (isSvgUrl(designItem.src)) {
     const svgString = (await fetchAssets(designItem.src, false)) as string;
-    const transformSvg = getTransformSvg(svgString, designItem.fills);
+    const transformSvg = getTransformSvg(svgString, designItem.fills, {
+      colorMode: config.colorMode,
+    });
     const imgSvg = createElement(
       "svg",
       {
@@ -45,6 +48,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       },
       transformSvg
     );
+
     const context: IPdfSvgContainer<"design-layer"> = {
       type: "img",
       svgString: imgSvg,
@@ -104,8 +108,8 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
       uuid: designItem.uuid,
       type: designItem.shapeType ?? "rectangle",
       radius: style.radius ?? 0,
-      fill: style.color ?? "none",
-      stroke: style.stroke,
+      fill: fitColor(style.color, config.colorMode) ?? "none",
+      stroke: fitColor(style.stroke, config.colorMode),
       strokeWidth: style.strokeWidth ?? 0,
       strokeDashArray: style.strokeDashArray ?? 0,
     }) || "";
@@ -150,8 +154,8 @@ export function drawFace(
   const facePathList = SvgUtil.face_to_d_list(filterFaces);
   const pathSvgList = facePathList.map((facePath) => {
     const backgroundOfFace = faceBackground[facePath.name];
-    const colorMode = config.colorMode === "CMYK" ? "cmyk" : "rgba";
-    const fill = backgroundOfFace?.[colorMode] || "#ffffff";
+    const fill = fitColor(backgroundOfFace?.rgba, config.colorMode);
+
     return createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
       fill: fill,

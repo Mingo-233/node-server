@@ -5,7 +5,8 @@ import SVGtoPDF from "../../../public/svg-to-pdfkit.js";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
 export function usePdfDoc(options) {
-  const { pageSize, pageMargin, pageMarkerMargin, filePath } = options;
+  const { pageSize, pageMargin, pageMarkerMargin, filePath, colorMode } =
+    options;
   let doc = createPdfDocument(pageSize.width, pageSize.height);
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
@@ -29,8 +30,12 @@ export function usePdfDoc(options) {
     return doc.restore;
   }
   function addSVG(svg, x?, y?, options?) {
+    const _options = {
+      ...options,
+      colorMode: colorMode,
+    };
     // @ts-ignore
-    doc.addSVG(svg, x, y, options);
+    doc.addSVG(svg, x, y, _options);
   }
   function _paintAfter() {}
   async function _paintEnd() {

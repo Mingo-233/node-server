@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { parseText } from "@/core/fontPaint/parse";
 import { transformText } from "@/core/fontPaint/transform";
 import { genTextSvg } from "@/core/fontPaint/generate";
+import { getDefaultFontApp } from "@/core/fontPaint/index";
 import { defaultTransformParams, fsSaveFile } from "./config";
 import wawoff from "wawoff2";
 import opentype from "opentype.js";
@@ -13,6 +14,7 @@ describe("英文字体转曲测试 垂直书写", () => {
   let unitsPerEm = 0;
   let ascent = 0;
   let descent = 0;
+  let defaultFontApp;
   beforeAll(async () => {
     try {
       const fontPath = path.join(__dirname, "../../../example/fonts/en.woff2");
@@ -23,6 +25,7 @@ describe("英文字体转曲测试 垂直书写", () => {
         data.byteOffset + data.byteLength
       );
       fontApp = opentype.parse(arrayBuffer);
+      defaultFontApp = await getDefaultFontApp();
       // 获取字体的基本信息
       unitsPerEm = fontApp.unitsPerEm; // 字体设计单位
       ascent = fontApp.ascender; // 字体的上升高度
@@ -34,21 +37,26 @@ describe("英文字体转曲测试 垂直书写", () => {
     }
   });
   it.only("英文 /n换行情况", async () => {
-    const parseResult = parseText(fontApp, {
-      text: "Your text here \nabc",
-      fontSize: 16,
-      textAlign: "left",
-      vertical: true,
-      MaxWidth: 64,
-      MaxHeight: 199.926,
-      textLineHeight: 32,
-      rotate: 0,
-      fontOption: {
-        unitsPerEm,
-        ascent,
-        descent,
+    const parseResult = parseText(
+      fontApp,
+      {
+        text: "Your text here \nabc 啊",
+        fontSize: 16,
+        textAlign: "left",
+        vertical: true,
+        MaxWidth: 64,
+        MaxHeight: 199.926,
+        textLineHeight: 32,
+        rotate: 0,
+        fontOption: {
+          unitsPerEm,
+          ascent,
+          descent,
+          isSupCnMainFontApp: false,
+        },
       },
-    });
+      defaultFontApp
+    );
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);
     const svgDom = genTextSvg(config);
@@ -69,6 +77,7 @@ describe("英文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: false,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(1);
@@ -91,6 +100,7 @@ describe("英文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: false,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);

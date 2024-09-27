@@ -150,11 +150,18 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     whitesmoke: [245, 245, 245],
     yellow: [255, 255, 0],
   };
-  const DefaultColors = {
+  const NameCMYKColors = {
+    black: [[0, 0, 0, 0], 1],
+    white: [[0, 0, 0, 1], 1],
+    transparent: [[0, 0, 0, 0], 0],
+  };
+  const NameRGBColors = {
     black: [NamedColors.black, 1],
     white: [NamedColors.white, 1],
     transparent: [NamedColors.black, 0],
   };
+  const DefaultColors =
+    options.colorMode === "CMYK" ? NameCMYKColors : NameRGBColors;
   const Entities = {
     quot: 34,
     amp: 38,

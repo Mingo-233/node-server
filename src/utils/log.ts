@@ -29,3 +29,8 @@ function definedLog() {
 
 const log = definedLog();
 export default log;
+
+export let isDevMode = false;
+export function enableDevMode() {
+  isDevMode = true;
+}

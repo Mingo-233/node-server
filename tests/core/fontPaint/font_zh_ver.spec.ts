@@ -47,6 +47,7 @@ describe("中文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: true,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
@@ -69,6 +70,7 @@ describe("中文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: true,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(1);
@@ -92,6 +94,7 @@ describe("中文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: true,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
@@ -113,6 +116,7 @@ describe("中文字体转曲测试 垂直书写", () => {
         unitsPerEm,
         ascent,
         descent,
+        isSupCnMainFontApp: true,
       },
     });
     expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
