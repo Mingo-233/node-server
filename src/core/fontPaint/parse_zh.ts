@@ -2,19 +2,14 @@ import { fetchAssets } from "@/utils/request";
 import {
   createWordPathContext,
   isSymbolChar,
-  isEnd,
-  isEnglish,
+  computedPathTransform,
   isSpace,
   getPath,
   computedFontLineHeight,
+  identifyNext,
+  pathPartType,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
-import opentype from "opentype.js";
-const pathPartType = {
-  zh: 1,
-  en: 2,
-  space: 3,
-};
 
 export function getVerticalTextPaths(
   fontApp,
@@ -32,14 +27,14 @@ export function getVerticalTextPaths(
   // 文字间隙 在浏览器环境中默认值为normal
   // const letterSpace = 0;
   const letterSpace = config.fontSize * 0.1;
-  const { lineHeight, lineHeightTop } = computedFontLineHeight({
+  const { lineHeight, lineHeightTop, baseLineRatio } = computedFontLineHeight({
     unitsPerEm: config.fontOption.unitsPerEm,
     ascent: config.fontOption.ascent,
     fontSize: config.fontSize,
     lineHeight: config.textLineHeight,
     descent: config.fontOption.descent,
   });
-
+  const baseLineHeight = lineHeight * baseLineRatio;
   const isVertical = !!config.vertical;
   //   编辑器中的选框大小
   const MAX_WIDTH = config.MaxWidth;
@@ -68,17 +63,23 @@ export function getVerticalTextPaths(
     }
     if (!textInfo.path) return;
     context.addPath(textInfo.path);
+    let translateX;
+    // 如果是第一列,移动一个基线位置的距离即可
+    if (currentLine === 1) {
+      translateX = MAX_WIDTH - baseLineHeight;
+    } else {
+      translateX = MAX_WIDTH - baseLineHeight - lineHeight * (currentLine - 1);
+    }
+    //当前这列上这个字是第几个,计算垂直方向偏移量
+    const translateY = isFirstWord
+      ? colAccumulatorHeight
+      : colAccumulatorHeight + letterSpace;
     if (textInfo.type === pathPartType.zh) {
-      const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
-      //当前这列上这个字是第几个,计算垂直方向偏移量
-      const translateY = isFirstWord
-        ? colAccumulatorHeight
-        : colAccumulatorHeight + letterSpace;
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
-
       const alignTransform = computedPathTransform(
         config.textAlign,
+        MAX_WIDTH,
         maxContentHeightArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
@@ -88,15 +89,12 @@ export function getVerticalTextPaths(
       colAccumulatorHeight = colAccumulatorHeight + selfHeight;
       isFirstWord = false;
     } else {
-      const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
-      const translateY = isFirstWord
-        ? colAccumulatorHeight
-        : colAccumulatorHeight + letterSpace;
       // 先平移到目标位置 然后绕svg左上角圆点旋转90度，然后再平移修复旋转移动的距离
       const transform = `translate(${translateX},${translateY}) rotate(90,${position.x1},${position.y1}) translate(0,-${maxItemWidth})`;
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
         config.textAlign,
+        MAX_WIDTH,
         maxContentHeightArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
@@ -113,21 +111,7 @@ export function getVerticalTextPaths(
       isFirstWord = false;
     }
   });
-  //   计算整体的偏移量
-  function computedPathTransform(textAlign, maxContentHeigh) {
-    let offsetY = 0;
-    switch (textAlign) {
-      case "center":
-        offsetY = (MAX_HIGHT - maxContentHeigh) / 2;
-        return `translate(0,${offsetY})`;
-      case "right":
-        offsetY = MAX_HIGHT - maxContentHeigh;
-        return `translate(0,${offsetY})`;
 
-      default:
-        return "";
-    }
-  }
   function mapText(fontApp, config) {
     const textInfoArr: ITextInfoItem[] = [];
     const textArr = config.text.split("");
@@ -174,7 +158,9 @@ export function getVerticalTextPaths(
           isBreak: false,
           type: pathPartType.zh,
         });
-        if (i === 0) {
+        // 如果先解析英文，英文的高度是低于中文字符的。放一起显示viewbox就会有问题
+        // 所以当前优先使用汉字的位置
+        if (i === 0 || position.y1 > pathBoundingBox.y1) {
           position.x1 = pathBoundingBox.x1;
           position.y1 = pathBoundingBox.y1;
         }
@@ -187,7 +173,7 @@ export function getVerticalTextPaths(
           type: pathPartType.space,
         });
       } else {
-        const result = identifyNext(textItem, i, textArr);
+        const result = identifyNext(fontApp, textItem, i, textArr, config);
         identifiedIndex = result.lastIndex;
         // 因为英文要旋转过来，所以它的宽度就是高度
         const currentPathHeight =
@@ -309,42 +295,6 @@ export function getVerticalTextPaths(
       breakLineIndex.push(index);
     }
     return { lineNum, breakLineIndex, maxContentHeightArr };
-  }
-  //   结算当前路径
-  function settlePath() {}
-
-  function identifyNext(char, index, textInfoArr) {
-    let nextText = textInfoArr[index + 1];
-    let path: any = null;
-    const chilePath = [
-      {
-        text: char,
-        path: getPath(fontApp, char, config.fontSize),
-      },
-    ];
-    while (!isEnd(nextText)) {
-      index++;
-      char = `${char}${nextText}`;
-      nextText = textInfoArr[index + 1];
-      path = getPath(fontApp, char, config.fontSize);
-      chilePath.push({
-        text: char,
-        path: path,
-      });
-    }
-    if (isEnglish(char)) {
-      path = getPath(fontApp, char, config.fontSize);
-    }
-    const pathBoundingBox = path?.getBoundingBox();
-    return {
-      lastIndex: index,
-      path: path,
-      text: char,
-      pathBoundingBox: pathBoundingBox,
-      chilePath,
-      type: pathPartType.en,
-      height: pathBoundingBox.x2 - pathBoundingBox.x1,
-    };
   }
 
   return {

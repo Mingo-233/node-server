@@ -100,7 +100,7 @@ export function computedFontLineHeight(option) {
   const lineHeightTop = (lineHeightResult - lineHeightBase) * r;
 
   // 基线位置比例
-  // const baseLineRatio = ascent / (ascent + Math.abs(descent));
+  const baseLineRatio = ascent / (ascent + Math.abs(descent));
   // 溢出高度 比如 ascent>unitsPerEm 的情况， 假设得到数字为5.3 fontsize 16，如果行高倍数为1，那么文字反而要往上缩5.3高度
   // 如果行高倍数为2 ，那么存在冗余高度，平均分配一下，上面空出 (32-16)/2 = 8 ,那么此时文字是往下移动 8-5.3 = 2.7
   // const overflowTop =
@@ -115,6 +115,7 @@ export function computedFontLineHeight(option) {
   return {
     lineHeight: lineHeightResult,
     lineHeightTop: lineHeightTop,
+    baseLineRatio: baseLineRatio,
   };
 }
 
@@ -127,4 +128,58 @@ export async function getDefaultFontApp() {
   );
   let fontApp = opentype.parse(arrayBuffer);
   return fontApp;
+}
+export const pathPartType = {
+  zh: 1,
+  en: 2,
+  space: 3,
+};
+
+export function identifyNext(fontApp, char, index, textInfoArr, config) {
+  let nextText = textInfoArr[index + 1];
+  let path: any = null;
+  const chilePath = [
+    {
+      text: char,
+      path: getPath(fontApp, char, config.fontSize),
+    },
+  ];
+  while (!isEnd(nextText)) {
+    index++;
+    char = `${char}${nextText}`;
+    nextText = textInfoArr[index + 1];
+    path = getPath(fontApp, char, config.fontSize);
+    chilePath.push({
+      text: char,
+      path: path,
+    });
+  }
+  if (isEnglish(char)) {
+    path = getPath(fontApp, char, config.fontSize);
+  }
+  const pathBoundingBox = path?.getBoundingBox();
+  return {
+    lastIndex: index,
+    path: path,
+    text: char,
+    pathBoundingBox: pathBoundingBox,
+    chilePath,
+    type: pathPartType.en,
+    height: pathBoundingBox.x2 - pathBoundingBox.x1,
+  };
+}
+
+export function computedPathTransform(textAlign, MAX_WIDTH, maxContentWidth) {
+  let offsetX = 0;
+  switch (textAlign) {
+    case "center":
+      offsetX = (MAX_WIDTH - maxContentWidth) / 2;
+      return `translate(${offsetX},0)`;
+    case "right":
+      offsetX = MAX_WIDTH - maxContentWidth;
+      return `translate(${offsetX},0)`;
+
+    default:
+      return "";
+  }
 }

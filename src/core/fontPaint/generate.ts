@@ -71,9 +71,9 @@ export function genTextSvg(config: IFontGenerateParams) {
       G_Template
     );
   } else if (isVertical) {
+    // 纯英文 垂直情况
     let originWidth = svgDomSize.width;
     let originHeight = svgDomSize.height;
-    // 在Ai中
     const _transform = `${pageMarginTranslate}  rotate(90)
 translate(0,-${svgDomSize.width * DPI})
       `;

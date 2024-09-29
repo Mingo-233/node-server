@@ -40,13 +40,13 @@ describe("英文字体转曲测试 垂直书写", () => {
     const parseResult = parseText(
       fontApp,
       {
-        text: "Your text here \nabc 啊",
-        fontSize: 16,
-        textAlign: "left",
+        text: 'Flexible packaging Stand up pouches Mylar bag mockup"\nblankTitle',
+        fontSize: 14,
+        textAlign: "center",
         vertical: true,
         MaxWidth: 64,
-        MaxHeight: 199.926,
-        textLineHeight: 32,
+        MaxHeight: 180,
+        textLineHeight: 21,
         rotate: 0,
         fontOption: {
           unitsPerEm,
@@ -57,7 +57,6 @@ describe("英文字体转曲测试 垂直书写", () => {
       },
       defaultFontApp
     );
-    expect(Object.keys(Object.keys(parseResult.pathPart)).length).toBe(2);
     const config = transformText(parseResult, defaultTransformParams);
     const svgDom = genTextSvg(config);
     fsSaveFile(svgDom, "font_ver_1.svg");

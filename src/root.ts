@@ -28,7 +28,7 @@ import projectData from "./store/tempInfo.json";
 import knifeData from "./store/tempKnife.json";
 const path = require("path");
 const fs = require("fs");
-// enableDevMode();
+enableDevMode();
 function getMockData() {
   return {
     projectData,
@@ -151,10 +151,10 @@ async function mockRequest() {
   let outputPath = path.resolve(__dirname, "../../output/a.pdf");
   await pdfMain(getMockData().knifeData, getMockData().projectData, {
     isOnlyKnife: false,
-    colorMode: "CMYK",
+    colorMode: "RGB",
     filePath: "",
     // filePath: outputPath,
   });
 }
 
-// mockRequest();
+mockRequest();

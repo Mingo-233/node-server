@@ -1,117 +1,59 @@
 {
-  "id": 10121217,
-  "length": 120.6,
-  "width": 60.6,
-  "height": 161.6,
+  "id": 10121321,
+  "length": 120,
+  "width": 60,
+  "height": 160,
   "thickness": 0.5,
   "inless": 0.3,
   "outless": 0.2,
   "background": null,
-  "userId": 1102855,
+  "userId": 1102731,
   "images": null,
   "membrane_id": null,
   "is_mode": 0,
   "design_data": [
     {
-      "type": "shape",
-      "id": "ef649ee8-9baa-4f09-8dcb-90302e992fc0",
-      "src": "https://cdn.pacdora.com/web-assets/f03cf8ee-dc16-4343-a589-cae220ce71c4.svg",
-      "uuid": "ef649ee8-9baa-4f09-8dcb-90302e992fc0",
-      "shapeType": "star",
-      "can_set_color": 0,
-      "fills": [],
-      "owidth": 200,
-      "oheight": 200,
-      "isProportional": false,
+      "bg": {
+        "x": 0,
+        "y": 0,
+        "width": 680.5792632645105,
+        "height": 170.14481581612762
+      },
+      "id": "2051c161-f039-43ca-86fc-b5346f97a70c",
+      "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
+      "type": "font",
+      "uuid": "2051c161-f039-43ca-86fc-b5346f97a70c",
       "style": {
-        "strokeWidth": 3.7326139088729016,
-        "strokeWidthTemp": 3.7326139088729016,
-        "radius": 0,
-        "stroke": "#000000",
-        "color": "#cccccc",
-        "left": 243.504,
-        "top": 122.799,
-        "width": 27.9946,
-        "height": 27.9946,
+        "top": 73.0729,
+        "left": 208.818,
+        "color": "#191919",
+        "width": 64.8229,
+        "height": 180.181,
         "rotate": 0,
         "opacity": 100,
-        "strokeDashArray": 0
-      },
-      "_layer_name": "traditional"
-    },
-    {
-      "type": "font",
-      "id": "f371969c-93bb-4c78-9244-dfd666a14ecd",
-      "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
-      "uuid": "f371969c-93bb-4c78-9244-dfd666a14ecd",
-      "value": "abc",
-      "example": "Crimson-Roman",
-      "style": {
-        "vertical": 0,
-        "left": -24.0652,
-        "top": 128.302,
-        "width": 186.531,
-        "height": 22.4896,
-        "fontSize": 14.9305,
-        "lineHeight": 22.39575,
-        "fontFamily": "f99066",
+        "fontSize": 14.4056,
+        "vertical": 1,
         "textAlign": "center",
-        "color": "#191919",
-        "rotate": 0,
-        "opacity": 100
+        "fontFamily": "f99066",
+        "lineHeight": 21.6084
       },
-      "bg": {
-        "x": 0,
-        "y": 0,
-        "width": 705.3758568032554,
-        "height": 176.34396420081384
-      },
-      "_layer_name": "traditional"
-    },
-    {
-      "type": "img",
-      "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a4259b60-b3af-4afb-9e32-14702d1ab80c.png",
-      "uuid": "986b72b0-c4f4-4c8b-9945-b0e9dba10b02",
-      "can_set_color": 0,
-      "fills": [],
-      "owidth": 64,
-      "oheight": 64,
-      "isProportional": false,
-      "style": {
-        "position": "absolute",
-        "width": 39.5864,
-        "height": 39.5864,
-        "top": 119.898,
-        "left": 328.059,
-        "rotate": 0,
-        "opacity": 100
-      },
-      "bg": {
-        "x": 0,
-        "y": 0,
-        "width": 39.5864,
-        "height": 39.5864
-      },
+      "value": "\"Flexible packaging Stand up pouches Mylar bag mockup\"\nblankTitle",
+      "example": "Crimson-Roman",
       "_layer_name": "traditional"
     }
   ],
   "inside_design_data": [],
-  "by_project_id": null,
+  "by_project_id": 10121320,
   "material_obj": null,
   "material_jpg": null,
   "material_mtl": null,
   "is_render": 0,
   "line_guides": null,
-  "screenshot_id": 13513069,
-  "screenshot": "//test-cdn.pacdora.com/render-cover/26b738ba-05cb-47b2-9967-4d1bceb0350d.png",
+  "screenshot_id": 13513126,
+  "screenshot": "//test-cdn.pacdora.com/render-cover/1b23b342-655f-44ae-836a-04abc81787be.png",
   "color_history": null,
   "inside_background": null,
-  "face_background": {
-    "HT2": {
-      "cmyk": "",
-      "rgba": "#8894ba"
-    }
-  },
+  "face_background": null,
   "inside_face_background": null,
   "show_bleed_line": 1,
   "show_material": 1,
@@ -121,12 +63,12 @@
   "by_work_id": null,
   "by_ai_project_id": 0,
   "by_share_project_id": 0,
-  "blankSettingId": 16352,
+  "blankSettingId": null,
   "rotate": 0,
   "extend_attrs": {
     "trademark": "",
     "productName": "",
-    "nameModified": false
+    "nameModified": true
   },
   "size_option": null,
   "enterpriseId": null,
@@ -141,86 +83,33 @@
       "science_id": 8,
       "design_list": [
         {
-          "id": "ef649ee8-9baa-4f09-8dcb-90302e992fc0",
-          "src": "https://cdn.pacdora.com/web-assets/f03cf8ee-dc16-4343-a589-cae220ce71c4.svg",
-          "type": "shape",
-          "uuid": "ef649ee8-9baa-4f09-8dcb-90302e992fc0",
-          "fills": [],
-          "style": {
-            "top": 122.799,
-            "left": 243.504,
-            "color": "#cccccc",
-            "width": 27.9946,
-            "height": 27.9946,
-            "radius": 0,
-            "rotate": 0,
-            "stroke": "#000000",
-            "opacity": 100,
-            "strokeWidth": 3.7326139088729016,
-            "strokeDashArray": 0,
-            "strokeWidthTemp": 3.7326139088729016
-          },
-          "owidth": 200,
-          "oheight": 200,
-          "shapeType": "star",
-          "_layer_name": "traditional",
-          "can_set_color": 0,
-          "isProportional": false
-        },
-        {
           "bg": {
             "x": 0,
             "y": 0,
-            "width": 705.3758568032554,
-            "height": 176.34396420081384
+            "width": 680.5792632645105,
+            "height": 170.14481581612762
           },
-          "id": "f371969c-93bb-4c78-9244-dfd666a14ecd",
+          "id": "2051c161-f039-43ca-86fc-b5346f97a70c",
           "src": "https://cdn.pacdora.com/font/3280b6fb-353d-40bb-804f-e553e615a7e8.woff2",
           "type": "font",
-          "uuid": "f371969c-93bb-4c78-9244-dfd666a14ecd",
+          "uuid": "2051c161-f039-43ca-86fc-b5346f97a70c",
           "style": {
-            "top": 128.302,
-            "left": -24.0652,
+            "top": 73.0729,
+            "left": 208.818,
             "color": "#191919",
-            "width": 186.531,
-            "height": 22.4896,
+            "width": 64.8229,
+            "height": 180.181,
             "rotate": 0,
             "opacity": 100,
-            "fontSize": 14.9305,
-            "vertical": 0,
+            "fontSize": 14.4056,
+            "vertical": 1,
             "textAlign": "center",
             "fontFamily": "f99066",
-            "lineHeight": 22.39575
+            "lineHeight": 21.6084
           },
-          "value": "abc",
+          "value": "\"Flexible packaging Stand up pouches Mylar bag mockup\"\nblankTitle",
           "example": "Crimson-Roman",
           "_layer_name": "traditional"
-        },
-        {
-          "bg": {
-            "x": 0,
-            "y": 0,
-            "width": 39.5864,
-            "height": 39.5864
-          },
-          "src": "//test-cdn.pacdora.com/user-materials-mockup_mockup/a4259b60-b3af-4afb-9e32-14702d1ab80c.png",
-          "type": "img",
-          "uuid": "986b72b0-c4f4-4c8b-9945-b0e9dba10b02",
-          "fills": [],
-          "style": {
-            "top": 119.898,
-            "left": 328.059,
-            "width": 39.5864,
-            "height": 39.5864,
-            "rotate": 0,
-            "opacity": 100,
-            "position": "absolute"
-          },
-          "owidth": 64,
-          "oheight": 64,
-          "_layer_name": "traditional",
-          "can_set_color": 0,
-          "isProportional": false
         }
       ],
       "line_guides": null,
@@ -229,12 +118,7 @@
       "membrane_name": "",
       "science_image": "//cdn.baoxiaohe.com/94e8078a-9931-42cd-97ed-57883bd88085.jpg",
       "def_line_color": "#999999",
-      "face_background": {
-        "HT2": {
-          "cmyk": "",
-          "rgba": "#8894ba"
-        }
-      },
+      "face_background": null,
       "inside_background": null,
       "inside_design_list": [],
       "inside_membrane_id": null,
@@ -264,46 +148,26 @@
     "partThemeColorData": {
       "color": "",
       "recentColors": [],
-      "blankSettingId": 16352
+      "blankSettingId": 16395
     }
   },
   "type": "mockup-detail",
   "appId": null,
-  "create_time": "1727426534480",
+  "create_time": "1727598247172",
   "by_experience_project_id": null,
-  "update_time": "1727426539607",
+  "update_time": "1727598989986",
   "is_delete": 0,
   "science_id": 8,
-  "user_id": 1102855,
-  "cate_id": 41,
-  "commentCount": 0,
-  "unread": false,
-  "collaborate": {
-    "permission": "",
-    "ioToken": "",
-    "memberCount": 0
-  },
-  "project_name": "Double tray boxes storage with front opening cardboard mailer mockup 100103",
-  "price": 0,
-  "can_print": true,
-  "supportSciences": [
-    8,
-    7,
-    37,
-    3,
-    5,
-    6,
-    11,
-    14
-  ],
+  "user_id": 1102731,
+  "cate_id": 7,
   "cate": {
-    "id": 41,
-    "name": "锁扣飞机式插锁盒",
-    "image": "//yun.baoxiaohe.com/render/20220113/100103.jpg",
-    "sort": 100103,
-    "remarks": "锁扣飞机式插锁盒",
+    "id": 7,
+    "name": "反向插锁盒",
+    "image": "//yun.baoxiaohe.com/render/20220113/100010.jpg",
+    "sort": 100010,
+    "remarks": "管式盒-防尘摇翼与顶盖部分相互锁合,上下管口压翼分别相对的两边板延伸而成的结构,法式对压翼管式盒,上",
     "faces": "[]",
-    "cate_no": "100103",
+    "cate_no": "100010",
     "defaultSize": [
       {
         "length": "120",
@@ -314,7 +178,7 @@
       {
         "length": "120",
         "width": "60",
-        "height": "160",
+        "height": "168",
         "remark": ""
       },
       {
@@ -327,7 +191,7 @@
     "lengthLimit": "15,2000",
     "widthLimit": "10,2000",
     "heightLimit": "15,2000",
-    "code": "PairAircraftWithLock",
+    "code": "Pair",
     "minThickness": "0.2",
     "price": "0.00",
     "discount": 1,
@@ -350,7 +214,9 @@
         "minThickness": 0.2
       }
     ],
-    "layerGlobalSettings": null,
+    "layerGlobalSettings": {
+      "greyBoardAnimation": true
+    },
     "is_enterprise": 0,
     "openParamsStatus": 1,
     "cate_type": 0,
@@ -364,11 +230,24 @@
     "partGroup": {},
     "appId": "",
     "create_time": "1585550467392",
-    "update_time": "1672724285655",
+    "update_time": "1710410601441",
     "is_delete": 0,
     "cate_top_id": 1,
     "modelClassId": 181
   },
+  "project_name": "Tuck end boxes double tray reverse mortise lock mockup 100010",
+  "price": 0,
+  "can_print": true,
+  "supportSciences": [
+    8,
+    7,
+    37,
+    3,
+    5,
+    6,
+    11,
+    14
+  ],
   "science_image": "//cdn.baoxiaohe.com/94e8078a-9931-42cd-97ed-57883bd88085.jpg",
   "bleedline": 3,
   "science_name": "White card board",

@@ -1,18 +1,14 @@
 import {
   createWordPathContext,
   isSymbolChar,
-  isEnd,
-  isEnglish,
+  computedPathTransform,
   isSpace,
   getPath,
   computedFontLineHeight,
+  pathPartType,
+  identifyNext,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
-const pathPartType = {
-  zh: 1,
-  en: 2,
-  space: 3,
-};
 
 export function parseTextV2(
   fontApp,
@@ -26,7 +22,10 @@ export function parseTextV2(
     x2: 0,
     y2: 0,
   };
-
+  let hasSymbolChar = false;
+  // 文字间隙 在浏览器环境中默认值为normal
+  // const letterSpace = 0;
+  const letterSpace = config.fontSize * 0.1;
   const { lineHeight, lineHeightTop } = computedFontLineHeight({
     unitsPerEm: config.fontOption.unitsPerEm,
     ascent: config.fontOption.ascent,
@@ -73,6 +72,7 @@ export function parseTextV2(
 
       const alignTransform = computedPathTransform(
         config.textAlign,
+        MAX_WIDTH,
         maxContentWidthArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
@@ -86,6 +86,7 @@ export function parseTextV2(
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
         config.textAlign,
+        MAX_WIDTH,
         maxContentWidthArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
@@ -98,21 +99,7 @@ export function parseTextV2(
       colAccumulatorWidth = colAccumulatorWidth + selfPathWidth;
     }
   });
-  //   计算整体的偏移量
-  function computedPathTransform(textAlign, maxContentWidth) {
-    let offsetX = 0;
-    switch (textAlign) {
-      case "center":
-        offsetX = (MAX_WIDTH - maxContentWidth) / 2;
-        return `translate(${offsetX},0)`;
-      case "right":
-        offsetX = MAX_WIDTH - maxContentWidth;
-        return `translate(${offsetX},0)`;
 
-      default:
-        return "";
-    }
-  }
   function mapText(fontApp, config) {
     const textInfoArr: ITextInfoItem[] = [];
     const textArr = config.text.split("");
@@ -140,6 +127,7 @@ export function parseTextV2(
       }
 
       if (isSymbolChar(textItem)) {
+        hasSymbolChar = true;
         const path = getPath(defaultFontApp, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
@@ -172,7 +160,7 @@ export function parseTextV2(
           type: pathPartType.space,
         });
       } else {
-        const result = identifyNext(textItem, i, textArr);
+        const result = identifyNext(fontApp, textItem, i, textArr, config);
         identifiedIndex = result.lastIndex;
         // 因为英文要旋转过来，所以它的宽度就是高度
         const currentPathWidth =
@@ -210,7 +198,6 @@ export function parseTextV2(
         continue;
       }
       const _width = textInfo.width || width;
-      const _height = textInfo.height;
 
       if (textInfo.type === pathPartType.space) {
         accumulatorPathWidth = accumulatorPathWidth + width / 4;
@@ -255,7 +242,7 @@ export function parseTextV2(
             path: newSecondTextInfoPath,
             type: pathPartType.en,
             pathBoundingBox: newSecondTextInfoBoundingBox,
-            height:
+            width:
               newSecondTextInfoBoundingBox.x2 - newSecondTextInfoBoundingBox.x1,
           };
 
@@ -291,40 +278,6 @@ export function parseTextV2(
     return { lineNum, breakLineIndex, maxContentWidthArr };
   }
 
-  function identifyNext(char, index, textInfoArr) {
-    let nextText = textInfoArr[index + 1];
-    let path: any = null;
-    const chilePath = [
-      {
-        text: char,
-        path: getPath(fontApp, char, config.fontSize),
-      },
-    ];
-    while (!isEnd(nextText)) {
-      index++;
-      char = `${char}${nextText}`;
-      nextText = textInfoArr[index + 1];
-      path = getPath(fontApp, char, config.fontSize);
-      chilePath.push({
-        text: char,
-        path: path,
-      });
-    }
-    if (isEnglish(char)) {
-      path = getPath(fontApp, char, config.fontSize);
-    }
-    const pathBoundingBox = path?.getBoundingBox();
-    return {
-      lastIndex: index,
-      path: path,
-      text: char,
-      pathBoundingBox: pathBoundingBox,
-      chilePath,
-      type: pathPartType.en,
-      height: pathBoundingBox.x2 - pathBoundingBox.x1,
-    };
-  }
-
   return {
     pathPart: context.pathPart,
     position,
@@ -333,7 +286,7 @@ export function parseTextV2(
       width: config.MaxWidth,
       height: config.MaxHeight,
     },
-    hasSymbolChar: false,
+    hasSymbolChar: hasSymbolChar,
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,
