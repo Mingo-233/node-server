@@ -168,7 +168,20 @@ export function identifyNext(fontApp, char, index, textInfoArr, config) {
     height: pathBoundingBox.x2 - pathBoundingBox.x1,
   };
 }
-
+export function genChildPath(fontApp, chars, config) {
+  const chilePath: any = [];
+  let str = "";
+  for (let i = 0; i < chars.length; i++) {
+    const char = chars[i];
+    str += char;
+    const path = getPath(fontApp, str, config.fontSize);
+    chilePath.push({
+      text: str,
+      path: path,
+    });
+  }
+  return chilePath;
+}
 export function computedPathTransform(textAlign, MAX_WIDTH, maxContentWidth) {
   let offsetX = 0;
   switch (textAlign) {

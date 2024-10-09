@@ -7,6 +7,7 @@ import {
   computedFontLineHeight,
   pathPartType,
   identifyNext,
+  genChildPath,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -237,6 +238,7 @@ export function parseTextV2(
           );
           const newSecondTextInfoBoundingBox =
             newSecondTextInfoPath.getBoundingBox();
+          const newChilePath = genChildPath(fontApp, newSecondText, config);
           const newSecondTextInfo = {
             text: newSecondText,
             path: newSecondTextInfoPath,
@@ -244,6 +246,7 @@ export function parseTextV2(
             pathBoundingBox: newSecondTextInfoBoundingBox,
             width:
               newSecondTextInfoBoundingBox.x2 - newSecondTextInfoBoundingBox.x1,
+            chilePath: newChilePath,
           };
 
           const newPaths = [newFirstTextInfo, newSecondTextInfo];

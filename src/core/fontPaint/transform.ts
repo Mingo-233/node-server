@@ -4,12 +4,11 @@ import type {
   IFontParse,
 } from "@/type/parse";
 import { DPI } from "@/utils/constant";
-import { hexToCMYK } from "@/utils/color";
+import { convertCMYK } from "@/utils/color";
 export function transformText(
   config: IFontParse,
   params: IFontTransformParams
 ): IFontGenerateParams {
-  // TODO: scale
   const originLeft = params.isGroup
     ? params.style.left
     : params.style.left + params.bleedLineWidth;
@@ -19,7 +18,7 @@ export function transformText(
   const left = originLeft * DPI;
   const top = originTop * DPI;
   const renderColor =
-    params.colorMode === "CMYK" ? hexToCMYK(params.color) : params.color;
+    params.colorMode === "CMYK" ? convertCMYK(params.color) : params.color;
 
   return {
     ...config,
