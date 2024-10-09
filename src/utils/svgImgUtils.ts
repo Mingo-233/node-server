@@ -1,4 +1,4 @@
-import { fitColor } from "./color";
+import { fitColor, hexToCMYK, rgbToCmyk } from "./color";
 
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -31,8 +31,9 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
     let renderColor = fitColor(color, options.colorMode);
     const eles: any = getSvg(svgDom, type, value);
     if (eles.length === 0) {
-      styleDom.innerHTML += `.pac-${configItem.class}{${type}:${color}}`;
-      svgDom.classList.add(`pac-${configItem.class}`);
+      // styleDom.innerHTML += `.pac-${configItem.class}{${type}:${color}}`;
+      // svgDom.classList.add(`pac-${configItem.class}`);
+      svgDom.style.setProperty(type, renderColor);
     } else {
       eles.forEach((vo) => {
         if (vo.type === "attr") {
@@ -47,6 +48,8 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
   svgDom.appendChild(styleDom);
   svgDom.setAttribute("width", `100%`);
   svgDom.setAttribute("height", `100%`);
+  svgDom.setAttribute("preserveAspectRatio", "none");
+
   let resultSvgString = dom.querySelector("svg")?.outerHTML ?? "";
   return removeStyleTags(resultSvgString);
 }
@@ -156,5 +159,27 @@ function colorEqual(c1, c2) {
   );
 }
 function removeStyleTags(input) {
-  return input.replace(/<style[\s\S]*?<\/style>/gi, "");
+  return input.replace(/<style[\s\S]*?<\/style>/gi, "").replace("px", "");
 }
+
+function replaceHexColor(input) {
+  let svgString = input.replace(/#[0-9a-fA-F]{6}/g, (match) => {
+    let convertedColor = hexToCMYK(match);
+    return convertedColor;
+  });
+  return svgString;
+}
+
+function replaceRGBColor(input) {
+  let svgString = input.replace(/rgb\(\d+,\d+,\d+\)/g, (match) => {
+    const rgbValues = match.match(/\d+/g).map(Number);
+    let convertedColor = rgbToCmyk(rgbValues[0], rgbValues[1], rgbValues[2]);
+    return convertedColor;
+  });
+  return svgString;
+}
+function pipe(...fns) {
+  return (input) => fns.reduce((acc, fn) => fn(acc), input);
+}
+
+export const svgCmykHandle = pipe(replaceHexColor, replaceRGBColor);

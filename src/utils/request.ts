@@ -6,7 +6,7 @@ import log, { isDevMode } from "@/utils/log";
 import { convertAndInvertImage } from "@/utils/color";
 export const assetsMap = new Map();
 let _cacheDirName = "default";
-const cacheRootDir = path.resolve(__dirname, `../../../cache`);
+const cacheRootDir = path.resolve(__dirname, `../../../../cache`);
 const DEFAULT_CACHE_DIR = path.join(cacheRootDir, "NotoSansCJK-Regular.ttf");
 // const DEFAULT_CACHE_DIR = path.resolve(
 //   __dirname,
@@ -48,13 +48,13 @@ const getCacheFilePath = (url) => {
 export const fetchResourceWithCache = async (url) => {
   if (assetsMap.get(url)) {
     console.log("读取到本地缓存文件", url);
-    return fs.promises.readFile(assetsMap.get(url));
+    return fs.readFileSync(assetsMap.get(url));
   }
   const cacheFilePath = getCacheFilePath(url);
   assetsMap.set(url, cacheFilePath);
   // 检查缓存文件是否存在
   if (fs.existsSync(cacheFilePath)) {
-    return fs.promises.readFile(cacheFilePath);
+    return fs.readFileSync(cacheFilePath);
   }
 
   try {
@@ -67,7 +67,7 @@ export const fetchResourceWithCache = async (url) => {
     const data = response.data;
 
     // 将数据写入缓存文件
-    await fs.promises.writeFile(cacheFilePath, data);
+    await fs.writeFileSync(cacheFilePath, data);
     console.log(`资源已缓存：${cacheFilePath}`);
 
     return data;

@@ -23,15 +23,15 @@ export function hexToCMYK(hex) {
   let y = (1 - b - k) / (1 - k);
 
   const result = {
-    c: parseFloat((c * 100).toFixed(1)),
-    m: parseFloat((m * 100).toFixed(1)),
-    y: parseFloat((y * 100).toFixed(1)),
-    k: parseFloat((k * 100).toFixed(1)),
+    c: parseFloat((c * 100).toFixed(0)),
+    m: parseFloat((m * 100).toFixed(0)),
+    y: parseFloat((y * 100).toFixed(0)),
+    k: parseFloat((k * 100).toFixed(0)),
   };
   return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
 }
 
-function rgbToCmyk(r, g, b) {
+export function rgbToCmyk(r, g, b) {
   // 转换 RGB 到 [0, 1] 范围
   let c = 1 - r / 255;
   let m = 1 - g / 255;
@@ -64,7 +64,7 @@ function rgbToCmyk(r, g, b) {
 // 将 RGB 图片转换为 CMYK，逆转 CMYK 通道并保存
 export async function convertAndInvertImage(inputPath, outputPath) {
   try {
-    const inputBuffer = await fs.promises.readFile(inputPath);
+    const inputBuffer = await fs.readFileSync(inputPath);
     await sharp(inputBuffer)
       .toColorspace("cmyk")
       .withMetadata({ icc: "cmyk-adobe-japan-2001-coated.icc" })
@@ -79,5 +79,14 @@ export async function convertAndInvertImage(inputPath, outputPath) {
 }
 
 export function fitColor(color: string, colorMode: IColorMode) {
-  return colorMode === "CMYK" ? hexToCMYK(color) : color;
+  return colorMode === "CMYK" ? convertCMYK(color) : color;
+}
+
+export function convertCMYK(value) {
+  if (value.startsWith("rgb")) {
+    const rgbValues = value.match(/\d+/g).map(Number);
+    return rgbToCmyk(rgbValues[0], rgbValues[1], rgbValues[2]);
+  } else {
+    return hexToCMYK(value);
+  }
 }
