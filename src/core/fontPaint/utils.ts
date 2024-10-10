@@ -50,9 +50,12 @@ export function isEnd(char) {
   if (char === "\n") return true;
 }
 // [\u4e00-\u9fff]：匹配中文汉字。
+// [\u0800-\u4e00]：匹配日文汉字。
+// [\uac00-\ud7ff]：匹配韩文汉字。
 // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
 // [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
-const symbolCharRule = /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/;
+const symbolCharRule =
+  /[\u4e00-\u9fff\u0800-\u4e00\uac00-\ud7ff\u3000-\u303f\uff00-\uffef]/;
 export function isSymbolChar(char) {
   return symbolCharRule.test(char);
 }
@@ -77,8 +80,8 @@ export function getPath(fontApp, text, fontSize) {
   return fontApp.getPath(text, 0, 0, fontSize);
 }
 const fontFamilyLineSpaceRatio = {
-  default: 0.5,
-  "soul-handwriting_free-version": 0.2,
+  default: 0.643,
+  "soul-handwriting_free-version": 0.01,
 };
 export function computedFontLineHeight(option) {
   const { unitsPerEm, ascent, descent, fontSize, lineHeight, fontName } =
@@ -95,12 +98,18 @@ export function computedFontLineHeight(option) {
   // const top = lineHeight - ascenderHeight;
   // const r = (ascent + Math.abs(descent)) / unitsPerEm - 1;
   // const lineHeightTop = (lineHeightResult - lineHeightBase) / 2;
+
   const r =
     fontFamilyLineSpaceRatio[fontName] || fontFamilyLineSpaceRatio.default;
-  const lineHeightTop = (lineHeightResult - lineHeightBase) * r;
-
+  // const lineHeightTop = lineHeight * r;
   // 基线位置比例
   const baseLineRatio = ascent / (ascent + Math.abs(descent));
+
+  const temp =
+    ((ascent + Math.abs(descent) - unitsPerEm) / (ascent + Math.abs(descent))) *
+    lineHeight;
+  const lineHeightTop = temp * r;
+
   // 溢出高度 比如 ascent>unitsPerEm 的情况， 假设得到数字为5.3 fontsize 16，如果行高倍数为1，那么文字反而要往上缩5.3高度
   // 如果行高倍数为2 ，那么存在冗余高度，平均分配一下，上面空出 (32-16)/2 = 8 ,那么此时文字是往下移动 8-5.3 = 2.7
   // const overflowTop =
@@ -121,7 +130,7 @@ export function computedFontLineHeight(option) {
 
 export async function getDefaultFontApp() {
   const defaultFontURL = "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf";
-  const data = await fetchAssets(defaultFontURL);
+  const data: any = await fetchAssets(defaultFontURL);
   const arrayBuffer = data.buffer.slice(
     data.byteOffset,
     data.byteOffset + data.byteLength

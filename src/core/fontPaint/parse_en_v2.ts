@@ -33,6 +33,7 @@ export function parseTextV2(
     fontSize: config.fontSize,
     lineHeight: config.textLineHeight,
     descent: config.fontOption.descent,
+    fontName: config.fontOption.fontName,
   });
 
   const isVertical = !!config.vertical;
@@ -45,7 +46,7 @@ export function parseTextV2(
     config
   );
   const { lineNum, breakLineIndex, maxContentWidthArr } = line;
-
+  let lastTextType = 0;
   let currentLine = 1;
   let colAccumulatorWidth = 0;
   textInfoArr.forEach((textInfo, index) => {
@@ -63,11 +64,16 @@ export function parseTextV2(
     if (!textInfo.path) return;
     context.addPath(textInfo.path);
     if (textInfo.type === pathPartType.zh) {
+      // 不同类型字符之间需要有空隙
+      if (lastTextType !== pathPartType.zh) {
+        colAccumulatorWidth = colAccumulatorWidth + letterSpace;
+      }
       const translateX = colAccumulatorWidth;
 
       // const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
 
-      const translateY = lineHeight * (currentLine - 1) + lineHeightTop;
+      const translateY =
+        config.textLineHeight * (currentLine - 1) + lineHeightTop;
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
 
@@ -78,10 +84,12 @@ export function parseTextV2(
       );
       context.addAlignTransform(alignTransform);
 
-      colAccumulatorWidth = colAccumulatorWidth + maxItemWidth;
+      colAccumulatorWidth = colAccumulatorWidth + maxItemWidth + letterSpace;
+      lastTextType = pathPartType.zh;
     } else {
       const translateX = colAccumulatorWidth;
-      const translateY = lineHeight * (currentLine - 1) + lineHeightTop;
+      const translateY =
+        config.textLineHeight * (currentLine - 1) + lineHeightTop;
 
       const transform = `translate(${translateX},${translateY}) `;
       context.addTransform(transform);
@@ -98,6 +106,7 @@ export function parseTextV2(
         selfPathWidth = _pathBoundingBox.x2 - _pathBoundingBox.x1;
       }
       colAccumulatorWidth = colAccumulatorWidth + selfPathWidth;
+      lastTextType = pathPartType.en;
     }
   });
 
@@ -203,6 +212,8 @@ export function parseTextV2(
       if (textInfo.type === pathPartType.space) {
         accumulatorPathWidth = accumulatorPathWidth + width / 4;
         continue;
+      } else if (textInfo.type === pathPartType.zh) {
+        accumulatorPathWidth = accumulatorPathWidth + letterSpace;
       }
       accumulatorPathWidth = accumulatorPathWidth + _width;
 

@@ -25,7 +25,7 @@ export function drawBleedLine(
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: fitColor("#00ff00", config.colorMode),
+      stroke: fitColor(config.knifeColor.bleed, config.colorMode),
       fill: "none",
       d: bleedPath,
     })
@@ -53,7 +53,7 @@ export function drawFoldLine(
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: fitColor("#ff0000", config.colorMode),
+      stroke: fitColor(config.knifeColor.fold, config.colorMode),
       fill: "none",
       d: foldPath,
       transform: `translate(${config.bleedLineWidth}, ${config.bleedLineWidth})`,
@@ -80,7 +80,7 @@ export function drawCutLine(knifeData: IKnifeData, config: IDrawingConfigPlus) {
     },
     createElement("path", {
       "stroke-width": config.strokeWidth.toString(),
-      stroke: fitColor("#0000ff", config.colorMode),
+      stroke: fitColor(config.knifeColor.cut, config.colorMode),
       fill: "none",
       d: cutPath,
       transform: `translate(${config.bleedLineWidth}, ${config.bleedLineWidth})`,

@@ -1,7 +1,11 @@
 import { IPdfSvgContainer } from "@/type/pdfLayer";
-import { createKnifeSvgElement, createElement } from "@/nodes/index";
+import {
+  createKnifeSvgElement,
+  createElement,
+  createSvgElement,
+} from "@/nodes/index";
 import { fetchAssets, isSvgUrl } from "@/utils/request";
-import { getTransformSvg } from "@/utils/svgImgUtils";
+import { getTransformSvg, svgCmykHandle } from "@/utils/svgImgUtils";
 import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
 import { IFontParseParams } from "@/type/parse";
 import SvgUtil from "@/utils/svgUtils";
@@ -20,6 +24,7 @@ import {
 import { fitColor } from "@/utils/color";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
+  // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
   const translateX = config.isGroup
     ? style.left * DPI
     : (style.left + config.bleedLineWidth) * DPI;
@@ -31,11 +36,22 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         translateY + (style.height / 2) * DPI
       })`
     : "";
+  const _opacity = (style.opacity && style.opacity / 100) || 1;
+  let _flip = "";
+  if (style.rotateX) {
+    _flip = `scale(-1,1) translate(${-style.width * DPI},0)`;
+  } else if (style.rotateY) {
+    _flip = `scale(1,-1) translate(0,${-style.height * DPI})`;
+  }
   if (isSvgUrl(designItem.src)) {
-    const svgString = (await fetchAssets(designItem.src, false)) as string;
-    const transformSvg = getTransformSvg(svgString, designItem.fills, {
+    const svgString = (await fetchAssets(designItem.src)) as string;
+    let transformSvg = getTransformSvg(svgString, designItem.fills, {
       colorMode: config.colorMode,
+      transform: _flip ? _flip : "",
     });
+    if (config.colorMode === "CMYK") {
+      transformSvg = svgCmykHandle(transformSvg);
+    }
     const imgSvg = createElement(
       "svg",
       {
@@ -44,6 +60,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         y: "0",
         width: style.width + config.unit,
         height: style.height + config.unit,
+        opacity: _opacity.toString(),
         transform: `${rotateTransform} translate(${translateX}, ${translateY}) `,
       },
       transformSvg
@@ -57,14 +74,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   } else {
     const imageBuffer = await fetchAssets(designItem.src);
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
-    // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
-    const _opacity = (style.opacity && style.opacity / 100) || 1;
-    let _flip = "";
-    if (style.rotateX) {
-      _flip = `scale(-1,1) translate(${-style.width * DPI},0)`;
-    } else if (style.rotateY) {
-      _flip = `scale(1,-1) translate(0,${-style.height * DPI})`;
-    }
+
     const imgSvg = createElement(
       "svg",
       {
@@ -100,6 +110,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
 
 export async function drawShape(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
+  const _opacity = (style.opacity && style.opacity / 100) || 1;
 
   const shapeContent =
     getShapeContent({
@@ -131,6 +142,7 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
       transform: `${rotateTransform} translate(${translateX}, ${translateY})`,
       width: style.width + config.unit,
       height: style.height + config.unit,
+      opacity: _opacity.toString(),
     },
     shapeContent
   );
@@ -180,7 +192,35 @@ export function drawFace(
   };
   return context;
 }
-
+export function drawBackground(color, knifeData, config) {
+  const svgString = createSvgElement(
+    {
+      width: knifeData.totalX + config.unit,
+      height: knifeData.totalY + config.unit,
+    },
+    createElement("rect", {
+      fill: fitColor(color, config.colorMode),
+      width: "100%",
+      height: "100%",
+    })
+  );
+  const clipPathSvg = drawBleedClipPath(knifeData, config);
+  const transform =
+    config.side === "inside"
+      ? `scale(-1, 1) translate(-${config.rootSvgSize.width * DPI},0)`
+      : "";
+  const groupSvg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" 
+  data-clip="${clipPathSvg}"
+  transform="${transform}"
+    >
+  ${svgString}
+  </svg>`;
+  const context: IPdfSvgContainer<"design-layer"> = {
+    type: "knifeFace",
+    svgString: groupSvg,
+  };
+  return context;
+}
 export async function drawGroup(
   designItem,
   config: IDrawingBoardConfig,
@@ -236,7 +276,8 @@ export async function drawGroup(
 }
 // 生成刀线的剪切路径
 export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
-  const bleedsScaleArr = knifeData.bleeds.map((item) => {
+  const _bleeds = JSON.parse(JSON.stringify(knifeData.bleeds));
+  const bleedsScaleArr = _bleeds.map((item) => {
     if (item.x) {
       item.x = item.x * DPI;
     }
@@ -261,6 +302,10 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   // 主字体文件是否支持中文
   //TODO: 当前判断条件是字体文件的字形数量是否大于5000 ，待完善
   let isSupCnMainFontApp = fontApp.glyphs?.length > 5000;
+  if (fontApp.glyphs?.length < 26) {
+    // 如果当前字体文件连26个字母都没有，切换备用字体文件
+    fontApp = await getDefaultFontApp();
+  }
   let defaultFontApp: any = undefined;
   const matchResult = matchSymbol(designItem.value);
 
@@ -284,6 +329,7 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     rotate: style.rotate,
     MaxWidth: style.width,
     MaxHeight: style.height,
+    color: style.color,
     fontOption: {
       unitsPerEm,
       ascent,
@@ -311,3 +357,12 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   };
   return context;
 }
+
+// function fsSaveFile(context, name = "test.svg") {
+//   const fs = require("fs");
+//   const path = require("path");
+//   const pwdPath = process.cwd();
+//   const filePath = path.resolve(pwdPath, "./dist/output");
+//   fs.writeFileSync(`${filePath}/${name}`, context);
+//   console.log("file saved");
+// }

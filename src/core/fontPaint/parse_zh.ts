@@ -8,6 +8,7 @@ import {
   computedFontLineHeight,
   identifyNext,
   pathPartType,
+  genChildPath,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -33,6 +34,7 @@ export function getVerticalTextPaths(
     fontSize: config.fontSize,
     lineHeight: config.textLineHeight,
     descent: config.fontOption.descent,
+    fontName: config.fontOption.fontName,
   });
   const baseLineHeight = lineHeight * baseLineRatio;
   const isVertical = !!config.vertical;
@@ -68,7 +70,8 @@ export function getVerticalTextPaths(
     if (currentLine === 1) {
       translateX = MAX_WIDTH - baseLineHeight;
     } else {
-      translateX = MAX_WIDTH - baseLineHeight - lineHeight * (currentLine - 1);
+      translateX =
+        MAX_WIDTH - baseLineHeight - config.textLineHeight * (currentLine - 1);
     }
     //当前这列上这个字是第几个,计算垂直方向偏移量
     const translateY = isFirstWord
@@ -256,6 +259,7 @@ export function getVerticalTextPaths(
           );
           const newSecondTextInfoBoundingBox =
             newSecondTextInfoPath.getBoundingBox();
+          const newChilePath = genChildPath(fontApp, newSecondText, config);
           const newSecondTextInfo = {
             text: newSecondText,
             path: newSecondTextInfoPath,
@@ -263,6 +267,7 @@ export function getVerticalTextPaths(
             pathBoundingBox: newSecondTextInfoBoundingBox,
             height:
               newSecondTextInfoBoundingBox.x2 - newSecondTextInfoBoundingBox.x1,
+            chilePath: newChilePath,
           };
 
           const newPaths = [newFirstTextInfo, newSecondTextInfo];

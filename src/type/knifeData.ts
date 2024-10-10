@@ -16,7 +16,6 @@ export interface IKnifeData {
   positionX?: number;
   positionY?: number;
 }
-// TODO: folds有2种数据类型
 export type IFolds =
   | {
       name: string;

@@ -76,10 +76,14 @@ export const fetchResourceWithCache = async (url) => {
     throw error;
   }
 };
-export function fetchAssets(url, isBuffer = true) {
-  log.info("log-fetchImage start", url);
-  const _url = prefixUrl(url);
-  return fetchResourceWithCache(_url);
+export function fetchAssets(url) {
+  return new Promise((resolve, reject) => {
+    log.info("log-fetchImage start", url);
+    const _url = prefixUrl(url);
+    fetchResourceWithCache(_url).then((res) => {
+      resolve(res);
+    });
+  });
 }
 
 export function prefixUrl(url) {
@@ -87,6 +91,7 @@ export function prefixUrl(url) {
   return url;
 }
 export function getCmykImgPath(url) {
+  // return `${extractPath(url)}_cmyk.jpg`;
   return `${extractPath(url)}_cmyk.jpg`;
 }
 function extractPath(filename) {
@@ -143,14 +148,14 @@ export async function cacheResource(jsonData) {
     await Promise.all(promiseTask)
       .then(async (res) => {
         console.log("所有资源缓存完成");
-        const imgSrcArr = Array.from(imgsSrcValues);
-        for (let i = 0; i < imgSrcArr.length; i++) {
-          const url = prefixUrl(imgSrcArr[i]);
-          const inputFilePath = assetsMap.get(url);
-          // /a/b/c/123.png => /a/b/c/cmyk_123.png
-          const outputFilePath = getCmykImgPath(inputFilePath);
-          await convertAndInvertImage(inputFilePath, outputFilePath);
-        }
+        // const imgSrcArr = Array.from(imgsSrcValues);
+        // for (let i = 0; i < imgSrcArr.length; i++) {
+        // const url = prefixUrl(imgSrcArr[i]);
+        // const inputFilePath = assetsMap.get(url);
+        // /a/b/c/123.png => /a/b/c/cmyk_123.png
+        // const outputFilePath = getCmykImgPath(inputFilePath);
+        // await convertAndInvertImage(inputFilePath, outputFilePath);
+        // }
         resolve();
       })
       .catch((err) => {

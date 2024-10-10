@@ -16,6 +16,7 @@ import {
   drawGroup,
   drawBleedClipPath,
   drawFont,
+  drawBackground,
 } from "./designLayer";
 import {
   drawAnnotateLabel,
@@ -43,7 +44,16 @@ export function usePdfLayer() {
   async function drawDesign(designData, knifeData, config) {
     if (!designData) return _pdfLayer["design-layer"];
     const designList = designData.list;
-
+    // 画统一背景 因为会覆盖其他的背景，所以放最前面画，层级就在下面
+    if (designData.background) {
+      const element = drawBackground(designData.background, knifeData, config);
+      _pdfLayer["design-layer"].children.push(element);
+    }
+    if (Object.keys(designData?.faceBackground).length > 0) {
+      log.info("log-drawFace start");
+      const faceElement = await drawFace(designData, knifeData.faces, config);
+      _pdfLayer["design-layer"].children.push(faceElement);
+    }
     for (let i = 0; i < designList.length; i++) {
       const designElement = designList[i];
       if (designElement.type === "img") {
@@ -63,12 +73,6 @@ export function usePdfLayer() {
         const fontElement = await drawFont(designElement, config);
         _pdfLayer["design-layer"].children.push(fontElement);
       }
-    }
-
-    if (Object.keys(designData?.faceBackground).length > 0) {
-      log.info("log-drawFace start");
-      const faceElement = await drawFace(designData, knifeData.faces, config);
-      _pdfLayer["design-layer"].children.push(faceElement);
     }
   }
   function drawAnnotation(annotateData, config) {

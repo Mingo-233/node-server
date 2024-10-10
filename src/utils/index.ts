@@ -8,7 +8,7 @@ import { IDrawingBoardConfig, IUnit, IColorMode } from "@/type/pdfPage";
 // export type IDrawingBoardConfig = ReturnType<typeof getDrawingBoardConfig>;
 export function getDrawingBoardConfig(
   knifeData: any,
-  params: { unit: IUnit; colorMode: IColorMode }
+  params: { unit: IUnit; colorMode: IColorMode; knifeColor: any }
 ): IDrawingBoardConfig {
   // 原先pdf导出项目中就这样设定的
   const strokeWidth = 0.2;
@@ -22,6 +22,16 @@ export function getDrawingBoardConfig(
   let MaxTotalX = knifeData.totalX;
   let MaxTotalY = knifeData.totalY;
   const layerList = knifeData.modeCate.layerList;
+  const defaultKnifeColor = {
+    bleed: "#69bd4e",
+    fold: "#ed322f",
+    cut: "#2e2671",
+  };
+  const _knifeColor = {
+    bleed: params.knifeColor?.bleed || defaultKnifeColor.bleed,
+    fold: params.knifeColor?.fold || defaultKnifeColor.fold,
+    cut: params.knifeColor?.cut || defaultKnifeColor.cut,
+  };
   if (!isTraditional(layerList)) {
     // 精品盒
     layerList.forEach((facePaper) => {
@@ -63,6 +73,7 @@ export function getDrawingBoardConfig(
     strokeWidth,
     bleedLineWidth: knifeData.bleedline,
     ...params,
+    knifeColor: _knifeColor,
   };
 }
 export function isTraditional(layerList) {

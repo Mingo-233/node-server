@@ -44,7 +44,7 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
       log.info("log-registerFace traditional");
       const facePaper = {
         name: "traditional",
-        friendlyName: "Outer",
+        friendlyName: "",
       };
       const params = {
         boardType: "traditional",
@@ -76,13 +76,19 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
       const _designData = {
         list: projectData.layer[facePaper.name].design_list || [],
         faceBackground: projectData.layer[facePaper.name].face_background || {},
+        background: projectData.layer[facePaper.name].background || null,
       };
       const _insideDesignData = {
         list: projectData.layer[facePaper.name].inside_design_list || [],
         faceBackground:
           projectData.layer[facePaper.name].inside_face_background || {},
+        background: projectData.layer[facePaper.name].inside_background || null,
       };
 
+      const faceName =
+        facePaper.friendlyName_en || facePaper.friendlyName || "";
+      // TODO: 临时解决中文字符无法显示的问题，后续需要开发中文字体支持
+      const _faceName = faceName.replace(/（/g, "(").replace(/）/g, ")");
       let _annotateData: IAnnotationParams = {
         unit: boardConfig.unit,
         insideSize: {
@@ -107,13 +113,16 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
           width: layerKnifeData.totalX.toFixed(1),
           height: layerKnifeData.totalY.toFixed(1),
         },
-        faceName: facePaper?.friendlyName_en || facePaper.friendlyName,
+        faceName: _faceName,
       };
       let pageType = 0;
       if (_designData.list.length > 0 && !app.isOnlyKnife) {
         pageType |= LAYER_DESIGN;
       }
-      if (_insideDesignData.list.length > 0 && !app.isOnlyKnife) {
+      if (
+        (_insideDesignData.list.length > 0 || _insideDesignData.background) &&
+        !app.isOnlyKnife
+      ) {
         pageType |= LAYER_INSIDE_DESIGN;
       }
       if (
@@ -129,8 +138,12 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
       }
       if (pageType & TYPE_OUTSIDE_DESIGN) {
         console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
+        const _annotateDataOuter =
+          facePaper.name === "traditional"
+            ? { ..._annotateData, faceName: "Outer" }
+            : _annotateData;
         const face = createFace(facePaper.name, boardType, "outside");
-        pagePush(_knifeData, _designData, _annotateData, face, pageType);
+        pagePush(_knifeData, _designData, _annotateDataOuter, face, pageType);
       }
       if (pageType & TYPE_INSIDE_DESIGN) {
         console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);

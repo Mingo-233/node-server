@@ -25,10 +25,15 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
   if (!styleDom) {
     styleDom = window.document.createElement("style");
   }
+  let isInvalidFillsConfig = true;
   for (let i = 0; i < fillsConfig.length; i++) {
     const configItem: any = fillsConfig[i];
     const { type, value, color } = configItem;
+    if (color !== value) {
+      isInvalidFillsConfig = false;
+    }
     let renderColor = fitColor(color, options.colorMode);
+    if (renderColor === "NONE") renderColor = "rgba(0,0,0,0)";
     const eles: any = getSvg(svgDom, type, value);
     if (eles.length === 0) {
       // styleDom.innerHTML += `.pac-${configItem.class}{${type}:${color}}`;
@@ -49,9 +54,17 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
   svgDom.setAttribute("width", `100%`);
   svgDom.setAttribute("height", `100%`);
   svgDom.setAttribute("preserveAspectRatio", "none");
-
+  if (options.transform) {
+    svgDom.setAttribute("transform", options.transform);
+  }
   let resultSvgString = dom.querySelector("svg")?.outerHTML ?? "";
-  return removeStyleTags(resultSvgString);
+
+  if (isInvalidFillsConfig) {
+    return resultSvgString;
+  } else {
+    // 在svg-to-pdfkit中 样式的优先级按出现的先后顺序决定，和浏览器中的权重规则不一样
+    return removeStyleTags(resultSvgString);
+  }
 }
 
 function beautySvg(svgDom, win) {

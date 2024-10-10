@@ -21,14 +21,12 @@ import {
 import util from "util";
 // import projectData from "./store/info.json";
 // import knifeData from "./store/knife.json";
-// import projectData from "./store/proInfo.json";
-// import knifeData from "./store/proKnife.json";
 
 import projectData from "./store/tempInfo.json";
 import knifeData from "./store/tempKnife.json";
 const path = require("path");
 const fs = require("fs");
-enableDevMode();
+// enableDevMode();
 function getMockData() {
   return {
     projectData,
@@ -43,6 +41,8 @@ export async function pdfMain(
 ) {
   try {
     console.time("export task");
+    // TODO: 暂时只支持RGB
+    options.colorMode = "RGB";
     await cacheResource(projectData);
     const pageApp = createPageApp(knifeData, {
       unit: "mm",
@@ -153,8 +153,9 @@ async function mockRequest() {
     isOnlyKnife: false,
     colorMode: "RGB",
     filePath: "",
+    knifeColor: {},
     // filePath: outputPath,
   });
 }
 
-mockRequest();
+// mockRequest();

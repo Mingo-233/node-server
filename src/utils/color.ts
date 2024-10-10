@@ -58,7 +58,8 @@ export function rgbToCmyk(r, g, b) {
     y: Math.round(y * 100),
     k: Math.round(k * 100),
   };
-  return `cmyk(${result.c}%, ${result.m}%, ${result.y}%, ${result.k}%)`;
+  // return `cmyk(${result.c}%, ${result.m}%, ${result.y}%, ${result.k}%)`;
+  return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
 }
 
 // 将 RGB 图片转换为 CMYK，逆转 CMYK 通道并保存

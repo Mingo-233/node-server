@@ -47,7 +47,7 @@ export function drawAnnotateLabel(
       cellWidth: 150,
       cellHeight,
       textArray: [
-        "Design Area",
+        "Design area",
         `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
         "Dieline ID",
         params.dielineID,
@@ -68,9 +68,12 @@ export function drawAnnotateLabel(
     {
       type: "line",
       lineArray: [
-        { color: fitColor("#00ff00", config.colorMode), width: 5 },
-        { color: fitColor("#0000ff", config.colorMode), width: 5 },
-        { color: fitColor("#ff0000", config.colorMode), width: 5 },
+        {
+          color: fitColor(config.knifeColor.bleed, config.colorMode),
+          width: 5,
+        },
+        { color: fitColor(config.knifeColor.cut, config.colorMode), width: 5 },
+        { color: fitColor(config.knifeColor.fold, config.colorMode), width: 5 },
       ],
       textColor: fitColor("#000000", config.colorMode),
     }

@@ -7,43 +7,21 @@
     <title>Document</title>
 </head>
 
-<body style="margin: 100px;">
-    <div id="app"></div>
-    <!-- <img src="./output/test.svg" alt=""> -->
-    <script src="./annotationDemo.js"></script>
-
-    <script>
-        const basePoint = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }]
-        const leftTopPoint = [{ x: 0, y: -10 }, { x: 0, y: 0 }, { x: -10, y: 0 }]
-        const rightTopPoint = [{ x: 100, y: -10 }, { x: 100, y: 0 }, { x: 110, y: 0 }]
-        const leftBottomPoint = [{ x: -10, y: 100 }, { x: 0, y: 100 }, { x: 0, y: 110 }]
-        const rightBottomPoint = [{ x: 100, y: 110 }, { x: 100, y: 100 }, { x: 110, y: 100 }]
-        const allPoints = [leftTopPoint,
-            rightTopPoint, leftBottomPoint, rightBottomPoint
-        ].flat()
-        let path = ``
-        allPoints.forEach((point, index) => {
-            if (index % 3 == 0) {
-                path += `M ${point.x},${point.y} `
-            } else {
-                path += `L ${point.x},${point.y} `
-            }
-        })
-        console.log(path);
-        let svg = `
-    <svg width="200px" height="200px" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-        <path d="${path}" fill="none" stroke="black" stroke-width="2" />
-
+<body>
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <text x="20" y="100" writing-mode="vertical-rl" font-size="20">
+            垂直书写的文字
+        </text>
     </svg>
-        `
-        document.getElementById('app').innerHTML = svg
-
-    </script>
-    <svg xmlns="http://www.w3.org/2000/svg" overflow="visible">
-
-        <path
-            d="M24.77 92.18L36.94 92.18L37.58 92.04L40.82 93.70Q39.74 98.23 38.34 103.56Q36.94 108.89 35.42 114.50L35.42 114.50Q38.45 119.54 39.82 123.36Q41.18 127.18 41.18 130.56L41.18 130.56Q41.18 132.07 41.00 133.80Q40.82 135.53 40.25 137.04Q39.67 138.55 38.52 139.60Q37.37 140.64 35.50 140.78L35.50 140.78Q34.70 140.93 33.66 140.96Q32.62 141 31.61 140.93L31.61 140.93Q31.54 139.99 31.25 138.77Q30.96 137.54 30.38 136.54L30.38 136.54Q31.39 136.68 32.26 136.68Q33.12 136.68 33.70 136.68L33.70 136.68Q34.78 136.68 35.50 136.10L35.50 136.10Q36.22 135.53 36.50 133.87Q36.79 132.22 36.79 130.42L36.79 130.42Q36.79 128.83 36.47 127.21Q36.14 125.59 35.50 123.72Q34.85 121.85 33.80 119.72Q32.76 117.60 31.25 115.01L31.25 115.01Q32.47 110.11 33.52 105.54Q34.56 100.97 35.35 96.94L35.35 96.94L29.16 96.94L29.16 155.69L24.77 155.69L24.77 92.18ZM5.33 95.21L20.52 95.21L20.52 136.54L9.65 136.54L9.65 143.59L5.33 143.59L5.33 95.21ZM9.65 100.46L9.65 131.35L16.20 131.35L16.20 100.46L9.65 100.46ZM42.05 92.90L69.12 92.90L69.12 98.02L65.59 98.02L65.59 148.63Q65.59 150.86 65.05 152.20Q64.51 153.53 63.00 154.18L63.00 154.18Q61.49 154.82 58.97 155.00Q56.45 155.18 52.70 155.18L52.70 155.18Q52.56 154.10 52.06 152.56Q51.55 151.01 50.98 149.93L50.98 149.93Q54.00 150.07 56.41 150.07Q58.82 150.07 59.69 150L59.69 150Q61.13 150 61.13 148.56L61.13 148.56L61.13 98.02L42.05 98.02L42.05 92.90ZM47.02 131.64L52.78 131.64L52.78 111.12L47.02 111.12L47.02 131.64ZM43.27 106.22L56.66 106.22L56.66 136.54L47.02 136.54L47.02 141.50L43.27 141.50L43.27 106.22Z" />
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="180" height="180" fill="lightgrey" />
+        <text x="20" y="50" dominant-baseline="central" font-size="20">Central Text</text>
     </svg>
+
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+        <text x="100" y="50" text-anchor="middle" font-size="20">Centered Text</text>
+    </svg>
+
 
 
 </body>

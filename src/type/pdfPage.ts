@@ -46,6 +46,11 @@ export interface IDrawingBoardConfig {
   unit: IUnit;
   strokeWidth: number;
   bleedLineWidth: number;
+  knifeColor: {
+    bleed: string;
+    fold: string;
+    cut: string;
+  };
 }
 export type IDrawingConfigPlus = IDrawingBoardConfig & Record<string, any>;
 
