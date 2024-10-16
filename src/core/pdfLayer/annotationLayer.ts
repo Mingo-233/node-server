@@ -49,7 +49,7 @@ export function drawAnnotateLabel(
       textArray: [
         "Design area",
         `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
-        "Dieline ID",
+        "Model ID",
         params.dielineID,
       ],
     },
@@ -191,14 +191,15 @@ export function drawFooterLabel(params, config: IDrawingConfigPlus) {
   const footerLabelWidth = params.text.length * 12.5 || 100;
   const rootSvgWidth =
     Number(params.designArea.width) + 2 * config.bleedLineWidth;
+  const rootSvgHeight =
+    Number(params.designArea.height) + 2 * config.bleedLineWidth;
   const translateX = (rootSvgWidth * DPI - footerLabelWidth) / 2;
+  const translateY = (rootSvgHeight + PAGE_MARGIN.top) * DPI;
   let svgString = createSvgElement(
     {
       width: footerLabelWidth.toString(),
       height: "50",
-      transform: `translate(${translateX},${
-        (config.rootSvgSize.height + PAGE_MARGIN.top) * DPI
-      })`,
+      transform: `translate(${translateX},${translateY})`,
     },
     createElement(
       "text",

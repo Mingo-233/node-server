@@ -8,6 +8,7 @@ import {
   pathPartType,
   identifyNext,
   genChildPath,
+  isBreakChar,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -27,7 +28,7 @@ export function parseTextV2(
   // 文字间隙 在浏览器环境中默认值为normal
   // const letterSpace = 0;
   const letterSpace = config.fontSize * 0.1;
-  const { lineHeight, lineHeightTop } = computedFontLineHeight({
+  const { lineHeight, lineHeightTop, ascentRatioV2 } = computedFontLineHeight({
     unitsPerEm: config.fontOption.unitsPerEm,
     ascent: config.fontOption.ascent,
     fontSize: config.fontSize,
@@ -72,8 +73,7 @@ export function parseTextV2(
 
       // const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
 
-      const translateY =
-        config.textLineHeight * (currentLine - 1) + lineHeightTop;
+      const translateY = config.textLineHeight * (currentLine - 1);
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
 
@@ -89,7 +89,8 @@ export function parseTextV2(
     } else {
       const translateX = colAccumulatorWidth;
       const translateY =
-        config.textLineHeight * (currentLine - 1) + lineHeightTop;
+        // config.textLineHeight * (currentLine - 1) + lineHeightTop;
+        config.textLineHeight * (currentLine - 1);
 
       const transform = `translate(${translateX},${translateY}) `;
       context.addTransform(transform);
@@ -100,10 +101,9 @@ export function parseTextV2(
       );
       context.addAlignTransform(alignTransform);
 
-      let selfPathWidth = textInfo.height;
+      let selfPathWidth: any = textInfo.height;
       if (!selfPathWidth) {
-        const _pathBoundingBox = textInfo.path.getBoundingBox();
-        selfPathWidth = _pathBoundingBox.x2 - _pathBoundingBox.x1;
+        selfPathWidth = textInfo.path.advanceWidth;
       }
       colAccumulatorWidth = colAccumulatorWidth + selfPathWidth;
       lastTextType = pathPartType.en;
@@ -120,12 +120,15 @@ export function parseTextV2(
     let maxItemHeight = 0;
     // 已经识别的索引
     let identifiedIndex = -9999;
+    let lastTextItem = "";
     for (let i = 0; i < textArr.length; i++) {
       if (i <= identifiedIndex) {
         continue;
       }
       const textItem = textArr[i];
-      if (textItem === "\n") {
+      if (isBreakChar(textItem)) {
+        // 若连续换行符号，实际只换行一次
+        if (isBreakChar(lastTextItem)) continue;
         textInfoArr.push({
           path: null,
           pathBoundingBox: null,
@@ -133,12 +136,16 @@ export function parseTextV2(
           isBreak: true,
           type: pathPartType.zh,
         });
+        lastTextItem = textItem;
         continue;
       }
 
       if (isSymbolChar(textItem)) {
         hasSymbolChar = true;
-        const path = getPath(defaultFontApp, textItem, config.fontSize);
+        const app = config.fontOption.isSupCnMainFontApp
+          ? fontApp
+          : defaultFontApp;
+        const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
         if (currentPathWidth > maxItemWidth) {
@@ -171,6 +178,7 @@ export function parseTextV2(
         });
       } else {
         const result = identifyNext(fontApp, textItem, i, textArr, config);
+        if (!result.path) continue;
         identifiedIndex = result.lastIndex;
         // 因为英文要旋转过来，所以它的宽度就是高度
         const currentPathWidth =
@@ -190,6 +198,7 @@ export function parseTextV2(
           position.y1 = result.pathBoundingBox.y1;
         }
       }
+      lastTextItem = textItem;
     }
     const line = computedLine(textInfoArr, maxItemWidth);
 
@@ -218,19 +227,18 @@ export function parseTextV2(
       accumulatorPathWidth = accumulatorPathWidth + _width;
 
       if (accumulatorPathWidth > MAX_WIDTH) {
-        if (textInfo.chilePath) {
+        if (textInfo.chilePath?.length) {
           let preAccumulatorPathWidth = accumulatorPathWidth - _width;
           let lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
-          let lastPathWidth =
-            lastPath.path.getBoundingBox().x2 -
-            lastPath.path.getBoundingBox().x1;
+          let lastPathWidth = lastPath.path.advanceWidth;
           // 从children找到能刚好能排列下的子路径
-          while (preAccumulatorPathWidth + lastPathWidth > MAX_WIDTH) {
+          while (
+            preAccumulatorPathWidth + lastPathWidth > MAX_WIDTH &&
+            textInfo.chilePath.length > 1
+          ) {
             textInfo.chilePath.pop();
             lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
-            lastPathWidth =
-              lastPath.path.getBoundingBox().x2 -
-              lastPath.path.getBoundingBox().x1;
+            lastPathWidth = lastPath.path.advanceWidth;
           }
           //   原本的path 拆分成2个
           const newFirstTextInfo = {
@@ -304,5 +312,6 @@ export function parseTextV2(
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,
+    ascentRatioV2: ascentRatioV2,
   };
 }

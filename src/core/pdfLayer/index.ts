@@ -14,7 +14,6 @@ import {
   drawShape,
   drawFace,
   drawGroup,
-  drawBleedClipPath,
   drawFont,
   drawBackground,
 } from "./designLayer";
@@ -105,17 +104,27 @@ function _createPdfLayer<T extends ILayerType>(type: T) {
     type: type,
     svgString: "",
     children: [] as IPdfSvgContainer<T>[],
-    getSvgString: function (config) {
+    getSvgString: function (config?) {
       if (this.svgString) return this.svgString;
       const tempString = this.children.map((item) => item.svgString).join("");
       if (!tempString) return this.svgString;
       let clipLength: any = "";
+      let attrStr = "";
       if (type === "annotation-layer") {
         clipLength = 50;
+      } else if (type === "design-layer" && config) {
+        clipLength = 20;
+        let width = config.rootSvgSize.width;
+        let height = config.rootSvgSize.height;
+        // 用于裁剪设计区域
+        attrStr += `width="${width + config.unit}" height="${
+          height + config.unit
+        }" `;
       }
       const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg"  
       data-clip-len="${clipLength}" 
-      data-type="${type}" version="1.1">
+      data-type="${type}" version="1.1"
+      ${attrStr ? attrStr : ""}>
       ${tempString}</svg>`;
 
       this.svgString = containerSvg;

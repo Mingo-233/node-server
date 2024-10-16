@@ -3,11 +3,13 @@ import {
   PDFLayoutDPI,
   PAGE_MARGIN,
   PAGE_MARK_MARGIN,
+  MIN_TOTAL_WIDTH,
 } from "@/utils/constant";
 import { IDrawingBoardConfig, IUnit, IColorMode } from "@/type/pdfPage";
 // export type IDrawingBoardConfig = ReturnType<typeof getDrawingBoardConfig>;
 export function getDrawingBoardConfig(
   knifeData: any,
+  projectData,
   params: { unit: IUnit; colorMode: IColorMode; knifeColor: any }
 ): IDrawingBoardConfig {
   // 原先pdf导出项目中就这样设定的
@@ -21,6 +23,7 @@ export function getDrawingBoardConfig(
   const PAGE_MARKER_TOP = PDFLayoutDPI * PAGE_MARK_MARGIN.top;
   let MaxTotalX = knifeData.totalX;
   let MaxTotalY = knifeData.totalY;
+  if (MaxTotalX < MIN_TOTAL_WIDTH) MaxTotalX = MIN_TOTAL_WIDTH;
   const layerList = knifeData.modeCate.layerList;
   const defaultKnifeColor = {
     bleed: "#69bd4e",
@@ -72,6 +75,7 @@ export function getDrawingBoardConfig(
     },
     strokeWidth,
     bleedLineWidth: knifeData.bleedline,
+    isMockups: projectData.cate?.complex_type === 1, // 是否是样机
     ...params,
     knifeColor: _knifeColor,
   };

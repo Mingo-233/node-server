@@ -15,7 +15,11 @@ import {
 } from "@/nodes/layerNode";
 import { ICreatePageAppOptions } from "@/type/pdf";
 
-export function createPageApp(knifeData, params: ICreatePageAppOptions) {
+export function createPageApp(
+  knifeData,
+  projectData,
+  params: ICreatePageAppOptions
+) {
   const app = {
     pageSize: {
       width: 0,
@@ -33,7 +37,7 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
     pages: [] as IPage[],
     isOnlyKnife: true,
   };
-  const boardConfig = getDrawingBoardConfig(knifeData, params);
+  const boardConfig = getDrawingBoardConfig(knifeData, projectData, params);
   app.pageSize = boardConfig.pageSize;
   app.pageMargin = boardConfig.pageMargin;
   app.pageMakerMargin = boardConfig.pageMarkerMargin;
@@ -72,6 +76,8 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
         folds: layerKnifeData?.folds || [],
         bleeds: layerKnifeData?.bleeds || [],
         faces: layerKnifeData?.faces || [],
+        totalX: layerKnifeData.totalX,
+        totalY: layerKnifeData.totalY,
       };
       const _designData = {
         list: projectData.layer[facePaper.name].design_list || [],
@@ -116,28 +122,32 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
         faceName: _faceName,
       };
       let pageType = 0;
-      if (_designData.list.length > 0 && !app.isOnlyKnife) {
+      const hasDesignOutside = checkDesignElementExist(_designData, {
+        isMockups: boardConfig.isMockups,
+      });
+      const hasDesignInside = checkDesignElementExist(_insideDesignData, {
+        isMockups: boardConfig.isMockups,
+      });
+      if (hasDesignOutside && !app.isOnlyKnife) {
         pageType |= LAYER_DESIGN;
       }
-      if (
-        (_insideDesignData.list.length > 0 || _insideDesignData.background) &&
-        !app.isOnlyKnife
-      ) {
+      if (hasDesignInside && !app.isOnlyKnife) {
         pageType |= LAYER_INSIDE_DESIGN;
       }
-      if (
-        app.isOnlyKnife ||
-        (_designData.list.length === 0 && _insideDesignData.list.length === 0)
-      ) {
+      if (app.isOnlyKnife || !hasDesignOutside) {
         pageType |= LAYER_MARK;
       }
+
       if (pageType & TYPE_MARK) {
         const face = createFace(facePaper.name, boardType, "outside");
         console.log("处理存在刀线层、标注层的逻辑", pageType);
-        pagePush(_knifeData, null, _annotateData, face, pageType);
+        pagePush(_knifeData, null, _annotateData, face, TYPE_MARK);
       }
       if (pageType & TYPE_OUTSIDE_DESIGN) {
-        console.log("处理存在外侧刀线层、设计层、标注层的逻辑", pageType);
+        console.log(
+          "处理存在外侧刀线层、设计层、标注层的逻辑",
+          TYPE_OUTSIDE_DESIGN
+        );
         const _annotateDataOuter =
           facePaper.name === "traditional"
             ? { ..._annotateData, faceName: "Outer" }
@@ -146,7 +156,10 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
         pagePush(_knifeData, _designData, _annotateDataOuter, face, pageType);
       }
       if (pageType & TYPE_INSIDE_DESIGN) {
-        console.log("处理存在内层刀线层、设计层、标注层的逻辑", pageType);
+        console.log(
+          "处理存在内层刀线层、设计层、标注层的逻辑",
+          TYPE_INSIDE_DESIGN
+        );
         const face = createFace(facePaper.name, boardType, "inside");
         const _annotateDataInner =
           facePaper.name === "traditional"
@@ -193,5 +206,21 @@ export function createPageApp(knifeData, params: ICreatePageAppOptions) {
     }
   }
 
-  return { ...app, registerFace, paint };
+  return { ...app, ...boardConfig, registerFace, paint };
+}
+
+function checkDesignElementExist(data, options) {
+  if (options.isMockups) {
+    return Boolean(
+      data.list.length > 0 ||
+        data.background !== "#ffffff" ||
+        Object.keys(data.faceBackground).length
+    );
+  } else {
+    return Boolean(
+      data.list.length > 0 ||
+        data.background ||
+        Object.keys(data.faceBackground).length
+    );
+  }
 }

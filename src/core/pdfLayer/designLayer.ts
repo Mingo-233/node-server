@@ -4,7 +4,13 @@ import {
   createElement,
   createSvgElement,
 } from "@/nodes/index";
-import { fetchAssets, isSvgUrl } from "@/utils/request";
+import {
+  assetsMap,
+  convertToPng,
+  fetchAssets,
+  isSvgUrl,
+  prefixUrl,
+} from "@/utils/request";
 import { getTransformSvg, svgCmykHandle } from "@/utils/svgImgUtils";
 import { IDrawingBoardConfig, IDrawingConfigPlus } from "@/type/pdfPage";
 import { IFontParseParams } from "@/type/parse";
@@ -38,13 +44,34 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     : "";
   const _opacity = (style.opacity && style.opacity / 100) || 1;
   let _flip = "";
-  if (style.rotateX) {
+  if (style.rotateX && style.rotateY) {
+    _flip = `scale(-1,-1) translate(${-style.width * DPI},${
+      -style.height * DPI
+    })`;
+  } else if (style.rotateX) {
     _flip = `scale(-1,1) translate(${-style.width * DPI},0)`;
   } else if (style.rotateY) {
     _flip = `scale(1,-1) translate(0,${-style.height * DPI})`;
   }
   if (isSvgUrl(designItem.src)) {
     const svgString = (await fetchAssets(designItem.src)) as string;
+    //  过于复杂的svg转成png图片处理
+    if (svgString.includes("<image")) {
+      const inputFileUrl = assetsMap.get(prefixUrl(designItem.src));
+      const localFileUrl = await convertToPng(inputFileUrl, {
+        width: style.width,
+        height: style.height,
+      });
+      // 更新记录的资源地址
+      const newSrc = prefixUrl(designItem.src).replace(/\.svg$/, ".png");
+      assetsMap.set(newSrc, localFileUrl);
+      designItem.src = newSrc;
+      designItem.bg = {
+        width: style.width,
+        height: style.height,
+      };
+      return drawImgElement(designItem, config);
+    }
     let transformSvg = getTransformSvg(svgString, designItem.fills, {
       colorMode: config.colorMode,
       transform: _flip ? _flip : "",
@@ -65,7 +92,6 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
       },
       transformSvg
     );
-
     const context: IPdfSvgContainer<"design-layer"> = {
       type: "img",
       svgString: imgSvg,
@@ -147,6 +173,7 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
     shapeContent
   );
 
+  fsSaveFile(shapeContent, "shape.svg");
   const context: IPdfSvgContainer<"design-layer"> = {
     type: "shape",
     svgString: shapeSvg,
@@ -193,10 +220,12 @@ export function drawFace(
   return context;
 }
 export function drawBackground(color, knifeData, config) {
+  let tempLength = 20;
   const svgString = createSvgElement(
     {
-      width: knifeData.totalX + config.unit,
-      height: knifeData.totalY + config.unit,
+      width: Number(knifeData.totalX) + tempLength + config.unit,
+      height: Number(knifeData.totalY) + tempLength + config.unit,
+      transform: `translate(-${tempLength / 2},-${tempLength / 2})`,
     },
     createElement("rect", {
       fill: fitColor(color, config.colorMode),
@@ -231,7 +260,13 @@ export async function drawGroup(
   //  是否存在Pattern 全局图案
   let hasPattern = false;
   const { style } = designItem;
-
+  const translateX = (style.left + config.bleedLineWidth) * DPI;
+  const translateY = (style.top + config.bleedLineWidth) * DPI;
+  const rotateTransform = style.rotate
+    ? `rotate(${style.rotate},${translateX + (style.width / 2) * DPI},${
+        translateY + (style.height / 2) * DPI
+      })`
+    : "";
   for (let i = 0; i < list.length; i++) {
     const designElement = list[i];
 
@@ -263,11 +298,10 @@ export async function drawGroup(
   data-clip="${clipPathSvg}"
   width="${style.width + config.unit}" 
   height="${style.height + config.unit}"
-   transform="translate(${style.left * DPI}, ${style.top * DPI})"
+   transform="${rotateTransform} translate(${translateX}, ${translateY})"
     >
   ${svgString}
   </svg>`;
-
   const context: IPdfSvgContainer<"design-layer"> = {
     type: "group",
     svgString: groupSvg,
@@ -284,6 +318,12 @@ export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
     if (item.y) {
       item.y = item.y * DPI;
     }
+    if (item.cx) {
+      item.cx = item.cx * DPI;
+    }
+    if (item.cy) {
+      item.cy = item.cy * DPI;
+    }
     return item;
   });
   const bleedPath = SvgUtil.dlist_to_d(bleedsScaleArr);
@@ -293,12 +333,17 @@ export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
 export async function drawFont(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   const fontBuffer = await fetchAssets(designItem.src);
-  const data = await wawoff.decompress(fontBuffer);
+  let data: any = fontBuffer;
+  if (designItem.src.includes("woff2")) {
+    data = await wawoff.decompress(fontBuffer);
+  }
+
   const arrayBuffer = data.buffer.slice(
     data.byteOffset,
     data.byteOffset + data.byteLength
   );
   let fontApp = opentype.parse(arrayBuffer);
+
   // 主字体文件是否支持中文
   //TODO: 当前判断条件是字体文件的字形数量是否大于5000 ，待完善
   let isSupCnMainFontApp = fontApp.glyphs?.length > 5000;
@@ -344,6 +389,8 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     color: style.color,
     colorMode: config.colorMode,
     unit: config.unit,
+    fontSize: style.fontSize,
+    textLineHeight: style.lineHeight,
     style: {
       left: style.left,
       top: style.top,
@@ -358,11 +405,11 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   return context;
 }
 
-// function fsSaveFile(context, name = "test.svg") {
-//   const fs = require("fs");
-//   const path = require("path");
-//   const pwdPath = process.cwd();
-//   const filePath = path.resolve(pwdPath, "./dist/output");
-//   fs.writeFileSync(`${filePath}/${name}`, context);
-//   console.log("file saved");
-// }
+function fsSaveFile(context, name = "test.svg") {
+  const fs = require("fs");
+  const path = require("path");
+  const pwdPath = process.cwd();
+  const filePath = path.resolve(pwdPath, "./dist/output");
+  fs.writeFileSync(`${filePath}/${name}`, context);
+  console.log("file saved");
+}

@@ -10,6 +10,7 @@ export function genTextSvg(config: IFontGenerateParams) {
     hasSymbolChar,
     pageMargin,
     rotate = 0,
+    topTranslateLen,
     DPI = 1,
   } = config;
   let svgPathString = "";
@@ -87,7 +88,9 @@ translate(0,-${svgDomSize.width * DPI})
         xmlns: "http://www.w3.org/2000/svg",
         width: svgDomSize.height + config.unit,
         height: svgDomSize.width + config.unit,
-        viewBox: `${position.x1} ${position.y1} ${originHeight} ${originWidth}`,
+        viewBox: `${position.x1} ${
+          position.y1 - topTranslateLen
+        } ${originHeight} ${originWidth}`,
         transform: `rotate(${rotate},${rotateCenter}) ${_transform}`,
         fill: config.renderColor,
       },
@@ -104,9 +107,9 @@ translate(0,-${svgDomSize.width * DPI})
         xmlns: "http://www.w3.org/2000/svg",
         width: svgDomSize.width + config.unit,
         height: svgDomSize.height + config.unit,
-        viewBox: `${position.x1} ${position.y1} ${
-          position.x2 + svgDomSize.width
-        } ${position.y2 + svgDomSize.height}`,
+        viewBox: `${position.x1} ${position.y1 - topTranslateLen} ${
+          svgDomSize.width
+        } ${svgDomSize.height}`,
         transform: `rotate(${rotate},${rotateCenter}) ${pageMarginTranslate}`,
         fill: config.renderColor,
       },

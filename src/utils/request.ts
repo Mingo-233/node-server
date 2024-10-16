@@ -4,8 +4,11 @@ import path from "path";
 import crypto from "crypto";
 import log, { isDevMode } from "@/utils/log";
 import { convertAndInvertImage } from "@/utils/color";
+import sharp from "sharp";
 export const assetsMap = new Map();
+
 let _cacheDirName = "default";
+axios.defaults.timeout = 20000;
 const cacheRootDir = path.resolve(__dirname, `../../../../cache`);
 const DEFAULT_CACHE_DIR = path.join(cacheRootDir, "NotoSansCJK-Regular.ttf");
 // const DEFAULT_CACHE_DIR = path.resolve(
@@ -46,16 +49,20 @@ const getCacheFilePath = (url) => {
  * @returns {Promise<Buffer>} - 返回资源内容的 Buffer
  */
 export const fetchResourceWithCache = async (url) => {
-  if (assetsMap.get(url)) {
-    console.log("读取到本地缓存文件", url);
-    return fs.readFileSync(assetsMap.get(url));
+  const assetsUrl = assetsMap.get(url);
+  if (assetsUrl) {
+    if (fs.existsSync(assetsUrl)) {
+      return fs.readFileSync(assetsUrl);
+    } else {
+      console.warn("本地缓存文件存在，但是未读取到,重新请求", url, assetsUrl);
+    }
   }
   const cacheFilePath = getCacheFilePath(url);
   assetsMap.set(url, cacheFilePath);
-  // 检查缓存文件是否存在
-  if (fs.existsSync(cacheFilePath)) {
-    return fs.readFileSync(cacheFilePath);
-  }
+  // // 检查缓存文件是否存在
+  // if (fs.existsSync(cacheFilePath)) {
+  //   return fs.readFileSync(cacheFilePath);
+  // }
 
   try {
     const response = await axios({
@@ -67,22 +74,27 @@ export const fetchResourceWithCache = async (url) => {
     const data = response.data;
 
     // 将数据写入缓存文件
-    await fs.writeFileSync(cacheFilePath, data);
+    fs.writeFileSync(cacheFilePath, data);
+
     console.log(`资源已缓存：${cacheFilePath}`);
 
     return data;
   } catch (error) {
-    console.error(`请求资源失败：${url}`, error);
-    throw error;
+    console.error(`请求资源失败：${url}`);
+    throw `请求资源失败：${url}`;
   }
 };
 export function fetchAssets(url) {
   return new Promise((resolve, reject) => {
     log.info("log-fetchImage start", url);
     const _url = prefixUrl(url);
-    fetchResourceWithCache(_url).then((res) => {
-      resolve(res);
-    });
+    fetchResourceWithCache(_url)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 }
 
@@ -170,4 +182,27 @@ export function clearCache() {
   fs.rm(CACHE_DIR, { recursive: true, force: true }, () =>
     console.log("缓存已清空")
   );
+}
+
+export function convertToPng(input, options) {
+  return new Promise<string>((resolve, reject) => {
+    const { width = 0, height = 0 } = options;
+    // 读取 SVG 文件
+    const svgBuffer = fs.readFileSync(input);
+    const outputPath = input.replace(/\.svg$/, ".png");
+    // 使用 sharp 将 SVG 转换为 PNG
+    sharp(svgBuffer)
+      // 4倍图
+      .resize(parseInt(width) * 4, parseInt(height) * 4)
+      .png()
+      .toFile(outputPath)
+      .then(() => {
+        console.log("转换成功！");
+        resolve(outputPath);
+      })
+      .catch((err) => {
+        console.error("转换失败：", err);
+        reject(err);
+      });
+  });
 }

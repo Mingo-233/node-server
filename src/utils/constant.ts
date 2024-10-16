@@ -18,3 +18,6 @@ export const PAGE_MARGIN = {
 export const PAGE_MARK_MARGIN = {
   top: 10,
 };
+
+// 页面最小宽度
+export const MIN_TOTAL_WIDTH = 250;

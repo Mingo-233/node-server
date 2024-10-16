@@ -47,7 +47,7 @@ export function isEnd(char) {
   if (isSymbolChar(char)) return true;
   // 2. 字符结束
   if (char === undefined || char === null) return true;
-  if (char === "\n") return true;
+  if (char === "\n" || char === "\r") return true;
 }
 // [\u4e00-\u9fff]：匹配中文汉字。
 // [\u0800-\u4e00]：匹配日文汉字。
@@ -77,10 +77,13 @@ export function isEnglish(char) {
 }
 
 export function getPath(fontApp, text, fontSize) {
-  return fontApp.getPath(text, 0, 0, fontSize);
+  let path = fontApp.getPath(text, 0, 0, fontSize);
+  path.advanceWidth = fontApp.getAdvanceWidth(text, fontSize);
+  return path;
 }
 const fontFamilyLineSpaceRatio = {
-  default: 0.643,
+  // default: 0.643,
+  default: 0.8,
   "soul-handwriting_free-version": 0.01,
 };
 export function computedFontLineHeight(option) {
@@ -88,43 +91,25 @@ export function computedFontLineHeight(option) {
     option;
 
   const ascentRatio = ascent / unitsPerEm;
-  // const descentRatio = Math.abs(descent) / unitsPerEm;
   const lineHeightRatio = lineHeight / fontSize;
-  // 为保证渲染效果 是基线对齐，这里应该忽略下降高度
-  // const lineHeightBase = (ascentRatio + descentRatio) * fontSize;
+
   const lineHeightBase = ascentRatio * fontSize;
   const lineHeightResult = lineHeightBase * lineHeightRatio;
-  // 这个top高度的偏移，是用来模拟首行文字上面的间隙。否则首行文字会直接顶在最上面
-  // const top = lineHeight - ascenderHeight;
-  // const r = (ascent + Math.abs(descent)) / unitsPerEm - 1;
-  // const lineHeightTop = (lineHeightResult - lineHeightBase) / 2;
 
   const r =
     fontFamilyLineSpaceRatio[fontName] || fontFamilyLineSpaceRatio.default;
-  // const lineHeightTop = lineHeight * r;
   // 基线位置比例
   const baseLineRatio = ascent / (ascent + Math.abs(descent));
 
-  const temp =
-    ((ascent + Math.abs(descent) - unitsPerEm) / (ascent + Math.abs(descent))) *
-    lineHeight;
-  const lineHeightTop = temp * r;
+  const ascentRatioV2 = ascent / Math.abs(descent);
 
-  // 溢出高度 比如 ascent>unitsPerEm 的情况， 假设得到数字为5.3 fontsize 16，如果行高倍数为1，那么文字反而要往上缩5.3高度
-  // 如果行高倍数为2 ，那么存在冗余高度，平均分配一下，上面空出 (32-16)/2 = 8 ,那么此时文字是往下移动 8-5.3 = 2.7
-  // const overflowTop =
-  //   // ((ascent - baseLineRatio * unitsPerEm) / unitsPerEm) * fontSize;
-  //   ((ascent - baseLineRatio * ascent) / ascent) * fontSize;
-  // const emptyTopSpace = (lineHeight - fontSize) / 2;
-  // const top = emptyTopSpace - overflowTop;
+  const lineHeightTop = (lineHeight - fontSize) * r;
 
-  //  v4
-  // const emptyTopSpace = lineHeight - fontSize;
-  // const top = (1 - baseLineRatio) * emptyTopSpace;
   return {
     lineHeight: lineHeightResult,
     lineHeightTop: lineHeightTop,
     baseLineRatio: baseLineRatio,
+    ascentRatioV2,
   };
 }
 
@@ -147,26 +132,23 @@ export const pathPartType = {
 export function identifyNext(fontApp, char, index, textInfoArr, config) {
   let nextText = textInfoArr[index + 1];
   let path: any = null;
-  const chilePath = [
-    {
-      text: char,
-      path: getPath(fontApp, char, config.fontSize),
-    },
-  ];
+  const chilePath: any = [];
   while (!isEnd(nextText)) {
     index++;
     char = `${char}${nextText}`;
     nextText = textInfoArr[index + 1];
     path = getPath(fontApp, char, config.fontSize);
-    chilePath.push({
-      text: char,
-      path: path,
-    });
+    if (path) {
+      chilePath.push({
+        text: char,
+        path: path,
+      });
+    }
   }
   if (isEnglish(char)) {
     path = getPath(fontApp, char, config.fontSize);
   }
-  const pathBoundingBox = path?.getBoundingBox();
+  const pathBoundingBox = path?.getBoundingBox() || { x1: 0, x2: 0 };
   return {
     lastIndex: index,
     path: path,
@@ -191,17 +173,35 @@ export function genChildPath(fontApp, chars, config) {
   }
   return chilePath;
 }
-export function computedPathTransform(textAlign, MAX_WIDTH, maxContentWidth) {
-  let offsetX = 0;
-  switch (textAlign) {
-    case "center":
-      offsetX = (MAX_WIDTH - maxContentWidth) / 2;
-      return `translate(${offsetX},0)`;
-    case "right":
-      offsetX = MAX_WIDTH - maxContentWidth;
-      return `translate(${offsetX},0)`;
+export function computedPathTransform(textAlign, Max, maxContent, isVer?) {
+  let offset = 0;
+  if (isVer) {
+    switch (textAlign) {
+      case "center":
+        offset = (Max - maxContent) / 2;
+        return `translate(0,${offset})`;
+      case "right":
+        offset = textAlign - maxContent;
+        return `translate(0,${offset})`;
 
-    default:
-      return "";
+      default:
+        return "";
+    }
+  } else {
+    switch (textAlign) {
+      case "center":
+        offset = (Max - maxContent) / 2;
+        return `translate(${offset},0)`;
+      case "right":
+        offset = Max - maxContent;
+        return `translate(${offset},0)`;
+
+      default:
+        return "";
+    }
   }
+}
+
+export function isBreakChar(char) {
+  return char === "\n" || char === "\r";
 }

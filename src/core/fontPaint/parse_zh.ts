@@ -1,4 +1,3 @@
-import { fetchAssets } from "@/utils/request";
 import {
   createWordPathContext,
   isSymbolChar,
@@ -9,6 +8,7 @@ import {
   identifyNext,
   pathPartType,
   genChildPath,
+  isBreakChar,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -26,18 +26,21 @@ export function getVerticalTextPaths(
   };
 
   // 文字间隙 在浏览器环境中默认值为normal
-  // const letterSpace = 0;
-  const letterSpace = config.fontSize * 0.1;
-  const { lineHeight, lineHeightTop, baseLineRatio } = computedFontLineHeight({
-    unitsPerEm: config.fontOption.unitsPerEm,
-    ascent: config.fontOption.ascent,
-    fontSize: config.fontSize,
-    lineHeight: config.textLineHeight,
-    descent: config.fontOption.descent,
-    fontName: config.fontOption.fontName,
-  });
+  const { lineHeight, lineHeightTop, baseLineRatio, ascentRatioV2 } =
+    computedFontLineHeight({
+      unitsPerEm: config.fontOption.unitsPerEm,
+      ascent: config.fontOption.ascent,
+      fontSize: config.fontSize,
+      lineHeight: config.textLineHeight,
+      descent: config.fontOption.descent,
+      fontName: config.fontOption.fontName,
+    });
   const baseLineHeight = lineHeight * baseLineRatio;
   const isVertical = !!config.vertical;
+  const letterSpace = isVertical
+    ? config.fontSize * 0.05
+    : config.fontSize * 0.1;
+
   //   编辑器中的选框大小
   const MAX_WIDTH = config.MaxWidth;
   const MAX_HIGHT = config.MaxHeight;
@@ -82,8 +85,9 @@ export function getVerticalTextPaths(
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
         config.textAlign,
-        MAX_WIDTH,
-        maxContentHeightArr[currentLine - 1]
+        MAX_HIGHT,
+        maxContentHeightArr[currentLine - 1],
+        "ver"
       );
       context.addAlignTransform(alignTransform);
       const selfHeight = isFirstWord
@@ -97,15 +101,15 @@ export function getVerticalTextPaths(
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
         config.textAlign,
-        MAX_WIDTH,
-        maxContentHeightArr[currentLine - 1]
+        MAX_HIGHT,
+        maxContentHeightArr[currentLine - 1],
+        "ver"
       );
       context.addAlignTransform(alignTransform);
 
-      let selfPathHeight = textInfo.height;
+      let selfPathHeight: any = textInfo.height;
       if (!selfPathHeight) {
-        const _pathBoundingBox = textInfo.path.getBoundingBox();
-        selfPathHeight = _pathBoundingBox.x2 - _pathBoundingBox.x1;
+        selfPathHeight = textInfo.path.advanceWidth;
       }
       const selfHeight = isFirstWord
         ? selfPathHeight
@@ -125,12 +129,14 @@ export function getVerticalTextPaths(
     let maxItemHeight = 0;
     // 已经识别的索引
     let identifiedIndex = -9999;
+    let lastTextItem = "";
     for (let i = 0; i < textArr.length; i++) {
       if (i <= identifiedIndex) {
         continue;
       }
       const textItem = textArr[i];
-      if (textItem === "\n") {
+      if (isBreakChar(textItem)) {
+        if (isBreakChar(lastTextItem)) continue;
         textInfoArr.push({
           path: null,
           pathBoundingBox: null,
@@ -138,11 +144,14 @@ export function getVerticalTextPaths(
           isBreak: true,
           type: pathPartType.zh,
         });
+        lastTextItem = textItem;
         continue;
       }
 
       if (isSymbolChar(textItem)) {
-        const app = config.isSupCnMainFontApp ? fontApp : defaultFontApp;
+        const app = config.fontOption.isSupCnMainFontApp
+          ? fontApp
+          : defaultFontApp;
         const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
@@ -177,10 +186,10 @@ export function getVerticalTextPaths(
         });
       } else {
         const result = identifyNext(fontApp, textItem, i, textArr, config);
+        if (!result.path) continue;
         identifiedIndex = result.lastIndex;
         // 因为英文要旋转过来，所以它的宽度就是高度
-        const currentPathHeight =
-          result.pathBoundingBox.x2 - result.pathBoundingBox.x1;
+        const currentPathHeight = result.path.advanceWidth;
 
         textInfoArr.push({
           path: result.path,
@@ -196,6 +205,7 @@ export function getVerticalTextPaths(
           position.y1 = result.pathBoundingBox.y1;
         }
       }
+      lastTextItem = textItem;
     }
     const line = computedLine(textInfoArr, maxItemHeight);
 
@@ -227,20 +237,19 @@ export function getVerticalTextPaths(
       }
       accumulatorPathHeight = accumulatorPathHeight + _heightAddLetterSpace;
       if (accumulatorPathHeight > MAX_HIGHT) {
-        if (textInfo.chilePath) {
+        if (textInfo.chilePath?.length) {
           let preAccumulatorPathHeight =
             accumulatorPathHeight - _heightAddLetterSpace;
           let lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
-          let lastPathHeight =
-            lastPath.path.getBoundingBox().x2 -
-            lastPath.path.getBoundingBox().x1;
+          let lastPathHeight = lastPath.path.advanceWidth;
           // 从children找到能刚好能排列下的子路径
-          while (preAccumulatorPathHeight + lastPathHeight > MAX_HIGHT) {
+          while (
+            preAccumulatorPathHeight + lastPathHeight > MAX_HIGHT &&
+            textInfo.chilePath.length > 1
+          ) {
             textInfo.chilePath.pop();
             lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
-            lastPathHeight =
-              lastPath.path.getBoundingBox().x2 -
-              lastPath.path.getBoundingBox().x1;
+            lastPathHeight = lastPath.path.advanceWidth;
           }
           //   原本的path 拆分成2个
           const newFirstTextInfo = {
@@ -314,5 +323,6 @@ export function getVerticalTextPaths(
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,
+    ascentRatioV2,
   };
 }

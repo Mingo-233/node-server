@@ -18,22 +18,15 @@ import {
   TYPE_INSIDE_DESIGN,
   TYPE_MARK,
 } from "@/nodes/layerNode";
-import util from "util";
-// import projectData from "./store/info.json";
-// import knifeData from "./store/knife.json";
+// import projectData from "./mock/info2.json";
+// import projectData from "./mock/info.json";
+// import knifeData from "./mock/knife.json";
 
-import projectData from "./store/tempInfo.json";
-import knifeData from "./store/tempKnife.json";
-const path = require("path");
-const fs = require("fs");
-// enableDevMode();
-function getMockData() {
-  return {
-    projectData,
-    knifeData,
-    params: {},
-  };
-}
+import projectData from "./mock/tempInfo.json";
+import knifeData from "./mock/tempKnife.json";
+enableDevMode();
+mockRequest();
+
 export async function pdfMain(
   knifeData,
   projectData,
@@ -43,19 +36,18 @@ export async function pdfMain(
     console.time("export task");
     // TODO: 暂时只支持RGB
     options.colorMode = "RGB";
-    await cacheResource(projectData);
-    const pageApp = createPageApp(knifeData, {
+    if (!options.isOnlyKnife) {
+      await cacheResource(projectData);
+    }
+    const _project = {
+      cate: projectData.cate,
+    };
+    const pageApp = createPageApp(knifeData, _project, {
       unit: "mm",
       ...options,
     });
     log.info("log-", "registerFace start");
     pageApp.registerFace(knifeData, projectData);
-    // console.log(
-    //   util.inspect(pageApp.pages[0], {
-    //     depth: null,
-    //     colors: true,
-    //   })
-    // );
     await pageApp.paint();
     const pdfDoc = usePdfDoc({
       pageSize: pageApp.pageSize,
@@ -73,25 +65,17 @@ export async function pdfMain(
         page.pageType & TYPE_OUTSIDE_DESIGN ||
         page.pageType & TYPE_INSIDE_DESIGN
       ) {
-        let annotateSvg = page.face?.annotationLayer.getSvgString();
+        let annotateSvg = page.face?.annotationLayer.getSvgString(pageApp);
         if (annotateSvg) {
           const recover = pdfDoc.SetPaintAnnotationLabelMargin();
           pdfDoc.addSVG(annotateSvg);
           recover.call(pdfDoc.doc);
         }
-        let designSvg = page.face?.designLayer.getSvgString({
-          pageMargin: pageApp.pageMargin,
-        });
+        let designSvg = page.face?.designLayer.getSvgString(pageApp);
         designSvg &&
           pdfDoc.addSVG(designSvg, 0, 0, {
             imageCallback: function (link) {
-              const _link = prefixUrl(link);
-              const imgUrl =
-                options.colorMode === "CMYK"
-                  ? getCmykImgPath(assetsMap.get(_link))
-                  : assetsMap.get(_link);
-
-              return imgUrl;
+              return imageCallbackFn(link, options);
             },
           });
 
@@ -105,12 +89,7 @@ export async function pdfMain(
         // 只画设计
         pdfDoc.addSVG(designSvg, 0, 0, {
           imageCallback: function (link) {
-            const _link = prefixUrl(link);
-            const imgUrl =
-              options.colorMode === "CMYK"
-                ? getCmykImgPath(assetsMap.get(_link))
-                : assetsMap.get(_link);
-            return imgUrl;
+            return imageCallbackFn(link, options);
           },
         });
         pdfDoc.addPage();
@@ -120,7 +99,7 @@ export async function pdfMain(
         });
       }
       if (page.pageType & TYPE_MARK) {
-        let annotateSvg = page.face?.annotationLayer.getSvgString();
+        let annotateSvg = page.face?.annotationLayer.getSvgString(pageApp);
         if (annotateSvg) {
           const recover = pdfDoc.SetPaintAnnotationLabelMargin();
           pdfDoc.addSVG(annotateSvg);
@@ -144,12 +123,22 @@ export async function pdfMain(
     console.timeEnd("export task");
   } catch (error) {
     console.error("出现错误", error);
+    throw error;
   }
 }
+function imageCallbackFn(link, options) {
+  if (link.includes("data:image/")) return link;
+  const _link = prefixUrl(link);
+  const imgUrl =
+    options.colorMode === "CMYK"
+      ? getCmykImgPath(assetsMap.get(_link))
+      : assetsMap.get(_link);
 
+  return imgUrl;
+}
 async function mockRequest() {
-  let outputPath = path.resolve(__dirname, "../../output/a.pdf");
-  await pdfMain(getMockData().knifeData, getMockData().projectData, {
+  // let outputPath = path.resolve(__dirname, "../../output/a.ai");
+  await pdfMain(knifeData, projectData, {
     isOnlyKnife: false,
     colorMode: "RGB",
     filePath: "",
@@ -157,5 +146,3 @@ async function mockRequest() {
     // filePath: outputPath,
   });
 }
-
-// mockRequest();

@@ -44,7 +44,9 @@ export default abstract class Node {
 
   render() {
     const svgHTML = this.paint();
-    return `<svg data-uuid="${this.uuid}" stroke-dasharray="${
+    return `<svg xmlns="http://www.w3.org/2000/svg" data-uuid="${
+      this.uuid
+    }" stroke-dasharray="${
       this.strokeDashArray === 1 ? this.strokeWidth : 0
     }" stroke-dashoffset="${
       this.strokeDashArray === 1 ? this.width / 24 : 0

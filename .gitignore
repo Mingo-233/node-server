@@ -4,3 +4,4 @@ dist
 output
 cache
 /src/store/
+/src/mock/

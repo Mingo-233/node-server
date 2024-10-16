@@ -48,6 +48,7 @@ export interface IFontParse {
   color: string;
   colorMode: IColorMode;
   rotate: number;
+  ascentRatioV2: number;
 }
 export type IPathCollection = IPathPart[];
 
@@ -56,6 +57,8 @@ export type IFontTransformParams = {
     left: number;
     top: number;
   };
+  textLineHeight: number;
+  fontSize: number;
   bleedLineWidth: number;
   color: string;
   colorMode: IColorMode;
@@ -85,6 +88,7 @@ export type IFontGenerateParams = {
   };
   hasSymbolChar: boolean;
   rotate: number;
+  topTranslateLen: number;
 } & IFontTransform;
 
 export interface ITextInfoItem {

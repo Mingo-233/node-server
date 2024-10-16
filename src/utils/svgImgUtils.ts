@@ -25,12 +25,13 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
   if (!styleDom) {
     styleDom = window.document.createElement("style");
   }
-  let isInvalidFillsConfig = true;
+  let isInvalidFillsConfig = false;
   for (let i = 0; i < fillsConfig.length; i++) {
     const configItem: any = fillsConfig[i];
     const { type, value, color } = configItem;
-    if (color !== value) {
-      isInvalidFillsConfig = false;
+
+    if (color === value && configItem.class === "globalFill") {
+      isInvalidFillsConfig = true;
     }
     let renderColor = fitColor(color, options.colorMode);
     if (renderColor === "NONE") renderColor = "rgba(0,0,0,0)";

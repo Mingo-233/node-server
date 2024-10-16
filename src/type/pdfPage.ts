@@ -46,6 +46,7 @@ export interface IDrawingBoardConfig {
   unit: IUnit;
   strokeWidth: number;
   bleedLineWidth: number;
+  isMockups: boolean;
   knifeColor: {
     bleed: string;
     fold: string;
