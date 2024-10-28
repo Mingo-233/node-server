@@ -173,7 +173,6 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
     shapeContent
   );
 
-  fsSaveFile(shapeContent, "shape.svg");
   const context: IPdfSvgContainer<"design-layer"> = {
     type: "shape",
     svgString: shapeSvg,

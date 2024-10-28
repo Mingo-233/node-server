@@ -5,7 +5,7 @@ const axios = require("axios");
 const svgPath = "svgExample.svg";
 // 输出的 PNG 文件路径
 const outputPath = "svgExample.png";
-
+const PNG = require("pngjs").PNG;
 function imgHandle() {
   // 读取 SVG 文件
   const svgBuffer = fs.readFileSync(svgPath);
@@ -39,9 +39,54 @@ function downloadImage(url, outputPath) {
   });
 }
 
+async function splitPng() {
+  // 输入PNG文件路径
+  const inputPath = "songzi.png";
+  // 输出RGB和透明度信息的JPG文件路径
+  const outputRGBPath = "output_rgb.jpg";
+  const outputAlphaPath = "output_alpha.jpg";
+
+  sharp(inputPath)
+    .metadata() // 获取元数据，检查图像是否包含alpha通道
+    .then((metadata) => {
+      // 打印元数据信息，了解图像的通道情况
+      console.log(metadata);
+    });
+  // 读取PNG图像
+  sharp(inputPath)
+    .ensureAlpha() // 确保包含透明度通道
+    .toBuffer()
+    .then((data) => {
+      const image = sharp(data);
+
+      // 提取RGB通道，忽略Alpha通道
+      image
+        .removeAlpha() // 移除透明度通道
+        .jpeg({ quality: 100 }) // 转换为高质量的JPG
+        .toFile(outputRGBPath)
+        .then(() => {
+          console.log(`RGB信息保存为 ${outputRGBPath}`);
+        })
+        .catch((err) => console.error("RGB处理出错：", err));
+
+      // 提取Alpha通道并转换为灰度图
+      image
+        .extractChannel("alpha") // 提取透明度通道
+        // .extractChannel(3) // 索引3 代表 Alpha 通道
+        // .toColourspace("b-w") // 转换为灰度
+        .jpeg({ quality: 100 }) // 转换为高质量的JPG
+        .toFile(outputAlphaPath)
+        .then(() => {
+          console.log(`透明度信息保存为 ${outputAlphaPath}`);
+        })
+        .catch((err) => console.error("Alpha通道处理出错：", err));
+    })
+    .catch((err) => console.error("读取PNG图像出错：", err));
+}
 // downloadImage(
 //   "https://cdn.pacdora.com/user-materials-mockup_mockup/2ea63256-7f7f-40dd-983c-1f9cdd5e61fa.svg",
 //   "svgExample.svg"
 // );
 
-imgHandle();
+// imgHandle();
+splitPng();

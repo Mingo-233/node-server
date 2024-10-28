@@ -1,16 +1,16 @@
 const fs = require("fs");
-const PDFDocument = require("pdfkit");
+// const PDFDocument = require("pdfkit");
 const sharp = require("sharp");
 
 // 将图片转换为 CMYK 格式
 function pngSharp() {
-  sharp("./yu.png")
+  sharp("./cmyk-1.png")
     .toColourspace("cmyk") // 转换为 CMYK 颜色空间
     // .withMetadata({ icc: "./cmyk-adobe-japan-2001-coated.icc" })
-    .toFile("output-cmyk-color-yu.jpg")
+    .toFile("output-cmyk-color.jpg")
     .then((info) => {
       console.log(info);
-      pdf("output-cmyk-color-yu.jpg");
+      // pdf("output-cmyk-color.jpg");
     })
     .catch((err) => {
       console.error(err);
@@ -34,6 +34,6 @@ function pdf(url) {
   doc.end();
 }
 
-pdf();
+// pdf();
 
-// pngSharp();
+pngSharp();

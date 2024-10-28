@@ -18,7 +18,7 @@ app.post("/pdf", function (req, res, next) {
   console.log(req.body);
   const { knife, project } = req.body;
   pdf.pdfMain(knife, project, {
-    colorMode: "CMYK",
+    colorMode: "RGB",
   });
   console.log("pdf end ------");
 

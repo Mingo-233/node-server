@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <input style="position: absolute;right: 50px;top: 280px;" type="file" id="file">
+    <script type="module">
+        import * as mupdf from './node_modules/mupdf/dist/mupdf.js';
+
+        // 现在你可以使用 mupdf 模块
+        console.log('mupdf', mupdf);
+        window.mupdf = mupdf
+        const fileEl = document.querySelector('#file');
+        fileEl.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            // handlePDf(file)
+            // handleImg(file)
+            getImg(file)
+
+        })
+        async function handleImg(file) {
+            const buffer = await file.arrayBuffer();
+            const imageInstance = new mupdf.Image(buffer);
+            console.log('imageInstance', imageInstance);
+            var pixmap = imageInstance.toPixmap();
+            pixmap.convertToColorSpace(mupdf.ColorSpace.DeviceCMYK);
+            console.log('pixmap', pixmap);
+
+            let imgV2 = pixmap.saveAsJPEG("fileName.jpg", 80);
+            console.log(imgV2);
+            var jpegBuffer = pixmap.asJPEG();
+
+            downloadFile(new Blob([jpegBuffer], {
+                type: 'image/png'
+            }), 'test.png')
+        }
+        async function handlePDf(file) {
+            const buffer = await file.arrayBuffer();
+            let document = mupdf.Document.openDocument(buffer, "application/pdf");
+            window.dd = document
+            console.log(document);
+            const page = document.loadPage(0)
+            console.log('page', page);
+            const device = new mupdf.Device();
+            console.log(device);
+
+            device.fillText(
+                "hello",
+                mupdf.Matrix.identity,
+                mupdf.ColorSpace.DeviceRGB,
+                [1, 0, 0],
+                1
+            );
+
+            // let pixmap = page.toPixmap(mupdf.Matrix.identity, mupdf.ColorSpace.DeviceCMYK, true, false)
+            // console.log('pixmap', pixmap);
+            // var pixmap = new mupdf.Pixmap(mupdf.ColorSpace.DeviceRGB, [0, 0, 500, 500], true);
+            // var jpegBuffer = pixmap.asPNG();
+
+            // console.log('jpegBuffer', jpegBuffer);
+            // downloadFile(new Blob([jpegBuffer], {
+            //     type: 'image/png'
+            // }), 'test.png')
+
+        }
+        async function getImg(file) {
+            const buffer = await file.arrayBuffer();
+
+            let document = mupdf.Document.openDocument(buffer, "application/pdf");
+            let page = document.loadPage(0);
+            const page_obj = page.getObject();
+            var res = page_obj.get("Resources");
+            var res_xobj = res.get("XObject");
+            console.log("res_xobj", res_xobj);
+
+
+        }
+        function downloadFile(blob, fileName) {
+            var a = document.createElement('a');
+            a.download = fileName;
+            a.href = URL.createObjectURL(blob);
+            a.click();
+        }
+    </script>
+
+
+</body>
+
+</html>

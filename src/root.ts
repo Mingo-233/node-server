@@ -24,8 +24,8 @@ import {
 
 import projectData from "./mock/tempInfo.json";
 import knifeData from "./mock/tempKnife.json";
-enableDevMode();
-mockRequest();
+// enableDevMode();
+// mockRequest();
 
 export async function pdfMain(
   knifeData,

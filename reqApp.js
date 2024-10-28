@@ -1,34 +1,16 @@
-const http = require("http");
-const fs = require("fs");
+const express = require("express");
 const path = require("path");
 
-const imageFilePath = path.join(__dirname, "svgExample.png"); // 修改为你的图片文件名
+const app = express();
+const port = 3000;
 
-const server = http.createServer((req, res) => {
-  // 只对特定请求路径响应
-  if (req.url === "/svgExample.png") {
-    // 读取图片文件
-    fs.readFile(imageFilePath, (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        res.end("Server Error");
-        return;
-      }
+// 指定静态文件夹
+const staticFolderPath = path.join(__dirname, "assets");
 
-      // 设置5秒延迟
-      setTimeout(() => {
-        res.writeHead(200, { "Content-Type": "image/jpeg" });
-        res.end(data);
-      }, 21000);
-    });
-  } else {
-    // 如果请求不是图片，返回404
-    res.writeHead(404);
-    res.end("Not Found");
-  }
-});
+// 使用 express.static 中间件提供静态文件
+app.use(express.static(staticFolderPath));
 
-const PORT = 3000;
-server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// 启动服务器
+app.listen(port, () => {
+  console.log(`服务器正在运行，访问地址：http://localhost:${port}`);
 });

@@ -179,6 +179,11 @@ export async function cacheResource(jsonData) {
 
 export function clearCache() {
   const CACHE_DIR = path.join(cacheRootDir, _cacheDirName);
+  assetsMap.clear();
+  assetsMap.set(
+    "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf",
+    DEFAULT_CACHE_DIR
+  );
   fs.rm(CACHE_DIR, { recursive: true, force: true }, () =>
     console.log("缓存已清空")
   );
