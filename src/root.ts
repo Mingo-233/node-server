@@ -1,31 +1,30 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
 import {
-  fetchAssets,
   prefixUrl,
   clearCache,
-  getCmykImgPath,
+  generateCmykImg,
+  isBase64,
 } from "./utils/request";
 import { createPageApp } from "./core/pdfPage";
 import log, { enableDevMode, isDevMode } from "@/utils/log";
-import {
-  fetchResourceWithCache,
-  assetsMap,
-  cacheResource,
-} from "@/utils/request";
+import { assetsMap, cacheResource } from "@/utils/request";
 import type { ICreatePdfOptions } from "@/type/pdf";
 import {
   TYPE_OUTSIDE_DESIGN,
   TYPE_INSIDE_DESIGN,
   TYPE_MARK,
 } from "@/nodes/layerNode";
-// import projectData from "./mock/info2.json";
-// import projectData from "./mock/info.json";
-// import knifeData from "./mock/knife.json";
+export * from "./index";
 
-import projectData from "./mock/tempInfo.json";
-import knifeData from "./mock/tempKnife.json";
-// enableDevMode();
-// mockRequest();
+import { loadIccProfile } from "@/utils/color";
+/** 本地调试区域 ----- */
+import projectData from "./mock/info.json";
+import knifeData from "./mock/knife.json";
+// const projectData = require("./mock/tempInfo.json");
+// const knifeData = require("./mock/tempKnife.json");
+mockRequest();
+
+/** 本地调试区域 ----- */
 
 export async function pdfMain(
   knifeData,
@@ -34,10 +33,8 @@ export async function pdfMain(
 ) {
   try {
     console.time("export task");
-    // TODO: 暂时只支持RGB
-    options.colorMode = "RGB";
-    if (!options.isOnlyKnife) {
-      await cacheResource(projectData);
+    if (options.colorMode === "CMYK") {
+      loadIccProfile();
     }
     const _project = {
       cate: projectData.cate,
@@ -127,20 +124,28 @@ export async function pdfMain(
   }
 }
 function imageCallbackFn(link, options) {
-  if (link.includes("data:image/")) return link;
+  if (isBase64(link)) {
+    return link;
+    // if (options.colorMode === "RGB") return link;
+    // const { remoteUrl } = extractBase64(link);
+    // link = remoteUrl;
+  }
   const _link = prefixUrl(link);
-  const imgUrl =
-    options.colorMode === "CMYK"
-      ? getCmykImgPath(assetsMap.get(_link))
-      : assetsMap.get(_link);
-
+  const imgUrl = assetsMap.get(_link);
   return imgUrl;
 }
 async function mockRequest() {
-  // let outputPath = path.resolve(__dirname, "../../output/a.ai");
+  enableDevMode();
+
+  const _colorMode: any = "CMYK";
+  const result = await cacheResource(projectData, true);
+  if (_colorMode === "CMYK") {
+    await generateCmykImg(result);
+    // console.log("assetsMap", assetsMap);
+  }
   await pdfMain(knifeData, projectData, {
     isOnlyKnife: false,
-    colorMode: "RGB",
+    colorMode: _colorMode,
     filePath: "",
     knifeColor: {},
     // filePath: outputPath,

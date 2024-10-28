@@ -1,4 +1,4 @@
-import { fitColor, hexToCMYK, rgbToCmyk } from "./color";
+import { fitColor, hexToCMYK, rgbToCmykByIcc } from "./color";
 
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -187,7 +187,11 @@ function replaceHexColor(input) {
 function replaceRGBColor(input) {
   let svgString = input.replace(/rgb\(\d+,\d+,\d+\)/g, (match) => {
     const rgbValues = match.match(/\d+/g).map(Number);
-    let convertedColor = rgbToCmyk(rgbValues[0], rgbValues[1], rgbValues[2]);
+    let convertedColor = rgbToCmykByIcc(
+      rgbValues[0],
+      rgbValues[1],
+      rgbValues[2]
+    );
     return convertedColor;
   });
   return svgString;

@@ -23,6 +23,7 @@ import {
   drawFooterLabel,
 } from "./annotationLayer";
 import log from "@/utils/log";
+import { isBase64 } from "@/utils/request";
 export function usePdfLayer() {
   let _pdfLayer: IPdfLayerMap = {
     "knife-layer": _createPdfLayer("knife-layer"),
@@ -56,6 +57,8 @@ export function usePdfLayer() {
     for (let i = 0; i < designList.length; i++) {
       const designElement = designList[i];
       if (designElement.type === "img") {
+        // TODO: base64图片为错误数据，暂时不处理
+        if (isBase64(designElement.src)) continue;
         log.info("log-drawImgElement start");
         const imgElement = await drawImgElement(designElement, config);
         _pdfLayer["design-layer"].children.push(imgElement);

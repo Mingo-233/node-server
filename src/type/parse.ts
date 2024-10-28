@@ -30,7 +30,7 @@ export interface IFontParseParams {
   textLineHeight: number;
   textAlign: string;
   vertical: boolean;
-  color?: string;
+  color: string;
   colorMode?: IColorMode;
   rotate: number;
   MaxWidth: number;

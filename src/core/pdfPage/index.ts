@@ -197,11 +197,8 @@ export function createPageApp(
         ...boardConfig,
         side: page.face.side,
       };
-      log.info("log-face.drawKnife start", i);
       page.face.drawKnife(knifeData, _config);
-      log.info("log-face.drawDesign start", i);
       await page.face.drawDesign(designData, knifeData, _config);
-      log.info("log-face.drawAnnotate start", i);
       page.face.drawAnnotate(annotateData, boardConfig);
     }
   }

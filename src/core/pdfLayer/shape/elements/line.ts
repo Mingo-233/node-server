@@ -36,4 +36,23 @@ export default class extends Node {
     }" stroke-linecap="butt"></line>
     `;
   }
+  render() {
+    const svgHTML = this.paint();
+    return `<svg xmlns="http://www.w3.org/2000/svg" data-uuid="${
+      this.uuid
+    }" stroke-dasharray="${
+      this.strokeDashArray === 1 ? this.strokeWidth : 0
+    }" stroke-dashoffset="${
+      this.strokeDashArray === 1 ? this.width / 24 : 0
+    }" stroke-width="${this.strokeWidth}" fill="none" stroke="${
+      this.stroke
+    }" viewBox="0 0 ${this.width} ${
+      this.height
+    }" style="position: absolute;left:0; top: 0;overflow: hidden;width:${
+      this.width
+    }mm;height:${this.height}mm;">
+      ${svgHTML}  
+    </svg>
+    `;
+  }
 }

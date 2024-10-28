@@ -1,82 +1,32 @@
 import sharp from "sharp";
 import fs from "fs";
+import path from "path";
 import { IColorMode } from "@/type/pdfPage";
+
+// jsColorEngine 这个库 npm上的包在node环境加载有问题，public引用的是改造过本地编译后版本
+const jsColorEngine = require("../../public/jsColorEngine");
+let rgbProfile: any = null;
+let cmykProfile: any = null;
+export async function loadIccProfile() {
+  rgbProfile = new jsColorEngine.Profile();
+  rgbProfile.load("*sRGB");
+  cmykProfile = new jsColorEngine.Profile();
+  const iccPath = path.join(
+    __dirname,
+    "../../public/cmyk-adobe-japan-2001-coated.icc"
+  );
+  const iccFilePath = "file:" + iccPath;
+  await cmykProfile.loadPromise(iccFilePath);
+}
 export function hexToCMYK(hex) {
   // 去掉 '#' 符号
   hex = hex.replace(/^#/, "");
-
   // 将十六进制转换为 RGB
-  let r = parseInt(hex.substring(0, 2), 16) / 255;
-  let g = parseInt(hex.substring(2, 4), 16) / 255;
-  let b = parseInt(hex.substring(4, 6), 16) / 255;
 
-  // 计算 K 值
-  let k = 1 - Math.max(r, g, b);
-  if (k === 1) {
-    const result = { c: 0, m: 0, y: 0, k: 100 };
-    return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
-  }
-
-  // 计算 C, M, Y 值
-  let c = (1 - r - k) / (1 - k);
-  let m = (1 - g - k) / (1 - k);
-  let y = (1 - b - k) / (1 - k);
-
-  const result = {
-    c: parseFloat((c * 100).toFixed(0)),
-    m: parseFloat((m * 100).toFixed(0)),
-    y: parseFloat((y * 100).toFixed(0)),
-    k: parseFloat((k * 100).toFixed(0)),
-  };
-  return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
-}
-
-export function rgbToCmyk(r, g, b) {
-  // 转换 RGB 到 [0, 1] 范围
-  let c = 1 - r / 255;
-  let m = 1 - g / 255;
-  let y = 1 - b / 255;
-
-  // 计算 K 值
-  let k = Math.min(c, m, y);
-
-  // 避免分母为 0
-  if (k === 1) {
-    c = 0;
-    m = 0;
-    y = 0;
-  } else {
-    c = (c - k) / (1 - k);
-    m = (m - k) / (1 - k);
-    y = (y - k) / (1 - k);
-  }
-
-  // 返回 CMYK 值，四舍五入到两位小数
-  const result = {
-    c: Math.round(c * 100),
-    m: Math.round(m * 100),
-    y: Math.round(y * 100),
-    k: Math.round(k * 100),
-  };
-  // return `cmyk(${result.c}%, ${result.m}%, ${result.y}%, ${result.k}%)`;
-  return `cmyk(${result.c}, ${result.m}, ${result.y}, ${result.k})`;
-}
-
-// 将 RGB 图片转换为 CMYK，逆转 CMYK 通道并保存
-export async function convertAndInvertImage(inputPath, outputPath) {
-  try {
-    const inputBuffer = await fs.readFileSync(inputPath);
-    await sharp(inputBuffer)
-      .toColorspace("cmyk")
-      .withMetadata({ icc: "cmyk-adobe-japan-2001-coated.icc" })
-      // 反转颜色
-      .negate()
-      // 保存为JPEG (CMYK兼容)
-      .jpeg({ quality: 100 })
-      .toFile(outputPath);
-  } catch (error) {
-    console.error("处理cymk图片时出错:", error);
-  }
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+  return rgbToCmykByIcc(r, g, b);
 }
 
 export function fitColor(color: string, colorMode: IColorMode) {
@@ -86,8 +36,26 @@ export function fitColor(color: string, colorMode: IColorMode) {
 export function convertCMYK(value) {
   if (value.startsWith("rgb")) {
     const rgbValues = value.match(/\d+/g).map(Number);
-    return rgbToCmyk(rgbValues[0], rgbValues[1], rgbValues[2]);
+    return rgbToCmykByIcc(rgbValues[0], rgbValues[1], rgbValues[2]);
   } else {
     return hexToCMYK(value);
+  }
+}
+
+export function rgbToCmykByIcc(r, g, b) {
+  try {
+    let rgb2cmykTransform = new jsColorEngine.Transform();
+    rgb2cmykTransform.create(
+      rgbProfile,
+      cmykProfile,
+      jsColorEngine.eIntent.perceptual
+    );
+    // let rgbColor = jsColorEngine.color.RGB(174, 151, 204);
+    let rgbColor = jsColorEngine.color.RGB(r, g, b);
+    let cmykColor = rgb2cmykTransform.transform(rgbColor);
+    return `cmyk(${cmykColor.C}, ${cmykColor.M}, ${cmykColor.Y}, ${cmykColor.K})`;
+  } catch (error) {
+    console.error("cmyk颜色转化出错-icc", error);
+    throw error;
   }
 }

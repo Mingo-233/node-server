@@ -98,9 +98,44 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     };
     return context;
   } else {
-    const imageBuffer = await fetchAssets(designItem.src);
+    let _imgSrc = designItem.src;
+    let maskDefs = "";
+    // cmyk模式下 png被拆分转化了
+    if (config.colorMode === "CMYK" && _imgSrc.includes(".png")) {
+    const alphaRemoteUrl = _imgSrc.replace(".png", "_alpha.jpg");
+      maskDefs = createElement(
+        "defs",
+        {},
+        createElement(
+          "mask",
+          { id: "imageMask" },
+          createElement("image", {
+            href: alphaRemoteUrl,
+            width: designItem.bg.width + config.unit,
+            height: designItem.bg.height + config.unit,
+            transform: `${_flip ? _flip : ""} translate(${
+              designItem.bg.x * DPI
+            },${designItem.bg.y * DPI})`,
+          })
+        )
+      );
+    }else{
+      await fetchAssets(_imgSrc);
+    }
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
-
+    const imageChild = [
+      createElement("image", {
+        "xlink:href": _imgSrc,
+        opacity: _opacity.toString(),
+        width: designItem.bg.width + config.unit,
+        height: designItem.bg.height + config.unit,
+        transform: `${_flip ? _flip : ""} translate(${designItem.bg.x * DPI},${
+          designItem.bg.y * DPI
+        })`,
+        mask: maskDefs?  "url(#imageMask)" :'',
+      }),
+    ];
+    if (maskDefs) imageChild.unshift(maskDefs);
     const imgSvg = createElement(
       "svg",
       {
@@ -113,17 +148,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         // 先旋转 后平移 ，可以少减少一次移动
         transform: `${rotateTransform} translate(${translateX}, ${translateY}) `,
       },
-      [
-        createElement("image", {
-          "xlink:href": designItem.src,
-          opacity: _opacity.toString(),
-          width: designItem.bg.width + config.unit,
-          height: designItem.bg.height + config.unit,
-          transform: `${_flip ? _flip : ""} translate(${
-            designItem.bg.x * DPI
-          },${designItem.bg.y * DPI})`,
-        }),
-      ]
+      imageChild
     );
 
     const context: IPdfSvgContainer<"design-layer"> = {
@@ -404,11 +429,11 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   return context;
 }
 
-function fsSaveFile(context, name = "test.svg") {
-  const fs = require("fs");
-  const path = require("path");
-  const pwdPath = process.cwd();
-  const filePath = path.resolve(pwdPath, "./dist/output");
-  fs.writeFileSync(`${filePath}/${name}`, context);
-  console.log("file saved");
-}
+// function fsSaveFile(context, name = "test.svg") {
+//   const fs = require("fs");
+//   const path = require("path");
+//   const pwdPath = process.cwd();
+//   const filePath = path.resolve(pwdPath, "./dist/output");
+//   fs.writeFileSync(`${filePath}/${name}`, context);
+//   console.log("file saved");
+// }

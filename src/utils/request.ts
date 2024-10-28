@@ -3,9 +3,23 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import log, { isDevMode } from "@/utils/log";
-import { convertAndInvertImage } from "@/utils/color";
 import sharp from "sharp";
+import { magickCMD } from "./imageMagick";
+import {
+  ICmykConvertResult,
+  IImgDescItem,
+  ISplitPngResult,
+} from "@/type/cymkImg";
 export const assetsMap = new Map();
+const spawn = require("await-spawn");
+
+// function spawn(a, b) {
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       resolve("test");
+//     }, 1000);
+//   });
+// }
 
 let _cacheDirName = "default";
 axios.defaults.timeout = 20000;
@@ -32,7 +46,7 @@ const generateHash = (url) => {
  * @param {string} url - 资源 URL
  * @returns {string} - 缓存文件路径
  */
-const getCacheFilePath = (url) => {
+export const getCacheFilePath = (url) => {
   const CACHE_DIR = path.join(cacheRootDir, _cacheDirName);
   // 确保缓存目录存在
   if (!fs.existsSync(CACHE_DIR)) {
@@ -58,11 +72,13 @@ export const fetchResourceWithCache = async (url) => {
     }
   }
   const cacheFilePath = getCacheFilePath(url);
-  assetsMap.set(url, cacheFilePath);
-  // // 检查缓存文件是否存在
-  // if (fs.existsSync(cacheFilePath)) {
-  //   return fs.readFileSync(cacheFilePath);
-  // }
+  if (!isBase64(url)) {
+    assetsMap.set(url, cacheFilePath);
+  }
+  // 检查缓存文件是否存在
+  if (fs.existsSync(cacheFilePath)) {
+    return fs.readFileSync(cacheFilePath);
+  }
 
   try {
     const response = await axios({
@@ -86,7 +102,7 @@ export const fetchResourceWithCache = async (url) => {
 };
 export function fetchAssets(url) {
   return new Promise((resolve, reject) => {
-    log.info("log-fetchImage start", url);
+    // log.info("log-fetchImage start", url);
     const _url = prefixUrl(url);
     fetchResourceWithCache(_url)
       .then((res) => {
@@ -103,8 +119,10 @@ export function prefixUrl(url) {
   return url;
 }
 export function getCmykImgPath(url) {
-  // return `${extractPath(url)}_cmyk.jpg`;
   return `${extractPath(url)}_cmyk.jpg`;
+}
+export function getAlphaImgPath(url) {
+  return `${extractPath(url)}_alpha.jpg`;
 }
 function extractPath(filename) {
   const regex = /(.*)(\.[^.]+)$/; // 匹配路径及文件名，直到最后一个点（.）
@@ -114,12 +132,24 @@ function extractPath(filename) {
 export function isSvgUrl(url) {
   return url.toLowerCase().endsWith(".svg");
 }
-function isImage(url) {
-  return url.match(/\.(jpeg|jpg|png)$/);
+function isPng(url) {
+  return url.match(/\.(png)$/);
+}
+export function isBase64(url) {
+  return url.startsWith("data:image/");
+}
+export function getBase64ImgKey(url) {
+  const hashKey = generateHash(url.slice(20, 50));
+  return hashKey;
+}
+function isImg(url) {
+  return url.match(/\.(png|jpg|jpeg)$/);
 }
 export function queryResource(jsonData) {
   const srcValues = new Set();
+  const pngSrcValues = new Set();
   const imgSrcValues = new Set();
+  const base64ImgValues = new Set();
   function traverse(obj) {
     if (Array.isArray(obj)) {
       obj.forEach((item) => traverse(item));
@@ -127,8 +157,18 @@ export function queryResource(jsonData) {
       for (const key in obj) {
         if (key === "src") {
           const srcValue = obj[key];
-          srcValues.add(srcValue);
-          if (isImage(srcValue)) {
+          // TODO: 不处理base64资源，这是错误数据
+          if (!isBase64(srcValue)) {
+            srcValues.add(srcValue);
+          }
+
+          if (isPng(srcValue)) {
+            pngSrcValues.add(srcValue);
+          }
+          // else if (isBase64(srcValue)) {
+          //   base64ImgValues.add(srcValue);
+          // }
+          else if (isImg(srcValue)) {
             imgSrcValues.add(srcValue);
           }
         }
@@ -138,17 +178,18 @@ export function queryResource(jsonData) {
   }
 
   traverse(jsonData);
-  return [srcValues, imgSrcValues];
+  return [srcValues, imgSrcValues, pngSrcValues, base64ImgValues];
 }
 
-export async function cacheResource(jsonData) {
-  return new Promise<void>(async (resolve, reject) => {
+export async function cacheResource(jsonData, isDevMode = false) {
+  return new Promise<any>(async (resolve, reject) => {
     if (isDevMode) {
       _cacheDirName = "default";
     } else {
       _cacheDirName = Math.random().toString(36).substring(7);
     }
-    const [srcValues, imgsSrcValues] = queryResource(jsonData);
+    const [srcValues, imgSrcValues, pngSrcValues, base64ImgValues] =
+      queryResource(jsonData);
 
     const promiseTask: any[] = [];
     defaultAssetsArr.forEach((src) => {
@@ -168,7 +209,13 @@ export async function cacheResource(jsonData) {
         // const outputFilePath = getCmykImgPath(inputFilePath);
         // await convertAndInvertImage(inputFilePath, outputFilePath);
         // }
-        resolve();
+        const result = {
+          assetsMap,
+          pngUrlArr: Array.from(pngSrcValues),
+          imgUrlArr: Array.from(imgSrcValues),
+          base64ImgUrlArr: Array.from(base64ImgValues),
+        };
+        resolve(result);
       })
       .catch((err) => {
         console.error("资源下载失败", err);
@@ -210,4 +257,174 @@ export function convertToPng(input, options) {
         reject(err);
       });
   });
+}
+
+export async function splitPng(pngList: string[]) {
+  let resultArr: ISplitPngResult[] = [];
+  const taskPromise: Promise<any>[] = [];
+  pngList.forEach((url, index: number) => {
+    const _url = prefixUrl(url)
+    resultArr[index] = {
+      remoteUrl: _url,
+      rgbUrl: "",
+      alphaUrl: "",
+    };
+    const localUrl = getCacheFilePath(_url);
+    const rgbOutputUrl = localUrl.replace(".png", "_rgb.jpg");
+    const [cmd, arg] = magickCMD("splitRGB", localUrl, rgbOutputUrl);
+    const rgbTask = new Promise<void>((resolve, reject) => {
+      spawn(cmd, arg)
+        .then((res) => {
+          resultArr[index].rgbUrl = rgbOutputUrl;
+          resolve();
+        })
+        .catch((err) => reject(err));
+    });
+    taskPromise.push(rgbTask);
+
+    const alphaOutputUrl = localUrl.replace(".png", "_alpha.jpg");
+    const [cmd2, arg2] = magickCMD("splitAlpha", localUrl, alphaOutputUrl);
+    const alphaTask = new Promise<void>((resolve, reject) => {
+      spawn(cmd2, arg2)
+        .then((res) => {
+          resultArr[index].alphaUrl = alphaOutputUrl;
+          resolve();
+        })
+        .catch((err) => reject(err));
+    });
+    taskPromise.push(alphaTask);
+  });
+  await Promise.all(taskPromise)
+    .then((res) => {
+      console.log("magick splitPng 命令执行成功");
+    })
+    .catch((err) => {
+      console.error("magick splitPng 命令执行出错", err);
+      throw err;
+    });
+  return resultArr;
+}
+
+export async function convertCMYKImg(imgList: IImgDescItem[]) {
+  let resultArr: ICmykConvertResult[] = [];
+
+  const taskPromise: any[] = [];
+  imgList.forEach((imgDescItem, index) => {
+    let remoteUrl = prefixUrl(`${imgDescItem.remoteUrl}`);
+    const localCacheFile = getCacheFilePath(remoteUrl);
+    const localCmykJpgUrl = getCmykImgPath(localCacheFile);
+    let localRgbJpgUrl = "";
+    if (imgDescItem.format === "png") {
+      // png 会先拆分，所以_rgb.jpg这个文件已经存在了
+      localRgbJpgUrl = localCmykJpgUrl.replace("_cmyk.jpg", "_rgb.jpg");
+    } else {
+      // 其他情况不会拆分，直接取缓存到本地的文件
+      localRgbJpgUrl = localCacheFile;
+    }
+    const [cmd, arg] = magickCMD(
+      "convertCMYK",
+      localRgbJpgUrl,
+      localCmykJpgUrl
+    );
+
+    const task = new Promise<void>((resolve, reject) => {
+      spawn(cmd, arg)
+        .then((res) => {
+          resultArr[index] = {
+            remoteUrl: remoteUrl,
+            cmykUrl: localCmykJpgUrl,
+          };
+          resolve();
+        })
+        .catch((err) => reject(err));
+    });
+    taskPromise.push(task);
+  });
+  await Promise.all(taskPromise)
+    .then((res) => {
+      console.log("magick cmyk convert 命令执行成功");
+    })
+    .catch((err) => {
+      console.error("magick cmyk convert 命令执行出错", err);
+      throw err;
+    });
+
+  return resultArr;
+}
+
+export async function generateCmykImg(cacheResult) {
+  const { pngUrlArr, imgUrlArr, assetsMap, base64ImgUrlArr } = cacheResult;
+  const _imgUrlArr: IImgDescItem[] = imgUrlArr.map((url) => ({
+    remoteUrl: prefixUrl(url),
+    format: "jpg",
+  }));
+  // bae64要放在最前面处理，因为可能存在jpg也可能存在png格式
+  if (base64ImgUrlArr?.length > 0) {
+    for (let i = 0; i < base64ImgUrlArr.length; i++) {
+      const url = base64ImgUrlArr[i];
+      const saveResult = await saveBase64(url);
+      const imgDescItem = {
+        remoteUrl: saveResult.remoteUrl,
+        format: saveResult.format,
+      };
+      if (saveResult?.format === "png") {
+        pngUrlArr.push(saveResult.remoteUrl);
+      } else {
+        _imgUrlArr.push(imgDescItem);
+      }
+    }
+  }
+  // 是否有PNG 拆分PNG生成一个deviceGrey通道的图片和一个rgb通道的图片
+  if (pngUrlArr?.length > 0) {
+    const splitResult = await splitPng(pngUrlArr);
+    splitResult.forEach((item) => {
+      const alphaUrlKey = item.remoteUrl.replace(".png", "_alpha.jpg");
+      // 创建一个远程的alpha图片地址  指向本地的alpha图片地址
+      assetsMap.set(alphaUrlKey, item.alphaUrl);
+      _imgUrlArr.push({
+        remoteUrl: item.remoteUrl,
+        format: "png",
+      });
+    });
+  }
+
+  if (_imgUrlArr.length > 0) {
+    const cmykImgResult = await convertCMYKImg(_imgUrlArr);
+    cmykImgResult.forEach((item) => {
+      // 更新原先的png图片地址 指向本地的cmyk图片地址
+      assetsMap.set(item.remoteUrl, item.cmykUrl);
+    });
+  }
+}
+
+async function saveBase64(base64Data) {
+  const { format, remoteUrl, localUrl } = extractBase64(base64Data);
+  const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, "");
+  await fs.promises.writeFile(localUrl, base64Image, {
+    encoding: "base64",
+  });
+  return {
+    format,
+    remoteUrl,
+    localUrl,
+  };
+}
+
+export function extractBase64(base64Data) {
+  const match = base64Data.match(/^data:image\/(\w+);base64,/);
+  if (!match) {
+    console.error("无效的 Base64 图片数据");
+    throw "无效的 Base64 图片数据";
+  }
+  // 提取文件扩展名
+  const ext = match[1] === "jpeg" ? "jpg" : match[1];
+  const uniqueKey = getBase64ImgKey(base64Data);
+  // 模拟创建一个远程地址
+  const remoteUrl = `base64-${uniqueKey}.${ext}`;
+  const localCacheFile = getCacheFilePath(remoteUrl);
+  return {
+    format: ext,
+    remoteUrl: remoteUrl,
+    localUrl: localCacheFile,
+  };
 }
