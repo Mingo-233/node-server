@@ -102,7 +102,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     let maskDefs = "";
     // cmyk模式下 png被拆分转化了
     if (config.colorMode === "CMYK" && _imgSrc.includes(".png")) {
-    const alphaRemoteUrl = _imgSrc.replace(".png", "_alpha.jpg");
+      const alphaRemoteUrl = _imgSrc.replace(".png", "_alpha.jpg");
       maskDefs = createElement(
         "defs",
         {},
@@ -119,7 +119,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
           })
         )
       );
-    }else{
+    } else {
       await fetchAssets(_imgSrc);
     }
     // 这里内部图片大小大于外侧svg尺寸的时候，会形成clip
@@ -132,7 +132,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         transform: `${_flip ? _flip : ""} translate(${designItem.bg.x * DPI},${
           designItem.bg.y * DPI
         })`,
-        mask: maskDefs?  "url(#imageMask)" :'',
+        mask: maskDefs ? "url(#imageMask)" : "",
       }),
     ];
     if (maskDefs) imageChild.unshift(maskDefs);

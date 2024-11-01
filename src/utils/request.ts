@@ -263,7 +263,7 @@ export async function splitPng(pngList: string[]) {
   let resultArr: ISplitPngResult[] = [];
   const taskPromise: Promise<any>[] = [];
   pngList.forEach((url, index: number) => {
-    const _url = prefixUrl(url)
+    const _url = prefixUrl(url);
     resultArr[index] = {
       remoteUrl: _url,
       rgbUrl: "",
