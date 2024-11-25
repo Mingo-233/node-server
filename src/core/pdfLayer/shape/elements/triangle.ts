@@ -74,11 +74,19 @@ export default class extends Node {
     `;
     return path;
   }
+  // paint() {
+  //   const path = this.getPath();
+  //   return `
+  //   <defs><clipPath id="clip-${this.uuid}"><path data-radius="${this.radius}" d="${path}"></path></clipPath></defs>
+  //     <path data-radius="${this.radius}"  d="${path}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt"></path>
+  //   `;
+  // }
+
   paint() {
     const path = this.getPath();
     return `
-    <defs><clipPath id="clip-${this.uuid}"><path data-radius="${this.radius}" d="${path}"></path></clipPath></defs>
-      <path data-radius="${this.radius}"  d="${path}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt"></path>
+    <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}"><path data-radius="${this.radius}" d="${path}" ></path></mask></defs>
+      <path data-radius="${this.radius}"  d="${path}" mask="url(#clip-${this.uuid})" stroke-width="${this.strokeWidth}" stroke-linecap="butt"></path>
     `;
   }
 }

@@ -9,6 +9,7 @@ import {
   pathPartType,
   genChildPath,
   isBreakChar,
+  isReturnChar,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -26,15 +27,14 @@ export function getVerticalTextPaths(
   };
 
   // 文字间隙 在浏览器环境中默认值为normal
-  const { lineHeight, lineHeightTop, baseLineRatio, ascentRatioV2 } =
-    computedFontLineHeight({
-      unitsPerEm: config.fontOption.unitsPerEm,
-      ascent: config.fontOption.ascent,
-      fontSize: config.fontSize,
-      lineHeight: config.textLineHeight,
-      descent: config.fontOption.descent,
-      fontName: config.fontOption.fontName,
-    });
+  const { lineHeight, baseLineRatio, ascentRatioV2 } = computedFontLineHeight({
+    unitsPerEm: config.fontOption.unitsPerEm,
+    ascent: config.fontOption.ascent,
+    fontSize: config.fontSize,
+    lineHeight: config.textLineHeight,
+    descent: config.fontOption.descent,
+    fontName: config.fontOption.fontName,
+  });
   const baseLineHeight = lineHeight * baseLineRatio;
   const isVertical = !!config.vertical;
   const letterSpace = isVertical
@@ -129,14 +129,15 @@ export function getVerticalTextPaths(
     let maxItemHeight = 0;
     // 已经识别的索引
     let identifiedIndex = -9999;
-    let lastTextItem = "";
     for (let i = 0; i < textArr.length; i++) {
       if (i <= identifiedIndex) {
         continue;
       }
       const textItem = textArr[i];
+      if (isReturnChar(textItem)) {
+        continue;
+      }
       if (isBreakChar(textItem)) {
-        if (isBreakChar(lastTextItem)) continue;
         textInfoArr.push({
           path: null,
           pathBoundingBox: null,
@@ -144,7 +145,6 @@ export function getVerticalTextPaths(
           isBreak: true,
           type: pathPartType.zh,
         });
-        lastTextItem = textItem;
         continue;
       }
 
@@ -205,7 +205,6 @@ export function getVerticalTextPaths(
           position.y1 = result.pathBoundingBox.y1;
         }
       }
-      lastTextItem = textItem;
     }
     const line = computedLine(textInfoArr, maxItemHeight);
 
@@ -218,7 +217,7 @@ export function getVerticalTextPaths(
     let maxContentHeightArr: number[] = [];
     let isFirstWord = true;
     let accumulatorPathHeight = 0;
-    for (let index = 0; index < textInfoArr.length; index++) {
+    outerLoop: for (let index = 0; index < textInfoArr.length; index++) {
       const textInfo = textInfoArr[index];
       if (textInfo.isBreak) {
         doBreak(index);
@@ -240,20 +239,29 @@ export function getVerticalTextPaths(
         if (textInfo.chilePath?.length) {
           let preAccumulatorPathHeight =
             accumulatorPathHeight - _heightAddLetterSpace;
+          let storeChild = textInfo.chilePath;
           let lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
           let lastPathHeight = lastPath.path.advanceWidth;
           // 从children找到能刚好能排列下的子路径
           while (
             preAccumulatorPathHeight + lastPathHeight > MAX_HIGHT &&
-            textInfo.chilePath.length > 1
+            textInfo.chilePath.length >= 1
           ) {
+            // 英文字符拆解到一个字母的时候，加进去也超出宽度的情况，即一个字母也加不了，应直接换行
+            if (textInfo.chilePath.length === 1) {
+              accumulatorPathHeight = preAccumulatorPathHeight;
+              textInfo.chilePath = storeChild;
+              doBreak(index);
+              index--;
+              continue outerLoop; // 跳到外层的 for 循环的下一次迭代
+            }
             textInfo.chilePath.pop();
             lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
             lastPathHeight = lastPath.path.advanceWidth;
           }
           //   原本的path 拆分成2个
           const newFirstTextInfo = {
-            ...textInfo.chilePath[textInfo.chilePath.length - 1],
+            ...lastPath,
             type: pathPartType.en,
           };
           newFirstTextInfo.pathBoundingBox =
@@ -274,8 +282,7 @@ export function getVerticalTextPaths(
             path: newSecondTextInfoPath,
             type: pathPartType.en,
             pathBoundingBox: newSecondTextInfoBoundingBox,
-            height:
-              newSecondTextInfoBoundingBox.x2 - newSecondTextInfoBoundingBox.x1,
+            height: newSecondTextInfoPath.advanceWidth,
             chilePath: newChilePath,
           };
 

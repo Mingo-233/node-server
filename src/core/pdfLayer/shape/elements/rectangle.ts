@@ -59,11 +59,35 @@ export default class extends Node {
     return new this({ width, height, fill, stroke, strokeWidth, radius, uuid });
   }
 
+  // paint() {
+  //   const radius = (Math.min(this.width, this.height) / 2) * this.radius;
+  //   return `
+  //     <defs><clipPath id="clip-${this.uuid}"><rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}" /></clipPath></defs>
+  //     <rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt" />
+  //   `;
+  // }
   paint() {
     const radius = (Math.min(this.width, this.height) / 2) * this.radius;
+    // 当stroke-width很小的时候，mask会"吃掉"细小的边框。所以增加mask的padding来确保边框可见
+    if (this.strokeWidth < 1) {
+      const padding = 0.5;
+      const paddingFull = padding * 2;
+      return `
+    <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}">
+      <rect width="${this.width + paddingFull}" height="${
+        this.height + paddingFull
+      }" x="${-padding}" y="${-padding}"  />
+    </mask></defs>
+      <rect width="${this.width}" height="${
+        this.height
+      }" rx="${radius}" ry="${radius}"  
+      stroke-width="${this.strokeWidth}"  mask="url(#clip-${this.uuid})" 
+      stroke-linecap="butt" />
+  `;
+    }
     return `
-      <defs><clipPath id="clip-${this.uuid}"><rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}" /></clipPath></defs>
-      <rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt" />
+      <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}"><rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}"   /></mask></defs>
+      <rect width="${this.width}" height="${this.height}" rx="${radius}" ry="${radius}"  stroke-width="${this.strokeWidth}"  mask="url(#clip-${this.uuid})" stroke-linecap="butt" />
     `;
   }
 }

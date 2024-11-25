@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        body {
+            /* margin: 0; */
+            border: 1px solid black;
+        }
+
+        #preview {
+            /* position: absolute;
+        top: 100px;
+        right: 100px; */
+            /* margin: 30px 100px; */
+            margin-top: 300px;
+            border: 1px solid red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="preview">
+
+    </div>
+    <!-- <script src="https://opentype.js.org/dist/opentype.js"></script> -->
+    <script src="./opentype.js"></script>
+    <script src="https://unpkg.com/wawoff2@2.0.1/build/decompress_binding.js"></script>
+
+    <script>
+        function load() {
+            // const buffer = document.getElementById('myfile').files[0].arrayBuffer();
+
+            // const buffer = fetch("https://cdn.pacdora.com/font_v2/DM_Sans/DMSans-Bold.woff2").then((res) =>
+            // const buffer = fetch("https://cdn.pacdora.com/font_v2/Anton/Anton-Regular.woff2").then((res) =>
+            const buffer = fetch("https://cdn.pacdora.com/font_v2/Poppins/Poppins-Medium.woff2").then((res) =>
+
+                // const buffer = fetch("https://cdn.pacdora.com/font_v2/Pacifico/Pacifico-Regular.woff2").then((res) =>
+
+                res.arrayBuffer()
+            );
+            buffer.then((data) => {
+                const decompressed = Module.decompress(data);
+                const app = opentype.parse(decompressed);
+                console.log('app', app);
+                // let str = "abcdef"
+                let str = "ì ò ù ä ö"
+                console.log('unicode', str.codePointAt())
+                const result = app.charToGlyph(str)
+                console.log(result);
+                const path = app.getPath(str, 0, 0, 16);
+                const svgPath = path.toSVG(3)
+                const pathBoundingBox = path.getBoundingBox()
+                console.log(pathBoundingBox);
+                const viewBox = `${pathBoundingBox.x1} ${pathBoundingBox.y1} 100 100`
+                console.log(svgPath);
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+                svg.setAttribute('viewBox', viewBox)
+                svg.setAttribute('width', '100mm')
+                svg.setAttribute('height', '100mm')
+                svg.innerHTML = svgPath
+                document.getElementById('preview').appendChild(svg)
+                // const font = opentype.parse(data);
+
+
+            });
+        }
+        window.load = load;
+
+        setTimeout(() => {
+            load();
+        }, 1000);
+    </script>
+</body>
+
+</html>

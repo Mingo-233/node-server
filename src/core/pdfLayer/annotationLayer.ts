@@ -9,6 +9,7 @@ import type { IKnifeData } from "@/type/knifeData";
 import { IDrawingConfigPlus } from "@/type/pdfPage";
 import { DPI, PAGE_MARGIN, PAGE_MARK_MARGIN } from "@/utils/constant";
 import { fitColor } from "@/utils/color";
+import { $t } from "@/utils/i18n";
 
 export function drawAnnotateLabel(
   params: IAnnotationParams,
@@ -17,22 +18,22 @@ export function drawAnnotateLabel(
   const cellHeight = 30;
   const unit = params.unit;
   const textArray = [
-    "Inside dimensions",
+    $t("Inside dimensions"),
     `${params.insideSize.L}(L)x${params.insideSize.W}(W)x${params.insideSize.H}(H) ${unit}`,
-    "Outside dimensions",
+    $t("Outside dimensions"),
     `${params.outsideSize.L}(L)x${params.outsideSize.W}(W)x${params.outsideSize.H}(H) ${unit}`,
-    "Manufacture dimensions",
+    $t("Manufacture dimensions"),
     `${params.manufactureSize.L}(L)x${params.manufactureSize.W}(W)x${params.manufactureSize.H}(H) ${unit}`,
-    "Material",
+    $t("Material"),
     params.material,
-    "Thickness",
+    $t("Thickness"),
     `${params.thickness}${unit}`,
   ];
   const sizeLabelSvgString = createSvgTable(
     {
       rows: 5,
       cols: 2,
-      cellWidth: 220,
+      cellWidth: config.lang === "zh-cn" ? 240 : 220,
       cellHeight,
       textArray,
     },
@@ -44,12 +45,12 @@ export function drawAnnotateLabel(
     {
       rows: 2,
       cols: 2,
-      cellWidth: 150,
+      cellWidth: 160,
       cellHeight,
       textArray: [
-        "Design area",
+        $t("Design area"),
         `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
-        "Model ID",
+        $t("Model ID"),
         params.dielineID,
       ],
     },
@@ -62,7 +63,7 @@ export function drawAnnotateLabel(
       rows: 3,
       cellWidth: 100,
       cellHeight: 30,
-      textArray: ["BLEED", "TRIM", "CREASE"],
+      textArray: [$t("BLEED"), $t("TRIM"), $t("CREASE")],
       textColor: fitColor("#000000", config.colorMode),
     },
     {
@@ -197,8 +198,9 @@ export function drawFooterLabel(params, config: IDrawingConfigPlus) {
   const translateY = (rootSvgHeight + PAGE_MARGIN.top) * DPI;
   let svgString = createSvgElement(
     {
-      width: footerLabelWidth.toString(),
+      // width: footerLabelWidth.toString(),
       height: "50",
+      overflow: "visible",
       transform: `translate(${translateX},${translateY})`,
     },
     createElement(

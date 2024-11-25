@@ -1,12 +1,7 @@
 import { usePdfDoc } from "./core/pdfDoc/index";
-import {
-  prefixUrl,
-  clearCache,
-  generateCmykImg,
-  isBase64,
-} from "./utils/request";
+import { prefixUrl, clearCache } from "./utils/request";
 import { createPageApp } from "./core/pdfPage";
-import log, { enableDevMode, isDevMode } from "@/utils/log";
+import log, { enableDevMode, fsSaveFile, isDevMode } from "@/utils/log";
 import { assetsMap, cacheResource } from "@/utils/request";
 import type { ICreatePdfOptions } from "@/type/pdf";
 import {
@@ -15,14 +10,36 @@ import {
   TYPE_MARK,
 } from "@/nodes/layerNode";
 export * from "./index";
-
+import { generateCmykImg } from "./index";
+import { isBase64 } from "./utils/imgUtils";
 import { loadIccProfile } from "@/utils/color";
+import { setLang } from "./utils/i18n";
+
 /** 本地调试区域 ----- */
 import projectData from "./mock/info.json";
 import knifeData from "./mock/knife.json";
-// const projectData = require("./mock/tempInfo.json");
-// const knifeData = require("./mock/tempKnife.json");
+
+// import projectData from "./mock/tempInfo.json";
+// import knifeData from "./mock/tempKnife.json";
 mockRequest();
+async function mockRequest() {
+  enableDevMode();
+  const _colorMode: any = "RGB";
+  const result = await cacheResource(projectData, true);
+  if (_colorMode === "CMYK") {
+    await generateCmykImg(result);
+    // console.log("assetsMap", assetsMap);
+  }
+  await pdfMain(knifeData, projectData, {
+    isOnlyKnife: false,
+    colorMode: _colorMode,
+    filePath: "",
+    knifeColor: {},
+    lang: "en-us",
+    annotationUnit: "mm",
+    // filePath: outputPath,
+  });
+}
 
 /** 本地调试区域 ----- */
 
@@ -33,6 +50,7 @@ export async function pdfMain(
 ) {
   try {
     console.time("export task");
+    setLang(options.lang || "en-us");
     if (options.colorMode === "CMYK") {
       loadIccProfile();
     }
@@ -41,7 +59,11 @@ export async function pdfMain(
     };
     const pageApp = createPageApp(knifeData, _project, {
       unit: "mm",
-      ...options,
+      filePath: options.filePath,
+      isOnlyKnife: options.isOnlyKnife,
+      colorMode: options.colorMode,
+      knifeColor: options.knifeColor,
+      annotationUnit: options.annotationUnit || "mm",
     });
     log.info("log-", "registerFace start");
     pageApp.registerFace(knifeData, projectData);
@@ -52,6 +74,7 @@ export async function pdfMain(
       pageMarkerMargin: pageApp.pageMakerMargin,
       filePath: options.filePath,
       colorMode: options.colorMode,
+      lang: options.lang,
     });
 
     pdfDoc.pdfInit();
@@ -65,7 +88,11 @@ export async function pdfMain(
         let annotateSvg = page.face?.annotationLayer.getSvgString(pageApp);
         if (annotateSvg) {
           const recover = pdfDoc.SetPaintAnnotationLabelMargin();
-          pdfDoc.addSVG(annotateSvg);
+          pdfDoc.addSVG(annotateSvg, 0, 0, {
+            fontCallback: function () {
+              return options.lang === "zh-cn" ? "my-font" : "Helvetica";
+            },
+          });
           recover.call(pdfDoc.doc);
         }
         let designSvg = page.face?.designLayer.getSvgString(pageApp);
@@ -99,7 +126,11 @@ export async function pdfMain(
         let annotateSvg = page.face?.annotationLayer.getSvgString(pageApp);
         if (annotateSvg) {
           const recover = pdfDoc.SetPaintAnnotationLabelMargin();
-          pdfDoc.addSVG(annotateSvg);
+          pdfDoc.addSVG(annotateSvg, 0, 0, {
+            fontCallback: function () {
+              return options.lang === "zh-cn" ? "my-font" : "Helvetica";
+            },
+          });
           recover.call(pdfDoc.doc);
         }
         let knifeSvgArr = page.face?.knifeLayer.getSvgChildren();
@@ -120,6 +151,7 @@ export async function pdfMain(
     console.timeEnd("export task");
   } catch (error) {
     console.error("出现错误", error);
+    clearCache();
     throw error;
   }
 }
@@ -130,24 +162,6 @@ function imageCallbackFn(link, options) {
     // const { remoteUrl } = extractBase64(link);
     // link = remoteUrl;
   }
-  const _link = prefixUrl(link);
-  const imgUrl = assetsMap.get(_link);
+  const imgUrl = assetsMap.get(prefixUrl(link)) || link;
   return imgUrl;
-}
-async function mockRequest() {
-  enableDevMode();
-
-  const _colorMode: any = "CMYK";
-  const result = await cacheResource(projectData, true);
-  if (_colorMode === "CMYK") {
-    await generateCmykImg(result);
-    // console.log("assetsMap", assetsMap);
-  }
-  await pdfMain(knifeData, projectData, {
-    isOnlyKnife: false,
-    colorMode: _colorMode,
-    filePath: "",
-    knifeColor: {},
-    // filePath: outputPath,
-  });
 }

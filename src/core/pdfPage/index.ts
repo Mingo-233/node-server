@@ -14,6 +14,7 @@ import {
   TYPE_OUTSIDE_DESIGN,
 } from "@/nodes/layerNode";
 import { ICreatePageAppOptions } from "@/type/pdf";
+import { $t } from "@/utils/i18n";
 
 export function createPageApp(
   knifeData,
@@ -70,6 +71,7 @@ export function createPageApp(
     function _registerFaceItem(facePaper, params) {
       const { boardType } = params;
       const layerKnifeData = knifeData.layer[facePaper.name];
+      const layerProjectData = projectData.layer[facePaper.name];
       const _knifeData = {
         cuts: layerKnifeData?.cuts || [],
         holes: layerKnifeData?.holes || [],
@@ -80,23 +82,23 @@ export function createPageApp(
         totalY: layerKnifeData.totalY,
       };
       const _designData = {
-        list: projectData.layer[facePaper.name].design_list || [],
-        faceBackground: projectData.layer[facePaper.name].face_background || {},
-        background: projectData.layer[facePaper.name].background || null,
+        list: layerProjectData.design_list || [],
+        faceBackground: layerProjectData.face_background || {},
+        background: layerProjectData.background || null,
       };
       const _insideDesignData = {
         list: projectData.layer[facePaper.name].inside_design_list || [],
-        faceBackground:
-          projectData.layer[facePaper.name].inside_face_background || {},
-        background: projectData.layer[facePaper.name].inside_background || null,
+        faceBackground: layerProjectData.inside_face_background || {},
+        background: layerProjectData.inside_background || null,
       };
-
       const faceName =
-        facePaper.friendlyName_en || facePaper.friendlyName || "";
+        boardConfig.lang === "zh-cn"
+          ? facePaper.friendlyName
+          : facePaper.friendlyName_en || facePaper.friendlyName;
       // TODO: 临时解决中文字符无法显示的问题，后续需要开发中文字体支持
       const _faceName = faceName.replace(/（/g, "(").replace(/）/g, ")");
       let _annotateData: IAnnotationParams = {
-        unit: boardConfig.unit,
+        unit: boardConfig.annotationUnit,
         insideSize: {
           L: knifeData.size.L,
           W: knifeData.size.W,
@@ -112,8 +114,8 @@ export function createPageApp(
           W: knifeData.knifeSize.W,
           H: knifeData.knifeSize.H,
         },
-        material: knifeData.science.name,
-        thickness: layerKnifeData.thickness,
+        material: layerProjectData.science_name,
+        thickness: layerProjectData.thickness,
         dielineID: knifeData.cate_no,
         designArea: {
           width: layerKnifeData.totalX.toFixed(1),
@@ -150,7 +152,7 @@ export function createPageApp(
         );
         const _annotateDataOuter =
           facePaper.name === "traditional"
-            ? { ..._annotateData, faceName: "Outer" }
+            ? { ..._annotateData, faceName: $t("Outer") }
             : _annotateData;
         const face = createFace(facePaper.name, boardType, "outside");
         pagePush(_knifeData, _designData, _annotateDataOuter, face, pageType);
@@ -163,7 +165,7 @@ export function createPageApp(
         const face = createFace(facePaper.name, boardType, "inside");
         const _annotateDataInner =
           facePaper.name === "traditional"
-            ? { ..._annotateData, faceName: "Inner" }
+            ? { ..._annotateData, faceName: $t("Inner") }
             : _annotateData;
 
         pagePush(
@@ -202,7 +204,6 @@ export function createPageApp(
       page.face.drawAnnotate(annotateData, boardConfig);
     }
   }
-
   return { ...app, ...boardConfig, registerFace, paint };
 }
 

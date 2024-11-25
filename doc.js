@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const PDFDocument = require("pdfkit");
 const SVGtoPDF = require("./public/svg-to-pdfkit.js");
 
@@ -13,42 +14,39 @@ function pdf() {
     pdfVersion: "1.4",
   });
   // const randomName = Math.random().toString(36).substring(3);
+  const fontPath = path.join(__dirname, "assets/NotoSansCJK-Regular.ttf");
+  console.log("fontPath", fontPath);
+  doc.registerFont("my-font", fontPath, "my-font-regular");
+
   const outputName = `svg-pdf.pdf`;
   const writeStream = fs.createWriteStream(outputName);
 
   doc.pipe(writeStream);
 
-  const mockSvg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="30mm" height="30mm">
-        <svg xmlns="http://www.w3.org/2000/svg" data-uuid="b90b3af6-f0be-440f-9786-73756172ae29" stroke-dasharray="0"
-            stroke-dashoffset="0" stroke-width="4" fill="#17948d" stroke="#000000" viewBox="0 0 30 30"
-            style="width:30mm;height:30mm;">
-            <defs>
+  // const mockSvgImg = `
+  //   <svg xmlns="http://www.w3.org/2000/svg">
+  //       <style>
+  //           text {
+  //               fill: #ff0000;
+  //           }
+  //       </style>
+  //       <text x="25" y="15" fill="#0000ff" style="fill: #00ff00;" font-size="16">
+  //           Hello, out there
+  //       </text>
+  //   </svg>
+  // `;
+  const mockSvgImg = fs.readFileSync("./mocksvg.svg", "utf8");
+  // style="fill: rgba(81, 89, 54, 1);"></path>
 
-                <mask id="clip-b90b3af6-f0be-440f-9786-73756172ae29">
-                    <rect width="30" height="30" rx="12" ry="12" fill="#fff" />
-                </mask>
-            </defs>
-
-            <rect stroke-width="8" width="30" height="30" rx="12" ry="12"
-                mask="url(#clip-b90b3af6-f0be-440f-9786-73756172ae29)" stroke-linecap="butt" />
-
-        </svg>
-    </svg>
-  `;
-  // <rect stroke-width="8"  width="30" height="30" rx="12" ry="12"  mask="url(#clip-b90b3af6-f0be-440f-9786-73756172ae29)"
-
-  // clip-path="url(#clip-b90b3af6-f0be-440f-9786-73756172ae29)" stroke-linecap="butt" />
-
-  const mockSvgImg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="29.5234mm" height="29.5234mm" opacity="0.5">
-<image href="./output.png"  width="29.5234mm" height="29.5234mm" />
-    </svg>
-  `;
-
-  doc.addSVG(mockSvgImg, 0, 0, {
+  doc.addSVG(mockSvgImg, 100, 100, {
     colorMode: "RGB",
+    // fontCallback: function () {
+    //   // return "my-font";
+    //   return undefined;
+    // },
   });
+  // doc.font("my-font").text("This aaa is啊啊!").moveDown(0.5);
+  // doc.font("assets/NotoSansCJK-Regular.ttf").text("This is啊啊!").moveDown(0.5);
   // doc.fill([0, 0, 0, 100]).text("Here is some text...", 100, 300);
   // doc.image("./assets/output_alpha.jpg", 0, 0, {});
   doc.end();

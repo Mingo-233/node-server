@@ -33,8 +33,8 @@ export default class extends Node {
     const rx = this.width / 2;
     const ry = this.height / 2;
     return `
-    <defs><clipPath id="clip-${this.uuid}"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" /></clipPath></defs>
-    <ellipse clip-path="url(#clip-${this.uuid})" stroke-linecap="butt" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" />
+    <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" /></mask></defs>
+    <ellipse mask="url(#clip-${this.uuid})" stroke-width="${this.strokeWidth}" stroke-linecap="butt" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" />
     `;
   }
 }

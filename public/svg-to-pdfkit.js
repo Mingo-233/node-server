@@ -151,8 +151,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
     yellow: [255, 255, 0],
   };
   const NameCMYKColors = {
-    black: [[0, 0, 0, 0], 1],
-    white: [[0, 0, 0, 1], 1],
+    black: [[0, 0, 0, 100], 1],
+    white: [[0, 0, 0, 0], 1],
     transparent: [[0, 0, 0, 0], 0],
   };
   const NameRGBColors = {
@@ -2500,15 +2500,25 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       for (let i = 0; i < 3; i++) {
         switch (i) {
           case 0:
+            // 优先读行内样式
+            value = this.style[key];
+            break;
+          // if (key !== "transform") {
+          //   // the CSS transform behaves strangely
+          //   value = this.css[keyInfo.css || key];
+          // }
+          // break;
+          case 1:
+            // 再读class style样式
             if (key !== "transform") {
               // the CSS transform behaves strangely
               value = this.css[keyInfo.css || key];
             }
             break;
-          case 1:
-            value = this.style[key];
+            // value = this.style[key];
             break;
           case 2:
+            // 最后读属性样式
             value = this.attr(key);
             break;
         }
@@ -3025,8 +3035,13 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
       image = doc.openImage(link);
     } catch (e) {
       warningCallback(
-        'SVGElemImage: failed to open image "' + link + '" in PDFKit'
+        'SVGElemImage: failed to open image "' +
+          link.slice(0, 100) +
+          '" in PDFKit'
       );
+      // warningCallback(
+      //   'SVGElemImage: failed to open image "' + link + '" in PDFKit'
+      // );
     }
     if (image) {
       if (width === "auto" && height !== "auto") {

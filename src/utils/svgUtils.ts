@@ -47,6 +47,17 @@ function _dlist_to_d(dlist: any[], reverse?: boolean, width?: number) {
           reverse ? curWidth - item.x : item.x
         },${item.y + correctY} `;
         break;
+      case "C":
+        const cx = item.cx ?? 0;
+        const cy = item.cy ?? 0;
+        const cx1 = item.cx1 ?? 0;
+        const cy1 = item.cy1 ?? 0;
+        const x = item.x;
+        const y = item.y;
+        str += ` ${item.mtd}${reverse ? curWidth - cx : cx}, ${cy},${
+          reverse ? curWidth - cx1 : cx1
+        },${cy1},${reverse ? curWidth - x : x},${y}`;
+        break;
       case "Z":
         str += ` ${item.mtd} `;
         break;

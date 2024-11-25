@@ -13,6 +13,7 @@ interface ShapeOption {
   strokeWidth: number;
   strokeDashArray: number;
   radius: number;
+  maskFill: string;
 }
 
 interface ShapeEditOption {

@@ -22,8 +22,8 @@ import {
   drawLocalMarker,
   drawFooterLabel,
 } from "./annotationLayer";
-import log from "@/utils/log";
-import { isBase64 } from "@/utils/request";
+import log, { fsSaveFile } from "@/utils/log";
+import { isBase64 } from "@/utils/imgUtils";
 export function usePdfLayer() {
   let _pdfLayer: IPdfLayerMap = {
     "knife-layer": _createPdfLayer("knife-layer"),

@@ -20,21 +20,24 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
   const dom = document.createElement("div");
   dom.innerHTML = svgString;
   const svgDom = dom.querySelector("svg");
-  beautySvg(dom, window);
+  const classNameList = beautySvg(dom, window) || [];
   let styleDom = dom.querySelector("style");
   if (!styleDom) {
     styleDom = window.document.createElement("style");
   }
   let isInvalidFillsConfig = false;
-  for (let i = 0; i < fillsConfig.length; i++) {
-    const configItem: any = fillsConfig[i];
-    const { type, value, color } = configItem;
-
+  const _fillsConfig = filterFillsConfig(fillsConfig);
+  for (let i = 0; i < _fillsConfig.length; i++) {
+    const configItem: any = _fillsConfig[i];
+    const { type, value } = configItem;
+    let { color } = configItem;
     if (color === value && configItem.class === "globalFill") {
       isInvalidFillsConfig = true;
     }
+    if (color === "NONE" || color === "none") color = "rgba(0,0,0,0)";
+
     let renderColor = fitColor(color, options.colorMode);
-    if (renderColor === "NONE") renderColor = "rgba(0,0,0,0)";
+
     const eles: any = getSvg(svgDom, type, value);
     if (eles.length === 0) {
       // styleDom.innerHTML += `.pac-${configItem.class}{${type}:${color}}`;
@@ -59,16 +62,21 @@ export function getTransformSvg(svgString, fillsConfig = [], options) {
     svgDom.setAttribute("transform", options.transform);
   }
   let resultSvgString = dom.querySelector("svg")?.outerHTML ?? "";
+  resultSvgString = addUniqueClass(resultSvgString, classNameList);
+  return resultSvgString;
 
-  if (isInvalidFillsConfig) {
-    return resultSvgString;
-  } else {
-    // 在svg-to-pdfkit中 样式的优先级按出现的先后顺序决定，和浏览器中的权重规则不一样
-    return removeStyleTags(resultSvgString);
-  }
+  // if (isInvalidFillsConfig) {
+  //   return resultSvgString;
+  // } else {
+  //   // 在svg-to-pdfkit中 样式的优先级按出现的先后顺序决定，和浏览器中的权重规则不一样
+  //   return removeStyleTags(resultSvgString);
+
+  //   // 先把style标签里面所有颜色设置都添加到行内，然后把style标签里面的颜色设置都删除
+  //   return filterSvg(resultSvgString);
+  // }
 }
-
 function beautySvg(svgDom, win) {
+  const classNameSet = new Set();
   const styleDom = svgDom.querySelector("style");
   if (!styleDom) return;
   const tempStyle = win.document.createElement("style");
@@ -78,6 +86,10 @@ function beautySvg(svgDom, win) {
     const rules = sheet.cssRules;
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i];
+      const selectorTextArr = rule.selectorText.split(",");
+      selectorTextArr.forEach((selectorText) => {
+        classNameSet.add(selectorText.slice(1));
+      });
       const ruleDoms = svgDom.querySelectorAll(rule.selectorText);
       if (ruleDoms) {
         for (let k = 0; k < ruleDoms.length; k++) {
@@ -86,6 +98,61 @@ function beautySvg(svgDom, win) {
           });
         }
       }
+    }
+  }
+  return Array.from(classNameSet);
+}
+// 给svgString中的class添加唯一id，防止样式冲突
+function addUniqueClass(svgString, classNameList) {
+  const uniqueId = Math.random().toString(36).substring(2, 6);
+  // 创建一个 Map 来存储原始类名和新类名的映射
+  const classNameMap = new Map();
+
+  // 首先创建所有类名的映射
+  classNameList.forEach((className) => {
+    classNameMap.set(className, `${className}-${uniqueId}`);
+  });
+
+  // 只执行一次替换，使用映射表中的新类名
+  classNameMap.forEach((newClassName, originalClassName) => {
+    // 替换 class="className" 的情况
+    svgString = svgString.replace(
+      new RegExp(`class="${originalClassName}"`, "g"),
+      `class="${newClassName}"`
+    );
+
+    // 替换 CSS 选择器 .className 的情况
+    svgString = svgString.replace(
+      new RegExp(`\\.${originalClassName}(?![\\w-])`, "g"),
+      `.${newClassName}`
+    );
+  });
+  return svgString;
+}
+function beautySvgV2(svgDom, win) {
+  const styleDom = svgDom.querySelector("style");
+  if (!styleDom) return;
+  const tempStyle = win.document.createElement("style");
+  tempStyle.innerHTML = styleDom.innerHTML;
+
+  win.document.head.appendChild(tempStyle);
+  for (const sheet of win.document.styleSheets) {
+    const rules = sheet.cssRules;
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+      const selectorTextArr = rule.selectorText.split(",");
+      console.log("selectorTextArr", selectorTextArr);
+      selectorTextArr.forEach((selectorText) => {
+        const ruleDoms = svgDom.querySelectorAll(selectorText);
+        if (ruleDoms) {
+          for (let k = 0; k < ruleDoms.length; k++) {
+            ["fill", "stroke"].forEach((type) => {
+              const value = rule.style.getPropertyValue(type);
+              if (value && value.length > 3) ruleDoms[k].style[type] = value;
+            });
+          }
+        }
+      });
     }
   }
 }
@@ -103,7 +170,11 @@ function getSvg(dom, type, value) {
       continue;
     }
     const style = i.style;
-    if (colorEqual(style.getPropertyValue(type) ?? "", value)) {
+    if (
+      value !== "NONE" &&
+      value !== "none" &&
+      colorEqual(style.getPropertyValue(type) ?? "", value)
+    ) {
       result.push({ el: i, type: "style" });
     }
   }
@@ -172,15 +243,43 @@ function colorEqual(c1, c2) {
     c1Rgba.a === c2Rgba.a
   );
 }
+function filterSvg(input) {
+  return processSVG(input).replace("px", "");
+}
+function processSVG(svgString) {
+  // 步骤1: 提取<style></style>中的内容
+  const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/i;
+  const match = svgString.match(styleRegex);
+
+  if (match && match[1]) {
+    // 步骤2: 删除fill和stroke的赋值
+    let styleContent = match[1];
+    styleContent = styleContent.replace(/\bfill:\s*#[0-9A-Fa-f]+;\s*/g, "");
+    // url后面的内容都移除 fill:url(任何值)
+    styleContent = styleContent.replace(
+      /\bfill:\s*url\(\s*[\s\S]*?\);\s*/g,
+      ""
+    );
+    styleContent = styleContent.replace(/\bstroke:\s*#[0-9A-Fa-f]+;\s*/g, "");
+
+    // 步骤3: 将处理后的内容塞回原字符串
+    svgString = svgString.replace(styleRegex, `<style>${styleContent}</style>`);
+  }
+
+  return svgString;
+}
 function removeStyleTags(input) {
   return input.replace(/<style[\s\S]*?<\/style>/gi, "").replace("px", "");
 }
 
 function replaceHexColor(input) {
-  let svgString = input.replace(/#[0-9a-fA-F]{6}/g, (match) => {
-    let convertedColor = hexToCMYK(match);
-    return convertedColor;
-  });
+  let svgString = input.replace(
+    /(?<=(fill|stroke|stop-color)=["']|(?:fill|stroke|stop-color):\s*)\s*#[0-9a-fA-F]{3,6}/gi,
+    (match) => {
+      let convertedColor = hexToCMYK(match);
+      return convertedColor;
+    }
+  );
   return svgString;
 }
 
@@ -201,3 +300,7 @@ function pipe(...fns) {
 }
 
 export const svgCmykHandle = pipe(replaceHexColor, replaceRGBColor);
+
+function filterFillsConfig(fillsConfig) {
+  return fillsConfig.filter((vo) => !vo.color.startsWith("url"));
+}

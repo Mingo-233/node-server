@@ -100,12 +100,20 @@ export default class extends Node {
     ).replace("clip-", "");
     return new this({ width, height, fill, stroke, strokeWidth, radius, uuid });
   }
+  // protected paint(): string {
+  //   const path = this.getPath();
+  //   const rx = (this.radius * Math.min(this.width, this.height)) / 3;
+  //   return `
+  //     <defs><clipPath id="clip-${this.uuid}"><path data-radius="${this.radius}" d="${path}" rx="${rx}"></path></clipPath></defs>
+  //     <path data-radius="${this.radius}" rx="${rx}"  d="${path}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt"></path>
+  //   `;
+  // }
   protected paint(): string {
     const path = this.getPath();
     const rx = (this.radius * Math.min(this.width, this.height)) / 3;
     return `
-      <defs><clipPath id="clip-${this.uuid}"><path data-radius="${this.radius}" d="${path}" rx="${rx}"></path></clipPath></defs>
-      <path data-radius="${this.radius}" rx="${rx}"  d="${path}" clip-path="url(#clip-${this.uuid})" stroke-linecap="butt"></path>
+      <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}"><path data-radius="${this.radius}" d="${path}" rx="${rx}"></path></mask></defs>
+      <path data-radius="${this.radius}" rx="${rx}"  d="${path}" mask="url(#clip-${this.uuid})"  stroke-width="${this.strokeWidth}" stroke-linecap="butt"></path>
     `;
   }
 }

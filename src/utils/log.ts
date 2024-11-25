@@ -34,3 +34,11 @@ export let isDevMode = false;
 export function enableDevMode() {
   isDevMode = true;
 }
+export function fsSaveFile(context, name = "test.svg") {
+  const fs = require("fs");
+  const path = require("path");
+  const pwdPath = process.cwd();
+  const filePath = path.resolve(pwdPath, "./dist/output");
+  fs.writeFileSync(`${filePath}/${name}`, context);
+  console.log("file saved");
+}

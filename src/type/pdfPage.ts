@@ -23,7 +23,8 @@ interface IFaceData {
 export type IPdfPages = IFace[];
 
 export type IColorMode = "RGB" | "CMYK";
-export type IUnit = "mm" | "inch";
+export type IUnit = "mm";
+export type IAnnotationUnit = "mm" | "in";
 export interface IDrawingBoardConfig {
   pageSize: {
     width: number;
@@ -52,6 +53,7 @@ export interface IDrawingBoardConfig {
     fold: string;
     cut: string;
   };
+  annotationUnit: IAnnotationUnit;
 }
 export type IDrawingConfigPlus = IDrawingBoardConfig & Record<string, any>;
 

@@ -6,9 +6,8 @@ import {
 } from "@/nodes/index";
 import {
   assetsMap,
-  convertToPng,
   fetchAssets,
-  isSvgUrl,
+  getCacheDir,
   prefixUrl,
 } from "@/utils/request";
 import { getTransformSvg, svgCmykHandle } from "@/utils/svgImgUtils";
@@ -28,6 +27,12 @@ import {
   isCharSupported,
 } from "@/core/fontPaint/index";
 import { fitColor } from "@/utils/color";
+import { fsSaveFile } from "@/utils/log";
+import { isSvgUrl, processSvgIncludeBase64 } from "@/utils/imgUtils";
+import {
+  isCharSupportedAll,
+  unconventionalFontHandle,
+} from "../fontPaint/utils";
 export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   const { style } = designItem;
   // 如果是group 类型，外层容器就移动了出血线的距离，内部不用额外移动这部分距离
@@ -54,23 +59,16 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
     _flip = `scale(1,-1) translate(0,${-style.height * DPI})`;
   }
   if (isSvgUrl(designItem.src)) {
-    const svgString = (await fetchAssets(designItem.src)) as string;
-    //  过于复杂的svg转成png图片处理
-    if (svgString.includes("<image")) {
-      const inputFileUrl = assetsMap.get(prefixUrl(designItem.src));
-      const localFileUrl = await convertToPng(inputFileUrl, {
-        width: style.width,
-        height: style.height,
-      });
-      // 更新记录的资源地址
-      const newSrc = prefixUrl(designItem.src).replace(/\.svg$/, ".png");
-      assetsMap.set(newSrc, localFileUrl);
-      designItem.src = newSrc;
-      designItem.bg = {
-        width: style.width,
-        height: style.height,
-      };
-      return drawImgElement(designItem, config);
+    let svgString = (await fetchAssets(designItem.src)) as string;
+    if (svgString.includes("<image") && config.colorMode === "CMYK") {
+      const url = prefixUrl(designItem.src);
+      const localFile = assetsMap.get(url);
+      const filename = designItem.src.split("/").pop();
+      const hashName = filename.split(".")[0];
+      const cacheDir = getCacheDir();
+      const outputContent =
+        (await processSvgIncludeBase64(localFile, cacheDir, hashName)) || "";
+      svgString = outputContent;
     }
     let transformSvg = getTransformSvg(svgString, designItem.fills, {
       colorMode: config.colorMode,
@@ -100,6 +98,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
   } else {
     let _imgSrc = designItem.src;
     let maskDefs = "";
+    const imageMaskId = `imageMask-${Math.random().toString(36).substring(8)}`;
     // cmyk模式下 png被拆分转化了
     if (config.colorMode === "CMYK" && _imgSrc.includes(".png")) {
       const alphaRemoteUrl = _imgSrc.replace(".png", "_alpha.jpg");
@@ -108,7 +107,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         {},
         createElement(
           "mask",
-          { id: "imageMask" },
+          { id: imageMaskId },
           createElement("image", {
             href: alphaRemoteUrl,
             width: designItem.bg.width + config.unit,
@@ -132,7 +131,7 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
         transform: `${_flip ? _flip : ""} translate(${designItem.bg.x * DPI},${
           designItem.bg.y * DPI
         })`,
-        mask: maskDefs ? "url(#imageMask)" : "",
+        mask: maskDefs ? `url(#${imageMaskId})` : "",
       }),
     ];
     if (maskDefs) imageChild.unshift(maskDefs);
@@ -172,6 +171,7 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
       radius: style.radius ?? 0,
       fill: fitColor(style.color, config.colorMode) ?? "none",
       stroke: fitColor(style.stroke, config.colorMode),
+      maskFill: fitColor("#ffffff", config.colorMode),
       strokeWidth: style.strokeWidth ?? 0,
       strokeDashArray: style.strokeDashArray ?? 0,
     }) || "";
@@ -366,8 +366,13 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     data.byteOffset,
     data.byteOffset + data.byteLength
   );
-  let fontApp = opentype.parse(arrayBuffer);
 
+  let fontApp = opentype.parse(arrayBuffer);
+  if (!isCharSupportedAll(fontApp, designItem.value)) {
+    // 编辑器选中的字体有不支持的字符 情况
+    let unconventionalFont = await unconventionalFontHandle(designItem.value);
+    if (unconventionalFont) fontApp = unconventionalFont;
+  }
   // 主字体文件是否支持中文
   //TODO: 当前判断条件是字体文件的字形数量是否大于5000 ，待完善
   let isSupCnMainFontApp = fontApp.glyphs?.length > 5000;
@@ -428,12 +433,3 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   };
   return context;
 }
-
-// function fsSaveFile(context, name = "test.svg") {
-//   const fs = require("fs");
-//   const path = require("path");
-//   const pwdPath = process.cwd();
-//   const filePath = path.resolve(pwdPath, "./dist/output");
-//   fs.writeFileSync(`${filePath}/${name}`, context);
-//   console.log("file saved");
-// }

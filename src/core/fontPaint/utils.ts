@@ -1,5 +1,5 @@
 import opentype from "opentype.js";
-import { fetchAssets } from "@/utils/request";
+import { defaultFont, fetchAssets } from "@/utils/request";
 import { IPathPart } from "@/type/parse";
 export function createWordPathContext() {
   const context = {
@@ -41,6 +41,40 @@ export function createWordPathContext() {
   };
   return context;
 }
+const langRegex = {
+  Russian: /[\u0400-\u04FF]/, //俄罗斯字符
+  Arabic: /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/, //阿拉伯字符
+  // Spanish: /[a-zA-ZñÑáéíóúüÁÉÍÓÚÜ]/,
+  Thai: /[\u0E00-\u0E7F]/, //泰语
+  Greek: /[\u0370-\u03FF]/, //希腊
+  Tamil: /[\u0B80-\u0BFF]/, //泰米尔语
+  Telugu: /[\u0C00-\u0C7F]/, //泰卢固语
+  Kannada: /[\u0C80-\u0CFF]/, //卡纳达语
+  Hindi: /[\u0900-\u097F]/, //印地语
+  Bengali: /[\u0980-\u09FF]/, //孟加拉语
+};
+// 非 常规字体处理
+export async function unconventionalFontHandle(char) {
+  let result: any = null;
+  const keys = Object.keys(langRegex) as (keyof typeof langRegex)[];
+  for (let i = 0; i < keys.length; i++) {
+    const keyName = keys[i];
+    if (isMatchLangChar(char, keyName)) {
+      console.log("match char", keyName);
+      // @ts-ignore
+      result = await getDefaultFontApp(keyName);
+
+      break;
+    }
+  }
+  return result;
+}
+export function isMatchLangChar(char, langKey: keyof typeof langRegex) {
+  const regexRule = langRegex[langKey];
+  if (!regexRule) return null;
+  return regexRule.test(char);
+}
+
 //   截止判断
 export function isEnd(char) {
   // 1. 遇到中文
@@ -50,12 +84,13 @@ export function isEnd(char) {
   if (char === "\n" || char === "\r") return true;
 }
 // [\u4e00-\u9fff]：匹配中文汉字。
-// [\u0800-\u4e00]：匹配日文汉字。
+// [\u3040-\u30ff]：匹配日文
 // [\uac00-\ud7ff]：匹配韩文汉字。
 // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
 // [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
 const symbolCharRule =
-  /[\u4e00-\u9fff\u0800-\u4e00\uac00-\ud7ff\u3000-\u303f\uff00-\uffef]/;
+  /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7ff\u3000-\u303f\uff00-\uffef]/;
+
 export function isSymbolChar(char) {
   return symbolCharRule.test(char);
 }
@@ -63,9 +98,21 @@ export function matchSymbol(char) {
   return char.match(symbolCharRule);
 }
 // 检查该字体文件是否支持当前字符
-export function isCharSupported(font, chineseChar) {
-  const glyph = font.charToGlyph(chineseChar);
-  return glyph.unicode !== undefined;
+export function isCharSupported(font, char) {
+  const glyph = font.charToGlyph(char);
+  return glyph?.unicode !== undefined && glyph.name !== ".notdef";
+}
+export function isCharSupportedAll(font, str) {
+  const chars = str.replaceAll(/[\n\r]/g, "").split("");
+  for (let i = 0; i < chars.length; i++) {
+    const char = chars[i];
+    if (!char) continue;
+    if (!isCharSupported(font, char)) {
+      console.log("unsupported char", char);
+      return false;
+    }
+  }
+  return true;
 }
 
 export function isSpace(char) {
@@ -96,25 +143,21 @@ export function computedFontLineHeight(option) {
   const lineHeightBase = ascentRatio * fontSize;
   const lineHeightResult = lineHeightBase * lineHeightRatio;
 
-  const r =
-    fontFamilyLineSpaceRatio[fontName] || fontFamilyLineSpaceRatio.default;
   // 基线位置比例
   const baseLineRatio = ascent / (ascent + Math.abs(descent));
 
   const ascentRatioV2 = ascent / Math.abs(descent);
 
-  const lineHeightTop = (lineHeight - fontSize) * r;
-
   return {
     lineHeight: lineHeightResult,
-    lineHeightTop: lineHeightTop,
     baseLineRatio: baseLineRatio,
     ascentRatioV2,
   };
 }
 
-export async function getDefaultFontApp() {
-  const defaultFontURL = "https://cdn.pacdora.com/font/NotoSansCJK-Regular.ttf";
+export async function getDefaultFontApp(fontName?: keyof typeof defaultFont) {
+  const defaultFontURL =
+    fontName && defaultFont[fontName] ? defaultFont[fontName] : defaultFont.CJK;
   const data: any = await fetchAssets(defaultFontURL);
   const arrayBuffer = data.buffer.slice(
     data.byteOffset,
@@ -132,8 +175,17 @@ export const pathPartType = {
 export function identifyNext(fontApp, char, index, textInfoArr, config) {
   let nextText = textInfoArr[index + 1];
   let path: any = null;
-  const chilePath: any = [];
+  const chilePath: any = [
+    {
+      text: char,
+      path: getPath(fontApp, char, config.fontSize),
+    },
+  ];
   while (!isEnd(nextText)) {
+    // child太长 占用太多内存资源
+    const max = config.isVertical ? config.MaxHeight : config.MaxWidth;
+    let limit = max * 1.2;
+    if (path?.advanceWidth > limit) break;
     index++;
     char = `${char}${nextText}`;
     nextText = textInfoArr[index + 1];
@@ -145,10 +197,10 @@ export function identifyNext(fontApp, char, index, textInfoArr, config) {
       });
     }
   }
-  if (isEnglish(char)) {
+  if (char && !path) {
     path = getPath(fontApp, char, config.fontSize);
   }
-  const pathBoundingBox = path?.getBoundingBox() || { x1: 0, x2: 0 };
+  const pathBoundingBox = path?.getBoundingBox() || { x1: 0, y1: 0 };
   return {
     lastIndex: index,
     path: path,
@@ -203,5 +255,10 @@ export function computedPathTransform(textAlign, Max, maxContent, isVer?) {
 }
 
 export function isBreakChar(char) {
-  return char === "\n" || char === "\r";
+  // return char === "\n" || char === "\r";
+  return char === "\n";
+}
+// （carriage return，回车） 光标移动到当前行的开头，但不换到下一行。
+export function isReturnChar(char) {
+  return char === "\r";
 }

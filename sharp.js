@@ -106,6 +106,32 @@ async function splitPng() {
     })
     .catch((err) => console.error("读取PNG图像出错：", err));
 }
+async function convertToCMYK(inputPath, outputPath) {
+  try {
+    await sharp(inputPath)
+      // 嵌入输入ICC配置文件（如果输入是RGB）
+      .withMetadata({
+        icc: "sRGB2014.icc", // 例如：sRGB.icc
+      })
+      // 应用CMYK ICC配置文件进行转换
+      .toColorspace("cmyk")
+      .withMetadata({
+        icc: "cmyk-adobe-japan-2001-coated.icc", // 例如：USWebCoatedSWOP.icc
+        intent: "absolute",
+      })
+      // 输出为JPEG（CMYK通常使用JPEG格式）
+      // .jpeg({
+      //   quality: 100,
+      //   chromaSubsampling: "4:4:4", // 保持最高色彩质量
+      // })
+      .negate()
+      .toFile(outputPath);
+
+    console.log("转换完成");
+  } catch (error) {
+    console.error("转换失败:", error);
+  }
+}
 // downloadImage(
 //   "https://cdn.pacdora.com/user-materials-mockup_mockup/2ea63256-7f7f-40dd-983c-1f9cdd5e61fa.svg",
 //   "svgExample.svg"
@@ -128,7 +154,8 @@ const mockSvg = `
             clip-path="url(#clip-b90b3af6-f0be-440f-9786-73756172ae29-76)" stroke-linecap="butt"></rect>
 
     </svg>`;
-convertToPng(mockSvg, {
-  width: 29.5234,
-  height: 29.5234,
-});
+// convertToPng(mockSvg, {
+//   width: 29.5234,
+//   height: 29.5234,
+// });
+convertToCMYK("input_rgb.jpg", "output.jpg");

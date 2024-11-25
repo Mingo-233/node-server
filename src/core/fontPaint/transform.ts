@@ -40,6 +40,6 @@ export function transformText(
     DPI: DPI,
     renderColor: renderColor,
     unit: params.unit,
-    topTranslateLen,
+    topTranslateLen: topTranslateLen < 0 ? 0 : topTranslateLen,
   };
 }

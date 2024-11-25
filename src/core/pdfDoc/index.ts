@@ -4,14 +4,23 @@ import PDFDocument from "pdfkit";
 import SVGtoPDF from "../../../public/svg-to-pdfkit.js";
 import fs from "fs";
 import { PDFLayoutDPI, PAGE_MARGIN } from "@/utils/constant";
+import { setLang } from "@/utils/i18n.js";
+import path from "path";
 export function usePdfDoc(options) {
   const { pageSize, pageMargin, pageMarkerMargin, filePath, colorMode } =
     options;
   let doc = createPdfDocument(pageSize.width, pageSize.height);
+  if (options?.lang === "zh-cn") {
+    registerFont();
+  }
 
   function createPdfDocument(sizeWidth: number, sizeHeight: number) {
     const docInstance = new PDFDocument({
       size: [sizeWidth, sizeHeight],
+      info: {
+        Producer: "Pacdora",
+        Creator: "Pacdora",
+      },
     });
     return docInstance;
   }
@@ -63,6 +72,11 @@ export function usePdfDoc(options) {
   }
   function gotoPage(page: number) {
     doc.switchToPage(page);
+  }
+  function registerFont(fontFileName: string = "NotoSansCJK-Regular.ttf") {
+    const cacheRootDir = path.resolve(__dirname, `../../../../../cache`);
+    const fontPath = path.join(cacheRootDir, fontFileName);
+    doc.registerFont("my-font", fontPath, "my-font-regular");
   }
   function init() {
     _onCreated();

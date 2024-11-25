@@ -5,13 +5,19 @@ import {
   PAGE_MARK_MARGIN,
   MIN_TOTAL_WIDTH,
 } from "@/utils/constant";
-import { IDrawingBoardConfig, IUnit, IColorMode } from "@/type/pdfPage";
+import { ICreatePageAppOptions } from "@/type/pdf";
+import {
+  IDrawingBoardConfig,
+  IUnit,
+  IColorMode,
+  IAnnotationUnit,
+} from "@/type/pdfPage";
 // export type IDrawingBoardConfig = ReturnType<typeof getDrawingBoardConfig>;
 export function getDrawingBoardConfig(
   knifeData: any,
   projectData,
-  params: { unit: IUnit; colorMode: IColorMode; knifeColor: any }
-): IDrawingBoardConfig {
+  params: ICreatePageAppOptions
+): IDrawingBoardConfig & ICreatePageAppOptions {
   // 原先pdf导出项目中就这样设定的
   const strokeWidth = 0.2;
   const PAGE_MARGIN_TOP = PDFLayoutDPI * PAGE_MARGIN.top;

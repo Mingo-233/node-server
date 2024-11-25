@@ -1,3 +1,5 @@
+import { IAnnotationUnit } from "./pdfPage";
+
 export interface IPdfLayerMap {
   "knife-layer": knifeLayer;
   "design-layer": designLayer;
@@ -35,7 +37,7 @@ export interface IPdfLayer {
 }
 
 export interface IAnnotationParams {
-  unit: "mm" | "inch";
+  unit: IAnnotationUnit;
   insideSize: {
     //size
     L: number;

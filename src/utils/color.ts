@@ -20,8 +20,15 @@ export async function loadIccProfile() {
 }
 export function hexToCMYK(hex) {
   // 去掉 '#' 符号
-  hex = hex.replace(/^#/, "");
+  hex = hex.trim().replace(/^#/, "");
   // 将十六进制转换为 RGB
+
+  if (hex.length === 3) {
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
 
   let r = parseInt(hex.substring(0, 2), 16);
   let g = parseInt(hex.substring(2, 4), 16);

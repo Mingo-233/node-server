@@ -9,6 +9,7 @@ import {
   identifyNext,
   genChildPath,
   isBreakChar,
+  isReturnChar,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -26,9 +27,9 @@ export function parseTextV2(
   };
   let hasSymbolChar = false;
   // 文字间隙 在浏览器环境中默认值为normal
-  // const letterSpace = 0;
-  const letterSpace = config.fontSize * 0.1;
-  const { lineHeight, lineHeightTop, ascentRatioV2 } = computedFontLineHeight({
+  const letterSpace = 0;
+  // const letterSpace = config.fontSize * 0.1;
+  const { lineHeight, ascentRatioV2 } = computedFontLineHeight({
     unitsPerEm: config.fontOption.unitsPerEm,
     ascent: config.fontOption.ascent,
     fontSize: config.fontSize,
@@ -71,8 +72,6 @@ export function parseTextV2(
       }
       const translateX = colAccumulatorWidth;
 
-      // const translateX = MAX_WIDTH - maxItemWidth * currentLine - lineHeightTop;
-
       const translateY = config.textLineHeight * (currentLine - 1);
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
@@ -83,14 +82,13 @@ export function parseTextV2(
         maxContentWidthArr[currentLine - 1]
       );
       context.addAlignTransform(alignTransform);
-
-      colAccumulatorWidth = colAccumulatorWidth + maxItemWidth + letterSpace;
+      const itemAdvanceWidth = textInfo.path.advanceWidth;
+      colAccumulatorWidth =
+        colAccumulatorWidth + itemAdvanceWidth + letterSpace;
       lastTextType = pathPartType.zh;
     } else {
       const translateX = colAccumulatorWidth;
-      const translateY =
-        // config.textLineHeight * (currentLine - 1) + lineHeightTop;
-        config.textLineHeight * (currentLine - 1);
+      const translateY = config.textLineHeight * (currentLine - 1);
 
       const transform = `translate(${translateX},${translateY}) `;
       context.addTransform(transform);
@@ -120,15 +118,17 @@ export function parseTextV2(
     let maxItemHeight = 0;
     // 已经识别的索引
     let identifiedIndex = -9999;
-    let lastTextItem = "";
+    let startsWithSpace: number | boolean = 0;
     for (let i = 0; i < textArr.length; i++) {
       if (i <= identifiedIndex) {
         continue;
       }
-      const textItem = textArr[i];
+      let textItem = textArr[i];
+      if (isReturnChar(textItem)) {
+        continue;
+      }
+
       if (isBreakChar(textItem)) {
-        // 若连续换行符号，实际只换行一次
-        if (isBreakChar(lastTextItem)) continue;
         textInfoArr.push({
           path: null,
           pathBoundingBox: null,
@@ -136,7 +136,6 @@ export function parseTextV2(
           isBreak: true,
           type: pathPartType.zh,
         });
-        lastTextItem = textItem;
         continue;
       }
 
@@ -147,7 +146,7 @@ export function parseTextV2(
           : defaultFontApp;
         const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
-        const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
+        const currentPathWidth = path.advanceWidth;
         if (currentPathWidth > maxItemWidth) {
           maxItemWidth = currentPathWidth;
         }
@@ -162,11 +161,17 @@ export function parseTextV2(
           pathBoundingBox,
           text: textItem,
           isBreak: false,
+          width: currentPathWidth,
           type: pathPartType.zh,
         });
         if (i === 0) {
-          position.x1 = pathBoundingBox.x1;
+          let spaceX = 0;
+          if (typeof startsWithSpace === "number" && startsWithSpace > 0) {
+            spaceX = (startsWithSpace * currentPathWidth) / 4;
+          }
+          position.x1 = pathBoundingBox.x1 + spaceX;
           position.y1 = pathBoundingBox.y1;
+          startsWithSpace = false;
         }
       } else if (isSpace(textItem)) {
         textInfoArr.push({
@@ -176,13 +181,22 @@ export function parseTextV2(
           isBreak: false,
           type: pathPartType.space,
         });
+        if (typeof startsWithSpace === "number") {
+          startsWithSpace++;
+        }
       } else {
+        let spaceX = 0;
+        // 如果前面有空格，则需要补上空格
+        if (typeof startsWithSpace === "number" && startsWithSpace > 0) {
+          let path = getPath(fontApp, " ", config.fontSize);
+          spaceX = (path.advanceWidth / 4) * startsWithSpace;
+        }
+
         const result = identifyNext(fontApp, textItem, i, textArr, config);
         if (!result.path) continue;
         identifiedIndex = result.lastIndex;
         // 因为英文要旋转过来，所以它的宽度就是高度
-        const currentPathWidth =
-          result.pathBoundingBox.x2 - result.pathBoundingBox.x1;
+        const currentPathWidth = result.path.advanceWidth;
 
         textInfoArr.push({
           path: result.path,
@@ -193,15 +207,15 @@ export function parseTextV2(
           width: currentPathWidth,
           chilePath: result.chilePath,
         });
-        if (i === 0) {
-          position.x1 = result.pathBoundingBox.x1;
+
+        if (i === 0 || startsWithSpace) {
+          position.x1 = result.pathBoundingBox.x1 - spaceX;
           position.y1 = result.pathBoundingBox.y1;
+          startsWithSpace = false;
         }
       }
-      lastTextItem = textItem;
     }
     const line = computedLine(textInfoArr, maxItemWidth);
-
     return { textInfoArr, maxItemWidth, maxItemHeight, line };
   }
   function computedLine(textInfoArr, width) {
@@ -210,13 +224,15 @@ export function parseTextV2(
     let breakLineIndex: number[] = [];
     let maxContentWidthArr: number[] = [];
     let accumulatorPathWidth = 0;
-    for (let index = 0; index < textInfoArr.length; index++) {
+    // 标签
+    outerLoop: for (let index = 0; index < textInfoArr.length; index++) {
       const textInfo = textInfoArr[index];
       if (textInfo.isBreak) {
         doBreak(index);
         continue;
       }
-      const _width = textInfo.width || width;
+      // const _width = textInfo.width || width;
+      const _width = textInfo.path?.advanceWidth || width;
 
       if (textInfo.type === pathPartType.space) {
         accumulatorPathWidth = accumulatorPathWidth + width / 4;
@@ -229,20 +245,29 @@ export function parseTextV2(
       if (accumulatorPathWidth > MAX_WIDTH) {
         if (textInfo.chilePath?.length) {
           let preAccumulatorPathWidth = accumulatorPathWidth - _width;
+          let storeChild = textInfo.chilePath;
           let lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
           let lastPathWidth = lastPath.path.advanceWidth;
           // 从children找到能刚好能排列下的子路径
           while (
             preAccumulatorPathWidth + lastPathWidth > MAX_WIDTH &&
-            textInfo.chilePath.length > 1
+            textInfo.chilePath.length >= 1
           ) {
+            // 英文字符拆解到一个字母的时候，加进去也超出宽度的情况，即一个字母也加不了，应直接换行
+            if (textInfo.chilePath.length === 1) {
+              accumulatorPathWidth = preAccumulatorPathWidth;
+              textInfo.chilePath = storeChild;
+              doBreak(index);
+              index--;
+              continue outerLoop; // 跳到外层的 for 循环的下一次迭代
+            }
             textInfo.chilePath.pop();
             lastPath = textInfo.chilePath[textInfo.chilePath.length - 1];
             lastPathWidth = lastPath.path.advanceWidth;
           }
           //   原本的path 拆分成2个
           const newFirstTextInfo = {
-            ...textInfo.chilePath[textInfo.chilePath.length - 1],
+            ...lastPath,
             type: pathPartType.en,
           };
           newFirstTextInfo.pathBoundingBox =
@@ -263,8 +288,7 @@ export function parseTextV2(
             path: newSecondTextInfoPath,
             type: pathPartType.en,
             pathBoundingBox: newSecondTextInfoBoundingBox,
-            width:
-              newSecondTextInfoBoundingBox.x2 - newSecondTextInfoBoundingBox.x1,
+            width: newSecondTextInfoPath.advanceWidth,
             chilePath: newChilePath,
           };
 
