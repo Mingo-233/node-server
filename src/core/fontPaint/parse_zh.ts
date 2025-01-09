@@ -10,6 +10,9 @@ import {
   genChildPath,
   isBreakChar,
   isReturnChar,
+  isCharSupported,
+  isExcludeSymbolChar,
+  isSpecialSymbolChar,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -26,20 +29,16 @@ export function getVerticalTextPaths(
     y2: 0,
   };
 
-  // 文字间隙 在浏览器环境中默认值为normal
-  const { lineHeight, baseLineRatio, ascentRatioV2 } = computedFontLineHeight({
-    unitsPerEm: config.fontOption.unitsPerEm,
-    ascent: config.fontOption.ascent,
-    fontSize: config.fontSize,
-    lineHeight: config.textLineHeight,
-    descent: config.fontOption.descent,
-    fontName: config.fontOption.fontName,
-  });
-  const baseLineHeight = lineHeight * baseLineRatio;
+  // const { lineHeight, baseLineRatio, ascentRatioV2 } = computedFontLineHeight({
+  //   unitsPerEm: config.fontOption.unitsPerEm,
+  //   ascent: config.fontOption.ascent,
+  //   fontSize: config.fontSize,
+  //   lineHeight: config.textLineHeight,
+  //   descent: config.fontOption.descent,
+  //   fontName: config.fontOption.fontName,
+  // });
   const isVertical = !!config.vertical;
-  const letterSpace = isVertical
-    ? config.fontSize * 0.05
-    : config.fontSize * 0.1;
+  const letterSpace = config.fontSize * 0.1;
 
   //   编辑器中的选框大小
   const MAX_WIDTH = config.MaxWidth;
@@ -49,6 +48,9 @@ export function getVerticalTextPaths(
     fontApp,
     config
   );
+  const marginLeft = (config.textLineHeight - maxItemWidth) * 0.75;
+  // const marginRight = (config.textLineHeight - maxItemWidth) * 0.25;
+
   const { lineNum, breakLineIndex, maxContentHeightArr } = line;
   let currentLine = 1;
   let colAccumulatorHeight = 0;
@@ -68,19 +70,16 @@ export function getVerticalTextPaths(
     }
     if (!textInfo.path) return;
     context.addPath(textInfo.path);
-    let translateX;
-    // 如果是第一列,移动一个基线位置的距离即可
-    if (currentLine === 1) {
-      translateX = MAX_WIDTH - baseLineHeight;
-    } else {
-      translateX =
-        MAX_WIDTH - baseLineHeight - config.textLineHeight * (currentLine - 1);
-    }
+    let translateX =
+      MAX_WIDTH + marginLeft - config.textLineHeight * currentLine;
     //当前这列上这个字是第几个,计算垂直方向偏移量
-    const translateY = isFirstWord
-      ? colAccumulatorHeight
-      : colAccumulatorHeight + letterSpace;
-    if (textInfo.type === pathPartType.zh) {
+    if (
+      !isExcludeSymbolChar(textInfo.text) &&
+      textInfo.type === pathPartType.zh
+    ) {
+      const translateY = isFirstWord
+        ? colAccumulatorHeight
+        : colAccumulatorHeight + letterSpace;
       const transform = `translate(${translateX},${translateY})`;
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
@@ -90,14 +89,25 @@ export function getVerticalTextPaths(
         "ver"
       );
       context.addAlignTransform(alignTransform);
+      let _textInfoHeight = textInfo.height || maxItemHeight;
+      if (isSpecialSymbolChar(textInfo.text)) {
+        _textInfoHeight = maxItemHeight;
+      }
       const selfHeight = isFirstWord
-        ? maxItemHeight
-        : maxItemHeight + letterSpace;
+        ? _textInfoHeight
+        : _textInfoHeight + letterSpace;
       colAccumulatorHeight = colAccumulatorHeight + selfHeight;
       isFirstWord = false;
     } else {
+      const translateY = colAccumulatorHeight;
+      let selfPathHeight: any = textInfo.height;
+      if (!selfPathHeight) {
+        selfPathHeight = textInfo.path.advanceWidth;
+      }
       // 先平移到目标位置 然后绕svg左上角圆点旋转90度，然后再平移修复旋转移动的距离
-      const transform = `translate(${translateX},${translateY}) rotate(90,${position.x1},${position.y1}) translate(0,-${maxItemWidth})`;
+      const transform = `translate(${translateX},${translateY})
+      rotate(90,${position.x1},${position.y1}) translate(${letterSpace},-${maxItemHeight})`;
+
       context.addTransform(transform);
       const alignTransform = computedPathTransform(
         config.textAlign,
@@ -107,10 +117,6 @@ export function getVerticalTextPaths(
       );
       context.addAlignTransform(alignTransform);
 
-      let selfPathHeight: any = textInfo.height;
-      if (!selfPathHeight) {
-        selfPathHeight = textInfo.path.advanceWidth;
-      }
       const selfHeight = isFirstWord
         ? selfPathHeight
         : selfPathHeight + letterSpace;
@@ -147,14 +153,13 @@ export function getVerticalTextPaths(
         });
         continue;
       }
+      const isSup = isCharSupported(fontApp, textItem);
 
-      if (isSymbolChar(textItem)) {
-        const app = config.fontOption.isSupCnMainFontApp
-          ? fontApp
-          : defaultFontApp;
+      if (isSymbolChar(textItem) || !isSup) {
+        const app = isSup ? fontApp : defaultFontApp;
         const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
-        const currentPathWidth = pathBoundingBox.x2 - pathBoundingBox.x1;
+        const currentPathWidth = path.advanceWidth;
         if (currentPathWidth > maxItemWidth) {
           maxItemWidth = currentPathWidth;
         }
@@ -169,10 +174,10 @@ export function getVerticalTextPaths(
           text: textItem,
           isBreak: false,
           type: pathPartType.zh,
+          height: isExcludeSymbolChar(textItem) ? 0 : currentPathHeight,
         });
-        // 如果先解析英文，英文的高度是低于中文字符的。放一起显示viewbox就会有问题
-        // 所以当前优先使用汉字的位置
-        if (i === 0 || position.y1 > pathBoundingBox.y1) {
+        // if (i === 0 || position.y1 > pathBoundingBox.y1) {
+        if (i === 0) {
           position.x1 = pathBoundingBox.x1;
           position.y1 = pathBoundingBox.y1;
         }
@@ -330,6 +335,6 @@ export function getVerticalTextPaths(
     color: config.color || "red",
     colorMode: config.colorMode || "RGB",
     rotate: config.rotate,
-    ascentRatioV2,
+    ascentRatioV2: 0,
   };
 }

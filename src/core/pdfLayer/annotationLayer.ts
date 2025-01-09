@@ -17,23 +17,60 @@ export function drawAnnotateLabel(
 ) {
   const cellHeight = 30;
   const unit = params.unit;
+  const isInch = unit === "in";
+  const _params = {
+    insideSize: {
+      L: isInch ? fixed(mm2inch(params.insideSize.L)) : params.insideSize.L,
+      W: isInch ? fixed(mm2inch(params.insideSize.W)) : params.insideSize.W,
+      H: isInch ? fixed(mm2inch(params.insideSize.H)) : params.insideSize.H,
+    },
+    outsideSize: {
+      L: isInch ? fixed(mm2inch(params.outsideSize.L)) : params.outsideSize.L,
+      W: isInch ? fixed(mm2inch(params.outsideSize.W)) : params.outsideSize.W,
+      H: isInch ? fixed(mm2inch(params.outsideSize.H)) : params.outsideSize.H,
+    },
+    manufactureSize: {
+      L: isInch
+        ? fixed(mm2inch(params.manufactureSize.L))
+        : params.manufactureSize.L,
+      W: isInch
+        ? fixed(mm2inch(params.manufactureSize.W))
+        : params.manufactureSize.W,
+      H: isInch
+        ? fixed(mm2inch(params.manufactureSize.H))
+        : params.manufactureSize.H,
+    },
+    thickness: isInch ? fixed(mm2inch(params.thickness)) : params.thickness,
+    designArea: {
+      width: isInch
+        ? fixed(mm2inch(params.designArea.width))
+        : fixed(params.designArea.width, 1),
+      height: isInch
+        ? fixed(mm2inch(params.designArea.height))
+        : fixed(params.designArea.height, 1),
+    },
+  };
   const textArray = [
     $t("Inside dimensions"),
-    `${params.insideSize.L}(L)x${params.insideSize.W}(W)x${params.insideSize.H}(H) ${unit}`,
+    `${_params.insideSize.L}(L)x${_params.insideSize.W}(W)x${_params.insideSize.H}(H) ${unit}`,
     $t("Outside dimensions"),
-    `${params.outsideSize.L}(L)x${params.outsideSize.W}(W)x${params.outsideSize.H}(H) ${unit}`,
+    `${_params.outsideSize.L}(L)x${_params.outsideSize.W}(W)x${_params.outsideSize.H}(H) ${unit}`,
     $t("Manufacture dimensions"),
-    `${params.manufactureSize.L}(L)x${params.manufactureSize.W}(W)x${params.manufactureSize.H}(H) ${unit}`,
+    `${_params.manufactureSize.L}(L)x${_params.manufactureSize.W}(W)x${_params.manufactureSize.H}(H) ${unit}`,
     $t("Material"),
     params.material,
     $t("Thickness"),
-    `${params.thickness}${unit}`,
+    `${_params.thickness}${unit}`,
   ];
+  let cellWidth = config.lang === "zh-cn" ? 240 : 220;
+  if (unit === "in") {
+    cellWidth = cellWidth + 20;
+  }
   const sizeLabelSvgString = createSvgTable(
     {
       rows: 5,
       cols: 2,
-      cellWidth: config.lang === "zh-cn" ? 240 : 220,
+      cellWidth: cellWidth,
       cellHeight,
       textArray,
     },
@@ -49,7 +86,7 @@ export function drawAnnotateLabel(
       cellHeight,
       textArray: [
         $t("Design area"),
-        `${params.designArea.width}${unit} X ${params.designArea.height}${unit}`,
+        `${_params.designArea.width}${unit} X ${_params.designArea.height}${unit}`,
         $t("Model ID"),
         params.dielineID,
       ],
@@ -79,15 +116,14 @@ export function drawAnnotateLabel(
       textColor: fitColor("#000000", config.colorMode),
     }
   );
-
   const svgString = ` <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
     <g transform="translate(0,0)">
     ${sizeLabelSvgString}
     </g>
-    <g transform="translate(500,0)">
+    <g transform="translate(${isInch ? 550 : 500},0)">
     ${idLabelSvgString}
     </g>
-    <g transform="translate(850,0)">
+    <g transform="translate(${isInch ? 950 : 850},0)">
      ${lineLabelSvgString}
     </g>
   </svg>
@@ -219,4 +255,11 @@ export function drawFooterLabel(params, config: IDrawingConfigPlus) {
     svgString,
   };
   return context;
+}
+function mm2inch(value: number) {
+  return value * 0.0393700787402;
+}
+
+function fixed(value: number, precision: number = 4) {
+  return Number(value.toFixed(precision));
 }

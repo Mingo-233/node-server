@@ -11,7 +11,7 @@ type IBaseLayer<T extends ILayerType> = {
   type: T;
   svgString: string;
   children: IPdfSvgContainer<T>[];
-  getSvgString: (config?: any) => string;
+  getSvgString: (config: any, data?: any) => string;
   getSvgChildren: () => IPdfSvgContainer<T>[];
 };
 export type knifeLayer = IBaseLayer<"knife-layer">;
@@ -64,4 +64,15 @@ export interface IAnnotationParams {
     height: number;
   };
   faceName: "Outer" | "Inner" | string;
+}
+
+export type IUserDataClipItem = {
+  h: number;
+  w: number;
+  x: number;
+  y: number;
+};
+export interface IUserDataClip {
+  inside: IUserDataClipItem[];
+  outside: IUserDataClipItem[];
 }

@@ -4,6 +4,8 @@ import {
   IPdfSvgContainer,
   IPdfLayer,
   IAnnotationParams,
+  IUserDataClip,
+  IUserDataClipItem,
 } from "@/type/pdfLayer";
 import type { IKnifeData } from "@/type/knifeData";
 import type { IProject } from "@/type/projectData";
@@ -24,11 +26,13 @@ import {
 } from "./annotationLayer";
 import log, { fsSaveFile } from "@/utils/log";
 import { isBase64 } from "@/utils/imgUtils";
-export function usePdfLayer() {
+import { IFaceSide } from "@/type/pdfPage";
+import { rect_clips_to_path } from "@/utils/svgUtils";
+export function usePdfLayer(options: { side: IFaceSide }) {
   let _pdfLayer: IPdfLayerMap = {
-    "knife-layer": _createPdfLayer("knife-layer"),
-    "design-layer": _createPdfLayer("design-layer"),
-    "annotation-layer": _createPdfLayer("annotation-layer"),
+    "knife-layer": _createPdfLayer("knife-layer", options.side),
+    "design-layer": _createPdfLayer("design-layer", options.side),
+    "annotation-layer": _createPdfLayer("annotation-layer", options.side),
   };
   function drawKnife(knifeData, config) {
     if (!knifeData) return _pdfLayer["knife-layer"];
@@ -102,16 +106,18 @@ export function usePdfLayer() {
   };
 }
 
-function _createPdfLayer<T extends ILayerType>(type: T) {
+function _createPdfLayer<T extends ILayerType>(type: T, side: IFaceSide) {
   return {
     type: type,
     svgString: "",
+    side: side,
     children: [] as IPdfSvgContainer<T>[],
-    getSvgString: function (config?) {
+    getSvgString: function (config, data = { clips: null }) {
       if (this.svgString) return this.svgString;
       const tempString = this.children.map((item) => item.svgString).join("");
       if (!tempString) return this.svgString;
       let clipLength: any = "";
+      let clipPath: string = "";
       let attrStr = "";
       if (type === "annotation-layer") {
         clipLength = 50;
@@ -123,9 +129,17 @@ function _createPdfLayer<T extends ILayerType>(type: T) {
         attrStr += `width="${width + config.unit}" height="${
           height + config.unit
         }" `;
+        if (data?.clips) {
+          clipPath = getUserDataClipPath(
+            data.clips,
+            side,
+            config.bleedLineWidth
+          );
+        }
       }
       const containerSvg = `<svg xmlns="http://www.w3.org/2000/svg"  
       data-clip-len="${clipLength}" 
+      ${clipPath ? `data-clip="${clipPath}"` : ""}
       data-type="${type}" version="1.1"
       ${attrStr ? attrStr : ""}>
       ${tempString}</svg>`;
@@ -137,4 +151,18 @@ function _createPdfLayer<T extends ILayerType>(type: T) {
       return this.children;
     },
   };
+}
+// 自定义裁剪路径
+function getUserDataClipPath(
+  userDataClip: IUserDataClip,
+  side: IFaceSide,
+  bleedLineWidth: number
+) {
+  let clipData: IUserDataClipItem[] = [];
+  if (side === "outside") {
+    clipData = userDataClip.outside;
+  } else if (side === "inside") {
+    clipData = userDataClip.inside;
+  }
+  return rect_clips_to_path(clipData, DPI, bleedLineWidth);
 }

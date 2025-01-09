@@ -21,6 +21,7 @@ export const defaultFont = {
   Kannada: "https://cdn.pacdora.com/font/NotoSansKannada.ttf",
   Hindi: "https://cdn.pacdora.com/font/NotoSansDevanagari.ttf",
   Bengali: "https://cdn.pacdora.com/font/NotoSansBengali.ttf",
+  HarmonyOS: "https://cdn.pacdora.com/font/HarmonyOS_Sans_SC_Regular.ttf",
 };
 initAssetsMap();
 function initAssetsMap() {
@@ -94,7 +95,7 @@ export const fetchResourceWithCache = async (url) => {
 export function fetchAssets(url) {
   return new Promise((resolve, reject) => {
     const _url = prefixUrl(url);
-    // log.info("log-fetchImage start", _url);
+    log.info("log-fetchImage start", _url);
     fetchResourceWithCache(_url)
       .then((res) => {
         resolve(res);

@@ -19,13 +19,7 @@ import { getShapeContent } from "./shape/index";
 import { getDefaultFontApp } from "@/core/fontPaint/index";
 import wawoff from "wawoff2";
 import opentype from "opentype.js";
-import {
-  parseText,
-  transformText,
-  genTextSvg,
-  matchSymbol,
-  isCharSupported,
-} from "@/core/fontPaint/index";
+import { parseText, transformText, genTextSvg } from "@/core/fontPaint/index";
 import { fitColor } from "@/utils/color";
 import { fsSaveFile } from "@/utils/log";
 import { isSvgUrl, processSvgIncludeBase64 } from "@/utils/imgUtils";
@@ -112,9 +106,6 @@ export async function drawImgElement(designItem, config: IDrawingConfigPlus) {
             href: alphaRemoteUrl,
             width: designItem.bg.width + config.unit,
             height: designItem.bg.height + config.unit,
-            transform: `${_flip ? _flip : ""} translate(${
-              designItem.bg.x * DPI
-            },${designItem.bg.y * DPI})`,
           })
         )
       );
@@ -169,7 +160,10 @@ export async function drawShape(designItem, config: IDrawingConfigPlus) {
       uuid: designItem.uuid,
       type: designItem.shapeType ?? "rectangle",
       radius: style.radius ?? 0,
-      fill: fitColor(style.color, config.colorMode) ?? "none",
+      fill:
+        style.color && style.color !== "none"
+          ? fitColor(style.color, config.colorMode)
+          : "none",
       stroke: fitColor(style.stroke, config.colorMode),
       maskFill: fitColor("#ffffff", config.colorMode),
       strokeWidth: style.strokeWidth ?? 0,
@@ -276,7 +270,7 @@ export function drawBackground(color, knifeData, config) {
 }
 export async function drawGroup(
   designItem,
-  config: IDrawingBoardConfig,
+  config: IDrawingConfigPlus,
   knifeData?
 ) {
   const list = designItem.designs;
@@ -317,12 +311,19 @@ export async function drawGroup(
   }
   const svgString = storeList.map((item) => item.svgString).join("");
   const clipPathSvg = hasPattern ? drawBleedClipPath(knifeData, config) : "";
-
+  const isInside = config.side === "inside";
+  const insideTransform =
+    isInside && hasPattern
+      ? `scale(-1, 1) translate(-${config.rootSvgSize.width * DPI},0)`
+      : "";
+  const translateTransform = insideTransform
+    ? insideTransform
+    : `translate(${translateX}, ${translateY})`;
   const groupSvg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" 
   data-clip="${clipPathSvg}"
   width="${style.width + config.unit}" 
   height="${style.height + config.unit}"
-   transform="${rotateTransform} translate(${translateX}, ${translateY})"
+   transform="${rotateTransform}  ${translateTransform}"
     >
   ${svgString}
   </svg>`;
@@ -348,6 +349,12 @@ export function drawBleedClipPath(knifeData: any, config: IDrawingBoardConfig) {
     if (item.cy) {
       item.cy = item.cy * DPI;
     }
+    if (item.cx1) {
+      item.cx1 = item.cx1 * DPI;
+    }
+    if (item.cy1) {
+      item.cy1 = item.cy1 * DPI;
+    }
     return item;
   });
   const bleedPath = SvgUtil.dlist_to_d(bleedsScaleArr);
@@ -368,10 +375,14 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   );
 
   let fontApp = opentype.parse(arrayBuffer);
+  let defaultFontApp: any = undefined;
+
   if (!isCharSupportedAll(fontApp, designItem.value)) {
     // 编辑器选中的字体有不支持的字符 情况
     let unconventionalFont = await unconventionalFontHandle(designItem.value);
+
     if (unconventionalFont) fontApp = unconventionalFont;
+    defaultFontApp = await getDefaultFontApp();
   }
   // 主字体文件是否支持中文
   //TODO: 当前判断条件是字体文件的字形数量是否大于5000 ，待完善
@@ -379,16 +390,6 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
   if (fontApp.glyphs?.length < 26) {
     // 如果当前字体文件连26个字母都没有，切换备用字体文件
     fontApp = await getDefaultFontApp();
-  }
-  let defaultFontApp: any = undefined;
-  const matchResult = matchSymbol(designItem.value);
-
-  if (matchResult) {
-    const matchChar = matchResult[0];
-    const isSup = isCharSupported(fontApp, matchChar);
-    if (!isSup) {
-      defaultFontApp = await getDefaultFontApp();
-    }
   }
 
   const unitsPerEm = fontApp.unitsPerEm; // 字体设计单位
@@ -401,8 +402,8 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
     textAlign: style.textAlign,
     vertical: !!style.vertical,
     rotate: style.rotate,
-    MaxWidth: style.width,
-    MaxHeight: style.height,
+    MaxWidth: style.width || 1, // 宽度不能为0,svg解析矩阵运算时会报错
+    MaxHeight: style.height || 1,
     color: style.color,
     fontOption: {
       unitsPerEm,
@@ -412,6 +413,7 @@ export async function drawFont(designItem, config: IDrawingConfigPlus) {
       isSupCnMainFontApp: isSupCnMainFontApp,
     },
   };
+
   const parseResult = parseText(fontApp, parseParams, defaultFontApp);
   const textConfig = transformText(parseResult, {
     bleedLineWidth: config.bleedLineWidth,

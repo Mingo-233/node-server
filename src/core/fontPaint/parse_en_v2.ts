@@ -10,6 +10,7 @@ import {
   genChildPath,
   isBreakChar,
   isReturnChar,
+  isCharSupported,
 } from "./utils";
 import type { ITextInfoItem, IFontParseParams, IFontParse } from "@/type/parse";
 
@@ -138,12 +139,11 @@ export function parseTextV2(
         });
         continue;
       }
+      const isSup = isCharSupported(fontApp, textItem);
 
-      if (isSymbolChar(textItem)) {
+      if (isSymbolChar(textItem) || !isSup) {
         hasSymbolChar = true;
-        const app = config.fontOption.isSupCnMainFontApp
-          ? fontApp
-          : defaultFontApp;
+        const app = isSup ? fontApp : defaultFontApp;
         const path = getPath(app, textItem, config.fontSize);
         const pathBoundingBox = path.getBoundingBox();
         const currentPathWidth = path.advanceWidth;

@@ -111,9 +111,15 @@ export default class extends Node {
   protected paint(): string {
     const path = this.getPath();
     const rx = (this.radius * Math.min(this.width, this.height)) / 3;
+    // 使用mask 而不使用原本的clipPath，是因为clipPath 在svg-to-pdfkit中有额外处理，在ai中显示有问题
+    // 使用mask 替换后 原本的clipPath后导致边框显示变细
+    let _strokeWidth = this.strokeWidth;
+    if (this.strokeWidth && typeof this.strokeWidth === "number") {
+      _strokeWidth = this.strokeWidth * 1.5;
+    }
     return `
       <defs><mask id="clip-${this.uuid}" fill="${this.maskFill}"><path data-radius="${this.radius}" d="${path}" rx="${rx}"></path></mask></defs>
-      <path data-radius="${this.radius}" rx="${rx}"  d="${path}" mask="url(#clip-${this.uuid})"  stroke-width="${this.strokeWidth}" stroke-linecap="butt"></path>
+      <path data-radius="${this.radius}" rx="${rx}"  d="${path}" mask="url(#clip-${this.uuid})"  stroke-width="${_strokeWidth}" stroke-linecap="butt"></path>
     `;
   }
 }

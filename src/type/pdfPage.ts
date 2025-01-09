@@ -4,8 +4,7 @@ export type IFaceSide = "outside" | "inside";
 interface IFace {
   faceName: string;
   type: IFaceType;
-  // side: IFaceSide;
-  side: string;
+  side: IFaceSide;
   knifeLayer: knifeLayer;
   designLayer: designLayer;
   annotationLayer: annotationLayer;

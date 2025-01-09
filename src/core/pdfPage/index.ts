@@ -118,8 +118,8 @@ export function createPageApp(
         thickness: layerProjectData.thickness,
         dielineID: knifeData.cate_no,
         designArea: {
-          width: layerKnifeData.totalX.toFixed(1),
-          height: layerKnifeData.totalY.toFixed(1),
+          width: layerKnifeData.totalX,
+          height: layerKnifeData.totalY,
         },
         faceName: _faceName,
       };

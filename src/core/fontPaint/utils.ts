@@ -1,6 +1,7 @@
 import opentype from "opentype.js";
 import { defaultFont, fetchAssets } from "@/utils/request";
 import { IPathPart } from "@/type/parse";
+import { getLang } from "@/utils/i18n";
 export function createWordPathContext() {
   const context = {
     word: "",
@@ -88,11 +89,25 @@ export function isEnd(char) {
 // [\uac00-\ud7ff]：匹配韩文汉字。
 // [\u3000-\u303f]：匹配CJK符号和标点（例如全角逗号、句号等）。
 // [\uff00-\uffef]：匹配全角字符和标点符号（例如全角括号、感叹号、引号等）。
+// \u2000-\u206：匹配常用标点
 const symbolCharRule =
-  /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7ff\u3000-\u303f\uff00-\uffef]/;
-
+  /[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7ff\u3000-\u303f\uff00-\uffef\u2000-\u206f]/;
+// [中文省略号,‘,’,“,”]
+const excludeSymbolCharCode = [8230, 8216, 8217, 8220, 8221];
+// 特殊标点字符 [。]
+const specialSymbolCharCode = [12290];
 export function isSymbolChar(char) {
   return symbolCharRule.test(char);
+}
+export function isExcludeSymbolChar(char) {
+  if (!char) return false;
+  const code = char.charCodeAt();
+  return excludeSymbolCharCode.includes(code);
+}
+export function isSpecialSymbolChar(char) {
+  if (!char) return false;
+  const code = char.charCodeAt();
+  return specialSymbolCharCode.includes(code);
 }
 export function matchSymbol(char) {
   return char.match(symbolCharRule);
@@ -156,8 +171,13 @@ export function computedFontLineHeight(option) {
 }
 
 export async function getDefaultFontApp(fontName?: keyof typeof defaultFont) {
-  const defaultFontURL =
-    fontName && defaultFont[fontName] ? defaultFont[fontName] : defaultFont.CJK;
+  const defaultOriginalFont =
+    getLang() === "zh-cn" ? defaultFont.HarmonyOS : defaultFont.CJK;
+  let defaultFontURL =
+    fontName && defaultFont[fontName]
+      ? defaultFont[fontName]
+      : defaultOriginalFont;
+
   const data: any = await fetchAssets(defaultFontURL);
   const arrayBuffer = data.buffer.slice(
     data.byteOffset,
@@ -181,9 +201,9 @@ export function identifyNext(fontApp, char, index, textInfoArr, config) {
       path: getPath(fontApp, char, config.fontSize),
     },
   ];
-  while (!isEnd(nextText)) {
+  while (!isEnd(nextText) && isCharSupported(fontApp, nextText)) {
     // child太长 占用太多内存资源
-    const max = config.isVertical ? config.MaxHeight : config.MaxWidth;
+    const max = config.vertical ? config.MaxHeight : config.MaxWidth;
     let limit = max * 1.2;
     if (path?.advanceWidth > limit) break;
     index++;
@@ -233,7 +253,7 @@ export function computedPathTransform(textAlign, Max, maxContent, isVer?) {
         offset = (Max - maxContent) / 2;
         return `translate(0,${offset})`;
       case "right":
-        offset = textAlign - maxContent;
+        offset = Max - maxContent;
         return `translate(0,${offset})`;
 
       default:

@@ -36,7 +36,8 @@
 
             // const buffer = fetch("https://cdn.pacdora.com/font_v2/DM_Sans/DMSans-Bold.woff2").then((res) =>
             // const buffer = fetch("https://cdn.pacdora.com/font_v2/Anton/Anton-Regular.woff2").then((res) =>
-            const buffer = fetch("https://cdn.pacdora.com/font_v2/Poppins/Poppins-Medium.woff2").then((res) =>
+            // const buffer = fetch("https://yun.baoxiaohe.com/font/05345406-5b37-4be2-a689-0360185bc5ac.woff2").then((res) =>
+            const buffer = fetch("https://oss.pacdora.cn/frontend/webFonts/HarmonyOS_Sans_SC_Regular.woff2").then((res) =>
 
                 // const buffer = fetch("https://cdn.pacdora.com/font_v2/Pacifico/Pacifico-Regular.woff2").then((res) =>
 
@@ -46,8 +47,23 @@
                 const decompressed = Module.decompress(data);
                 const app = opentype.parse(decompressed);
                 console.log('app', app);
+                let glyphs = Object.keys(app.glyphs.glyphs)
+                console.log('glyphs[0]', app.glyphs.glyphs[2]);
+
+                let fontGlyphsName = []
+                for (const element of glyphs) {
+                    let name = app.glyphs.glyphs[element].name
+                    if (name.includes('quote')) {
+                        console.log('123123');
+
+                        console.log(element);
+
+                    }
+                    fontGlyphsName.push(name)
+                }
+                console.log('fontGlyphsName', fontGlyphsName);
                 // let str = "abcdef"
-                let str = "ì ò ù ä ö"
+                let str = "‘"
                 console.log('unicode', str.codePointAt())
                 const result = app.charToGlyph(str)
                 console.log(result);

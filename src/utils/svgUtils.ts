@@ -1,4 +1,5 @@
 import { Face, SvgOpt } from "@/type/knifeData";
+import { IUserDataClipItem } from "@/type/pdfLayer";
 /**
  * 输入："dlist": [ { "mtd": "M", "x": 13, "y": 49.25 } ]
  * 输出：d: 'M13,49.25'
@@ -105,3 +106,17 @@ export default {
     return list;
   },
 };
+
+export function rect_clips_to_path(
+  clips: IUserDataClipItem[],
+  rate: number = 1,
+  bleedLineWidth: number = 0
+) {
+  const path = clips.map((e) => {
+    return `M ${(e.x + bleedLineWidth) * rate} ${
+      (e.y + bleedLineWidth) * rate
+    } h ${e.w * rate} v ${e.h * rate} h -${e.w * rate} z`;
+  });
+
+  return path.join(" ");
+}

@@ -35,7 +35,7 @@ async function mockRequest() {
     colorMode: _colorMode,
     filePath: "",
     knifeColor: {},
-    lang: "en-us",
+    lang: "zh-cn",
     annotationUnit: "mm",
     // filePath: outputPath,
   });
@@ -64,6 +64,7 @@ export async function pdfMain(
       colorMode: options.colorMode,
       knifeColor: options.knifeColor,
       annotationUnit: options.annotationUnit || "mm",
+      lang: options.lang,
     });
     log.info("log-", "registerFace start");
     pageApp.registerFace(knifeData, projectData);
@@ -80,6 +81,8 @@ export async function pdfMain(
     pdfDoc.pdfInit();
     for (let i = 0; i < pageApp.pages.length; i++) {
       const page = pageApp.pages[i];
+      console.log("page", page);
+
       log.info("log-pdf doc add start");
       if (
         page.pageType & TYPE_OUTSIDE_DESIGN ||
@@ -95,7 +98,9 @@ export async function pdfMain(
           });
           recover.call(pdfDoc.doc);
         }
-        let designSvg = page.face?.designLayer.getSvgString(pageApp);
+        let designSvg = page.face?.designLayer.getSvgString(pageApp, {
+          clips: projectData?.user_data?.clips,
+        });
         designSvg &&
           pdfDoc.addSVG(designSvg, 0, 0, {
             imageCallback: function (link) {

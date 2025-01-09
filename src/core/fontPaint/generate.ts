@@ -63,11 +63,10 @@ export function genTextSvg(config: IFontGenerateParams) {
         xmlns: "http://www.w3.org/2000/svg",
         width: svgDomSize.width + config.unit,
         height: svgDomSize.height + config.unit,
-        viewBox: `${position.x1} ${position.y1} ${
-          position.x2 + svgDomSize.width
-        } ${position.y2 + svgDomSize.height}`,
+        viewBox: `${position.x1} ${position.y1} ${svgDomSize.width} ${svgDomSize.height}`,
         transform: `rotate(${rotate},${rotateCenter}) ${pageMarginTranslate}`,
         fill: config.renderColor,
+        style: "border:1px solid black",
       },
       G_Template
     );

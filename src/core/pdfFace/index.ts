@@ -1,7 +1,9 @@
 import { usePdfLayer } from "@/core/pdfLayer/index";
 
 export function createFace(name, type, side) {
-  const layer = usePdfLayer();
+  const layer = usePdfLayer({
+    side: side,
+  });
   const face = {
     faceName: name,
     type: type,

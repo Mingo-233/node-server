@@ -12,7 +12,9 @@ const commandMap = {
   //   ls -la
   test: ["ls", "-la"],
   // convert input.png -alpha extract -colorspace Gray output_alpha.jpg
-  splitAlpha: ["convert", "-alpha extract -colorspace Gray"],
+  // splitAlpha: ["convert", "-alpha extract -colorspace Gray"],
+  // threshold用于将图像二值化 任何亮度值低于阈值的像素会被转换为黑色，高于阈值的像素会被转换为白色
+  splitAlpha: ["convert", "-alpha extract -threshold 10%"],
   // convert input.png -alpha off output_rgb.jpg
   // splitRGB: ["convert", "-alpha off"],
   splitRGB: ["convert", "-background white -flatten"],

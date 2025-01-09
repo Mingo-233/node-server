@@ -41,6 +41,9 @@ export function setLang(lang: Lang) {
   localeLanguage.value = lang;
 }
 
+export function getLang() {
+  return localeLanguage.value;
+}
 export const $t = (key: string) => {
   return i18n[localeLanguage.value][key] || key;
 };
