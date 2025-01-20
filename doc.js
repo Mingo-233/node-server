@@ -13,30 +13,28 @@ function pdf() {
   const doc = new PDFDocument({
     pdfVersion: "1.4",
   });
+  doc.addSpotColor("RDG_GLOSS", 50, 25, 25, 0);
+  doc.addSpotColor("RDG_WHITE", 25, 25, 25, 25);
+  doc.fillColor("RDG_GLOSS").text("This text uses spot color!");
   // const randomName = Math.random().toString(36).substring(3);
   const fontPath = path.join(__dirname, "assets/NotoSansCJK-Regular.ttf");
-  console.log("fontPath", fontPath);
-  doc.registerFont("my-font", fontPath, "my-font-regular");
-
+  // doc.registerFont("my-font", fontPath, "my-font-regular");
   const outputName = `svg-pdf.pdf`;
   const writeStream = fs.createWriteStream(outputName);
 
   doc.pipe(writeStream);
+  {
+    /* <path fill="RDG_GLOSS" d="M150 0 L75 200 L225 200 Z" /> */
+  }
 
-  // const mockSvgImg = `
-  //   <svg xmlns="http://www.w3.org/2000/svg">
-  //       <style>
-  //           text {
-  //               fill: #ff0000;
-  //           }
-  //       </style>
-  //       <text x="25" y="15" fill="#0000ff" style="fill: #00ff00;" font-size="16">
-  //           Hello, out there
-  //       </text>
-  //   </svg>
-  // `;
-  const mockSvgImg = fs.readFileSync("./mocksvg.svg", "utf8");
-  // style="fill: rgba(81, 89, 54, 1);"></path>
+  const mockSvgImg = `
+    <svg xmlns="http://www.w3.org/2000/svg">
+
+<rect fill="#aaff00" width="300" height="100"/>
+<path stroke="RDG_GLOSS" stroke-width="3" fill="none" d="M150 0 L75 200 L225 200 Z" />
+<text fill="RDG_WHITE" x="10" y="215">TEST</text>
+    </svg>
+  `;
 
   doc.addSVG(mockSvgImg, 100, 100, {
     colorMode: "RGB",

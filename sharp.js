@@ -159,3 +159,57 @@ const mockSvg = `
 //   height: 29.5234,
 // });
 convertToCMYK("input_rgb.jpg", "output.jpg");
+
+const targetImg = "pp3.png";
+
+const LIMIT_WIDTH = 4000;
+function checkImgSize(imgPath) {
+  return sharp(imgPath)
+    .metadata()
+    .then((metadata) => {
+      return metadata.width > LIMIT_WIDTH;
+    });
+}
+function checkImgSize(imgPath) {
+  return sharp(imgPath)
+    .metadata()
+    .then((metadata) => {
+      if (metadata?.width) {
+        return metadata.width > LIMIT_WIDTH;
+      }
+      return false;
+    });
+}
+
+// 预处理大图片
+async function preProcessLargeImg(imgPath) {
+  const isLargeImg = await checkImgSize(imgPath);
+  if (isLargeImg) {
+    await resizeImg(imgPath);
+  }
+}
+function resizeImg(imgPath) {
+  return new Promise((resolve, reject) => {
+    const imgPathDir = path.dirname(imgPath);
+    const tempFile = `${imgPathDir}/temp_${Date.now()}${path.extname(imgPath)}`;
+    sharp(imgPath)
+      .resize({
+        width: LIMIT_WIDTH,
+        fit: "contain",
+      })
+      .toFile(tempFile) // 先输出到临时文件
+      .then(() => {
+        // 处理成功后,用临时文件替换原文件
+        console.log("图片resize处理完成,原文件已更新");
+        fs.promises.rename(tempFile, imgPath).then(() => {
+          resolve();
+        });
+      })
+      .catch((err) => {
+        console.error("resize处理出错:", err);
+        // 发生错误时,清理临时文件
+        fs.unlink(tempFile, () => {});
+        reject(err);
+      });
+  });
+}

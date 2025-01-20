@@ -815,13 +815,8 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
   function docEndText() {
     doc.addContent("ET");
   }
-  function isString(s) {
-    return Object.prototype.toString.call(s) === "[object String]";
-  }
   function docFillColor(color) {
-    if (isString(color[0])) {
-      doc.fillColor(color[0]);
-    } else if (color[0].type === "PDFPattern") {
+    if (color[0].type === "PDFPattern") {
       doc.fillOpacity(color[1]);
       docUsePattern(color[0], false);
     } else {
@@ -1208,9 +1203,6 @@ var SVGtoPDF = function (doc, svg, x, y, options) {
         ],
         1,
       ];
-    } else if ((temp = raw.match(/^([A-za-z0-9]+)$/i))) {
-      result = [temp[1], 1];
-      console.log("result", result);
     }
     return colorCallback ? colorCallback(result, raw) : result;
   }
