@@ -19,6 +19,18 @@
             margin-top: 300px;
             border: 1px solid red;
         }
+
+        .d-hotline.h-btn {
+            border-radius: 50% !important;
+            border: 1px solid #fff !important;
+            box-shadow: none !important;
+            width: 48px !important;
+            height: 48px !important;
+        }
+
+        .d-hotline.h-btn #chat-icon {
+            top: 30% !important;
+        }
     </style>
 </head>
 
@@ -47,36 +59,42 @@
                 const decompressed = Module.decompress(data);
                 const app = opentype.parse(decompressed);
                 console.log('app', app);
-                let glyphs = Object.keys(app.glyphs.glyphs)
-                console.log('glyphs[0]', app.glyphs.glyphs[2]);
+                // let glyphs = Object.keys(app.glyphs.glyphs)
 
-                let fontGlyphsName = []
-                for (const element of glyphs) {
-                    let name = app.glyphs.glyphs[element].name
-                    if (name.includes('quote')) {
-                        console.log('123123');
+                // let fontGlyphsName = []
+                // for (const element of glyphs) {
+                //     let name = app.glyphs.glyphs[element].name
+                //     if (name.includes('quote')) {
+                //         console.log('123123');
 
-                        console.log(element);
+                //         console.log(element);
 
-                    }
-                    fontGlyphsName.push(name)
-                }
-                console.log('fontGlyphsName', fontGlyphsName);
+                //     }
+                //     fontGlyphsName.push(name)
+                // }
+                // console.log('fontGlyphsName', fontGlyphsName);
                 // let str = "abcdef"
-                let str = "‘"
+                let str = "abcdefabcdef"
                 console.log('unicode', str.codePointAt())
-                const result = app.charToGlyph(str)
-                console.log(result);
-                const path = app.getPath(str, 0, 0, 16);
+                // const result = app.charToGlyph(str)
+                // console.log(result);
+
+                const path = app.getPath(str, 0, 0, 4, {
+                    hinting: false
+                });
+
                 const svgPath = path.toSVG(3)
+
                 const pathBoundingBox = path.getBoundingBox()
                 console.log(pathBoundingBox);
-                const viewBox = `${pathBoundingBox.x1} ${pathBoundingBox.y1} 100 100`
+                const viewBox = `${pathBoundingBox.x1} ${pathBoundingBox.y1} 20 20`
                 console.log(svgPath);
                 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
                 svg.setAttribute('viewBox', viewBox)
-                svg.setAttribute('width', '100mm')
-                svg.setAttribute('height', '100mm')
+                svg.setAttribute('width', '20mm')
+                svg.setAttribute('height', '20mm')
+                svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+                svg.setAttribute('stroke', 'none')
                 svg.innerHTML = svgPath
                 document.getElementById('preview').appendChild(svg)
                 // const font = opentype.parse(data);
@@ -86,6 +104,16 @@
         }
         window.load = load;
 
+        function downloadSvg() {
+            const svg = document.getElementById('preview').innerHTML
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'font.svg';
+            a.click();
+        }
+        window.downloadSvg = downloadSvg;
         setTimeout(() => {
             load();
         }, 1000);

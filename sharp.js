@@ -1,27 +1,37 @@
 const sharp = require("sharp");
 const fs = require("fs");
 const axios = require("axios");
-// SVG 文件的路径
-const svgPath = "svgExample.svg";
 // 输出的 PNG 文件路径
 const outputPath = "svgExample.png";
 const PNG = require("pngjs").PNG;
-function imgHandle() {
+async function imgHandle(svgPath) {
   // 读取 SVG 文件
   const svgBuffer = fs.readFileSync(svgPath);
 
   // 使用 sharp 将 SVG 转换为 PNG
-  sharp(svgBuffer)
-    .resize(253, 460)
-    .png()
-    .toFile(outputPath)
-    .then(() => {
-      console.log("转换成功！");
-    })
-    .catch((err) => {
-      console.error("转换失败：", err);
-    });
+  const metadata = await sharp(svgBuffer).metadata();
+  console.log("G尺寸信息:", {
+    width: metadata.width,
+    height: metadata.height,
+  });
+  // sharp(svgBuffer)
+  //   .resize(metadata.width * 12, metadata.height * 12)
+  //   .png()
+  //   .toFile(outputPath)
+  //   .then(() => {
+  //     console.log("转换成功！");
+  //   })
+  //   .catch((err) => {
+  //     console.error("转换失败：", err);
+  //   });
 }
+imgHandle("dd.png");
+function getFileSize(filePath) {
+  const stats = fs.statSync(filePath);
+  const sizeMB = stats.size / (1024 * 1024);
+  return sizeMB;
+}
+
 function downloadImage(url, outputPath) {
   return new Promise((resolve, reject) => {
     axios({
@@ -158,18 +168,11 @@ const mockSvg = `
 //   width: 29.5234,
 //   height: 29.5234,
 // });
-convertToCMYK("input_rgb.jpg", "output.jpg");
 
 const targetImg = "pp3.png";
 
 const LIMIT_WIDTH = 4000;
-function checkImgSize(imgPath) {
-  return sharp(imgPath)
-    .metadata()
-    .then((metadata) => {
-      return metadata.width > LIMIT_WIDTH;
-    });
-}
+
 function checkImgSize(imgPath) {
   return sharp(imgPath)
     .metadata()
