@@ -1,0 +1,31 @@
+name: Auto Attendance
+
+on:
+  schedule:
+    # 这里设置为每天北京时间上午8:30执行
+    # GitHub Actions 使用UTC时间，需要转换
+    - cron: "30 0 * * *" # UTC 0:30 = 北京时间 8:30
+
+  # 同时添加手动触发选项，方便测试
+  workflow_dispatch:
+
+jobs:
+  attendance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: |
+          npm install playwright
+          npx playwright install chromium
+          npm install
+
+      - name: Run attendance script
+        run: node app.js

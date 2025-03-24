@@ -1,40 +1,73 @@
 const { chromium } = require("playwright");
+const cookieConfig = [
+  {
+    name: "c_secure_uid",
+    value: "MjkwMTM%3D",
+  },
+  {
+    name: "c_secure_tracker_ssl",
+    value: "eWVhaA%3D%3D",
+  },
+  {
+    name: "c_secure_ssl",
+    value: "eWVhaA%3D%3D",
+  },
+  {
+    name: "c_secure_pass",
+    value: "dd3d2e5f08004107fbdc5dff42452aa2",
+  },
+  {
+    name: "c_secure_login",
+    value: "bm9wZQ%3D%3D",
+  },
+];
+const defaultConfig = {
+  domain: "www.icc2022.com",
+  path: "/",
+  expires: 1769066959,
+  httpOnly: true,
+};
 
-async function exportWebPageToPDF(url, outputPath) {
+const _rebaseConfig = cookieConfig.map((item) => ({
+  ...defaultConfig,
+  ...item,
+}));
+async function openWebPage(url) {
   // 启动浏览器
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    headless: true, // 确保无头模式
+    args: ["--no-sandbox", "--disable-setuid-sandbox"], // 适应CI环境
+  });
 
   try {
     // 创建新页面
     const page = await browser.newPage();
+    await page.context().addCookies(_rebaseConfig);
 
-    // 导航到指定URL
     await page.goto(url, {
       waitUntil: "networkidle", // 等待网页加载完成
     });
+    console.log(`当前时间: ${new Date().toISOString()}`);
+    console.log(`打开网页: ${url}`);
+    try {
+      await page.waitForSelector(".fc-day-mon", { timeout: 5000 });
+      console.log("页面成功加载，找到预期元素");
+    } catch (error) {
+      console.error("未能找到预期元素，页面可能未正确加载");
+    }
 
-    // 生成PDF
-    await page.pdf({
-      path: outputPath, // PDF保存路径
-      format: "A4", // 页面格式
-      margin: {
-        // 页面边距
-        top: "20px",
-        right: "20px",
-        bottom: "20px",
-        left: "20px",
-      },
-      printBackground: true, // 打印背景图片
-    });
-
-    console.log(`PDF已保存到: ${outputPath}`);
+    // await page.screenshot({ path: "page-loaded.png" });
   } catch (error) {
-    console.error("导出PDF时发生错误:", error);
+    console.error("打开网页时发生错误:", error);
+    await browser.close();
+    process.exit(1);
   } finally {
     // 关闭浏览器
-    await browser.close();
+    setTimeout(() => {
+      browser.close();
+    }, 3000);
   }
 }
 
 // 使用示例
-exportWebPageToPDF("https://www.pacdora.com/", "./output.pdf");
+openWebPage("https://www.icc2022.com/attendance.php");
