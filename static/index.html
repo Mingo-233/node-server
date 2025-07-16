@@ -4,161 +4,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#1a1a1a">
     <title>停车位置信息记录</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e  50%, #16213e 100%);
+            color: #e0e6ed;
+            min-height: 100vh;
             padding: 20px;
-            background-color: #f7f7f7;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { 
+                text-shadow: 0 0 10px rgba(102, 126, 234, 0.3),
+                             0 0 20px rgba(102, 126, 234, 0.3),
+                             0 0 30px rgba(102, 126, 234, 0.3);
+                transform: scale(1);
+            }
+            50% { 
+                text-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
+                             0 0 30px rgba(102, 126, 234, 0.8),
+                             0 0 40px rgba(102, 126, 234, 0.8),
+                             0 0 50px rgba(102, 126, 234, 0.5);
+                transform: scale(1.02);
+            }
+            100% { 
+                text-shadow: 0 0 10px rgba(102, 126, 234, 0.3),
+                             0 0 20px rgba(102, 126, 234, 0.3),
+                             0 0 30px rgba(102, 126, 234, 0.3);
+                transform: scale(1);
+            }
+        }
+
+        .card {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #a8b2d1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         select,
         input[type="text"],
-        input[type="time"],
+        input[type="number"],
         input[type="color"] {
             width: 100%;
-            padding: 5vw;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-
-        select {
-            font-size: 1rem;
-        }
-
-        #color {
-            height: 10vh;
-            padding: 1vw;
-        }
-
-        select {
+            padding: 16px 20px;
+            background: rgba(15, 15, 35, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #e0e6ed;
+            font-size: 16px;
+            transition: all 0.3s ease;
             appearance: none;
         }
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2),
+                        0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-1px);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a8b2d1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
             cursor: pointer;
         }
 
-        .m-input {
+        #color {
+            height: 60px;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        .btn {
             width: 100%;
-            height: 5vh;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
         }
 
-        button:disabled {
-            background-color: #cccccc;
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
 
-        h1,
-        h2,
-        h3 {
-            margin: 0;
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
         }
 
         .result {
             position: relative;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 4px;
-            background-color: #e9ecef;
+            background: linear-gradient(135deg, rgba(26, 42, 62, 0.9) 0%, rgba(15, 15, 35, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            animation: slideInDown 0.6s ease-out;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(102, 126, 234, 0.2);
+        }
 
-            .reset-btn {
-                position: absolute;
-                right: 20px;
-                top: 20px;
-                cursor: pointer;
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .result p {
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .result p:last-of-type {
+            border-bottom: none;
+        }
+
+        .result span {
+            margin-left: auto;
+            font-weight: 600;
+        }
+
+        #result-color {
+            width: 24px !important;
+            height: 24px !important;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            margin-left: auto !important;
+        }
+
+        #result-time {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            color: #4facfe;
+            text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .reset-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+        }
+
+        .reset-btn:hover {
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 6px 20px rgba(238, 90, 82, 0.5);
+        }
+
+        .form-operation {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 深色模式优化 */
+        ::placeholder {
+            color: #6b7280;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+                border-radius: 16px;
+            }
+            
+            h2 {
+                font-size: 24px;
+                margin-bottom: 25px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading .btn::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        /* 成功反馈动画 */
+        .success-feedback {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            z-index: 1000;
+            animation: successSlide 3s ease-out;
+        }
+
+        @keyframes successSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-100%);
+            }
+            15%, 85% {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-100%);
             }
         }
     </style>
 </head>
 
 <body>
-    <h2>Parking Information</h2>
-    <div class="result" id="result" style="display: none;">
-        <h3>Last saved</h3>
-        <p>楼层: <span id="result-floor"></span></p>
-        <p>区域: <span id="result-area"></span></p>
-        <p>停车位颜色: <span id="result-color" style="display: inline-block; width: 20px; height: 20px;"></span></p>
-        <p>停车位号码: <span id="result-area-number"></span></p>
-        <p>停车时间: <span id="result-time"></span></p>
-        <p>备注: <span id="result-remark"></span></p>
-        <div class="reset-btn" onclick="reset()">
-            重置
-        </div>
-    </div>
-    <div class="form-operation">
-        <div class="form-group">
-            <label for="floor">当前楼层</label>
-            <select id="floor">
-                <option value="B1">B1</option>
-                <option value="B2">B2</option>
-                <option value="B3">B3</option>
-                <option value="L1">L1</option>
-                <option value="L2">L2</option>
-                <option value="L3">L3</option>
-                <option value="L4">L4</option>
-                <option value="L5">L5</option>
-
-            </select>
+    <div class="container">
+        <h2>🚗 Parking Information</h2>
+        
+        <div class="result card" id="result" style="display: none;">
+            <h3>📍 Last saved location</h3>
+            <p>楼层: <span id="result-floor"></span></p>
+            <p>区域: <span id="result-area"></span></p>
+            <p>停车位颜色: <span id="result-color" style="display: inline-block; width: 20px; height: 20px;"></span></p>
+            <p>停车位号码: <span id="result-area-number"></span></p>
+            <p>停车时间: <span id="result-time"></span></p>
+            <p>备注: <span id="result-remark"></span></p>
+            <button class="reset-btn" onclick="reset()">
+                ✕
+            </button>
         </div>
 
-        <div class="form-group">
-            <label for="area">当前停车位区域</label>
-            <select id="area">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-                <option value="E">E</option>
-                <option value="F">F</option>
-                <option value="G">G</option>
-                <option value="H">H</option>
-                <option value="I">I</option>
-                <option value="J">J</option>
-                <option value="K">K</option>
-                <option value="L">L</option>
-                <option value="M">M</option>
-            </select>
+        <div class="form-operation card">
+            <div class="form-group">
+                <label for="floor">🏢 当前楼层</label>
+                <select id="floor">
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                    <option value="B3">B3</option>
+                    <option value="L1">L1</option>
+                    <option value="L2">L2</option>
+                    <option value="L3">L3</option>
+                    <option value="L4">L4</option>
+                    <option value="L5">L5</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="area">📍 当前停车位区域</label>
+                <select id="area">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="G">G</option>
+                    <option value="H">H</option>
+                    <option value="I">I</option>
+                    <option value="J">J</option>
+                    <option value="K">K</option>
+                    <option value="L">L</option>
+                    <option value="M">M</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="color">🎨 设置当前停车位区域主颜色</label>
+                <input type="color" id="color" value="#0000ff">
+            </div>
+
+            <div class="form-group">
+                <label for="area-number">🔢 设置当前停车位号码</label>
+                <input type="number" id="area-number" placeholder="例如：118">
+            </div>
+            
+            <div class="form-group">
+                <label for="remark">📝 备注</label>
+                <input type="text" id="remark" placeholder="额外信息">
+            </div>
+
+            <button class="btn" id="save-btn" onclick="saveParkingInfo()">
+                💾 保存停车信息
+            </button>
+            
+            <button class="btn btn-secondary" id="test-btn" onclick="testNotify()">
+                🔔 Mock Test
+            </button>
+            
+            <button class="btn" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);" onclick="clearNotifyTasks()">
+                🗑️ 清空通知任务
+            </button>
+            
+            <button class="btn" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="checkNotifyStatus()">
+                📊 查看通知状态
+            </button>
         </div>
-
-        <div class="form-group">
-            <label for="color">设置当前停车位区域主颜色</label>
-            <input type="color" id="color" value="#0000ff">
-        </div>
-
-        <div class="form-group">
-            <label for="area-number">设置当前停车位号码</label>
-            <input class="m-input" type="number" id="area-number" placeholder="例如：118">
-        </div>
-        <div class="form-group">
-            <label for="remark">备注</label>
-            <input class="m-input" id="remark" placeholder="额外信息">
-        </div>
-
-
-        <button id="save-btn" onclick="saveParkingInfo()">保存停车信息</button>
-
     </div>
 
 
@@ -172,34 +487,117 @@
         const remarkDom = document.getElementById('remark');
         const resultDom = document.getElementById('result')
         const formDom = document.querySelector('.form-operation');
+        const saveBtnDom = document.getElementById('save-btn');
         let timer = null
-        echoParkingInfo()
+
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            echoParkingInfo()
+            addInteractiveEffects()
+        })
+
+        function addInteractiveEffects() {
+            // 为输入框添加焦点动效
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+
+        }
+
+        function showSuccessFeedback(message = '停车信息保存成功！') {
+            const feedback = document.createElement('div');
+            feedback.className = 'success-feedback';
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }, 3000);
+        }
+
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                saveBtnDom.classList.add('loading');
+                saveBtnDom.disabled = true;
+                saveBtnDom.textContent = '💾 保存中...';
+            } else {
+                saveBtnDom.classList.remove('loading');
+                saveBtnDom.disabled = false;
+                saveBtnDom.textContent = '💾 保存停车信息';
+            }
+        }
+
+        function animateCardTransition() {
+            // 表单向左滑出
+            formDom.style.transform = 'translateX(-100%)';
+            formDom.style.opacity = '0';
+            
+            setTimeout(() => {
+                formDom.style.display = 'none';
+                resultDom.style.display = 'block';
+                resultDom.style.transform = 'translateX(100%)';
+                resultDom.style.opacity = '0';
+                
+                // 结果向右滑入
+                setTimeout(() => {
+                    resultDom.style.transform = 'translateX(0)';
+                    resultDom.style.opacity = '1';
+                }, 50);
+            }, 300);
+        }
+
         function saveParkingInfo() {
             const floor = floorDom.value;
             const area = areaDom.value;
             const color = colorDom.value;
             const spotNumber = areaNumberDom.value;
             const remark = remarkDom.value;
-            parkingInfo = {
-                floor: floor,
-                area: area,
-                color: color,
-                spotNumber: spotNumber,
-                time: Date.parse(new Date()),
-                remark: remark
+
+            // 验证输入
+            if (!spotNumber) {
+                alert('请输入停车位号码');
+                areaNumberDom.focus();
+                return;
             }
-            localStorage.setItem('PARKING_INFO', JSON.stringify(parkingInfo))
-            // 更新显示内容
-            document.getElementById('result-floor').textContent = floor;
-            document.getElementById('result-area').textContent = area;
-            document.getElementById('result-color').style.backgroundColor = color;
-            document.getElementById('result-area-number').textContent = spotNumber;
-            document.getElementById('result-remark').textContent = remark;
-            // 显示结果
-            resultDom.style.display = 'block';
-            formDom.style.display = 'none'
-            updateTime()
-            notify()
+
+            setLoadingState(true);
+
+            // 模拟保存延迟
+            setTimeout(() => {
+                parkingInfo = {
+                    floor: floor,
+                    area: area,
+                    color: color,
+                    spotNumber: spotNumber,
+                    time: Date.parse(new Date()),
+                    remark: remark
+                }
+                
+                localStorage.setItem('PARKING_INFO', JSON.stringify(parkingInfo))
+                
+                // 更新显示内容
+                document.getElementById('result-floor').textContent = floor;
+                document.getElementById('result-area').textContent = area;
+                document.getElementById('result-color').style.backgroundColor = color;
+                document.getElementById('result-area-number').textContent = spotNumber;
+                document.getElementById('result-remark').textContent = remark || '无';
+                
+                setLoadingState(false);
+                animateCardTransition();
+                updateTime();
+                window.scrollTo(0, 0);
+                showSuccessFeedback();
+                notify();
+            }, 800);
         }
 
         function echoParkingInfo() {
@@ -210,16 +608,17 @@
                 document.getElementById('result-area').textContent = parkingInfo.area;
                 document.getElementById('result-color').style.backgroundColor = parkingInfo.color;
                 document.getElementById('result-area-number').textContent = parkingInfo.spotNumber;
+                document.getElementById('result-remark').textContent = parkingInfo.remark || '无';
                 resultDom.style.display = 'block';
-                updateTime()
-
+                formDom.style.display = 'none';
+                updateTime();
             }
-
         }
+
         function getParkedTime() {
             const parkedTime = new Date();
             const pastTime = parkedTime - parkingInfo.time;
-            console.log(parkingInfo);
+            
             // 显示时间 hh-mm-ss
             const hour = Math.floor(pastTime / 1000 / 60 / 60);
             const minute = Math.floor(pastTime / 1000 / 60) % 60;
@@ -227,24 +626,149 @@
             const displayTime = `${hour < 10 ? '0' + hour : hour}:${minute < 10 ? '0' + minute : minute}:${second < 10 ? '0' + second : second}`
             displayTimeDom.innerText = displayTime;
         }
+
         function updateTime() {
             displayTimeDom = document.getElementById('result-time');
+            if (timer) clearInterval(timer);
             timer = setInterval(() => {
                 getParkedTime()
             }, 1000);
         }
+
         function reset() {
+            // 添加确认对话框
+            if (!confirm('确定要重置停车信息吗？')) {
+                return;
+            }
+
             localStorage.removeItem('PARKING_INFO')
-            resultDom.style.display = 'none';
-            formDom.style.display = 'block'
+            
+            // 动画效果
+            resultDom.style.transform = 'translateX(100%)';
+            resultDom.style.opacity = '0';
+            
+            setTimeout(() => {
+                resultDom.style.display = 'none';
+                formDom.style.display = 'block';
+                formDom.style.transform = 'translateX(-100%)';
+                formDom.style.opacity = '0';
+                
+                setTimeout(() => {
+                    formDom.style.transform = 'translateX(0)';
+                    formDom.style.opacity = '1';
+                }, 50);
+            }, 300);
 
             parkingInfo = {}
             clearInterval(timer)
-        }
-        function notify() {
-            fetch('http://cc.mingo.wang:3123/notify')
+            
+            // 重置表单
+            floorDom.value = 'B1';
+            areaDom.value = 'A';
+            colorDom.value = '#0000ff';
+            areaNumberDom.value = '';
+            remarkDom.value = '';
+            
+            showSuccessFeedback('停车信息已重置');
         }
 
+        async function notify() {
+            try {
+                const res = await fetch('./notify');
+                const data = await res.json();
+                console.log('Notify result:', data);
+                
+                if (data.code === 200) {
+                    showSuccessFeedback('停车通知任务已启动！将在50分钟后开始提醒');
+                } else {
+                    showSuccessFeedback('启动通知任务失败！');
+                }
+            } catch (error) {
+                console.error('Notify failed:', error);
+                showSuccessFeedback('启动通知任务失败！');
+            }
+        }
+
+        async function testNotify() {
+            const testBtn = document.getElementById('test-btn');
+            const originalText = testBtn.textContent;
+            
+            testBtn.disabled = true;
+            testBtn.textContent = '🔔 测试中...';
+            
+            try {
+                const res = await fetch('./mock');
+                const data = await res.json();
+                console.log('Mock test result:', data);
+                showSuccessFeedback('Mock 测试成功！');
+            } catch (error) {
+                console.error('Mock test failed:', error);
+                showSuccessFeedback('Mock 测试失败！');
+            } finally {
+                setTimeout(() => {
+                    testBtn.disabled = false;
+                    testBtn.textContent = originalText;
+                }, 1000);
+            }
+        }
+
+        async function clearNotifyTasks() {
+            if (!confirm('确定要清空所有通知任务吗？')) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('./clear');
+                const data = await res.json();
+                console.log('Clear tasks result:', data);
+                
+                if (data.code === 200) {
+                    showSuccessFeedback(`已清空 ${data.data.clearedTasksCount} 个通知任务！`);
+                } else {
+                    showSuccessFeedback('清空任务失败！');
+                }
+            } catch (error) {
+                console.error('Clear tasks failed:', error);
+                showSuccessFeedback('清空任务失败！');
+            }
+        }
+
+        async function checkNotifyStatus() {
+            try {
+                const res = await fetch('./status');
+                const data = await res.json();
+                console.log('Notify status:', data);
+                
+                if (data.code === 200) {
+                    const statusInfo = data.data;
+                    const message = `
+通知状态信息：
+• 当前通知次数：${statusInfo.currentNotifyCount}/${statusInfo.maxNotifyCount}
+• 剩余通知次数：${statusInfo.remainingNotifyCount}
+• 队列中任务数：${statusInfo.queueStatus.tasksCount}
+• 队列处理状态：${statusInfo.queueStatus.processing ? '处理中' : '空闲'}
+                    `.trim();
+                    
+                    alert(message);
+                } else {
+                    showSuccessFeedback('获取状态失败！');
+                }
+            } catch (error) {
+                console.error('Check status failed:', error);
+                showSuccessFeedback('获取状态失败！');
+            }
+        }
+
+        // 页面可见性变化时暂停/恢复计时器
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (timer) clearInterval(timer);
+            } else {
+                if (parkingInfo.time && resultDom.style.display !== 'none') {
+                    updateTime();
+                }
+            }
+        });
     </script>
 </body>
 
