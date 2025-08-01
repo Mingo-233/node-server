@@ -1,3 +1,4 @@
+
 # 停车提醒服务器 🚗
 
 一个智能的停车时间提醒服务，当停车时间超过设定阈值时自动发送通知。
@@ -15,7 +16,8 @@
 
 ### 构建镜像
 
-docker build --platform linux/amd64 -t park-web:v1.0.0 -f park.dockerfile .
+docker build --platform linux/amd64 -t park-web:v1.0.2 -f park.dockerfile .
+docker build -t park-web:v1.0.2 -f park.dockerfile .
 
 docker tag park-web:v1.0.0 mingooao/park-web:v1.0.0
 docker push mingooao/park-web:v1.0.0

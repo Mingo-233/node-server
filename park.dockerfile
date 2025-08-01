@@ -1,11 +1,6 @@
 
 FROM node:18.20.5-bullseye-slim
 
-# 安装必要的系统依赖，包括git
-RUN apt-get update && apt-get install -y \
-  git \
-  && rm -rf /var/lib/apt/lists/*
-
 # 设置工作目录
 WORKDIR /app
 
@@ -27,9 +22,8 @@ RUN pm2 set pm2-logrotate:max_size 100M \
 RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
   && echo 'Asia/Shanghai' >/etc/timezone
 
-# 克隆代码仓库到/app目录
-RUN git clone --single-branch --branch parking https://github.com/Mingo-233/node-server.git . \
-  && rm -rf .git
+# 先复制依赖配置文件
+COPY package.json pnpm-lock.yaml ./
 
 # 安装项目依赖
 RUN echo "开始安装依赖..." \
@@ -37,7 +31,10 @@ RUN echo "开始安装依赖..." \
   && echo "依赖安装完成，验证关键模块..." \
   && test -d node_modules/express || (echo "错误：express 模块未找到" && exit 1) \
   && echo "验证成功，关键依赖已正确安装" \
-  && pnpm list express pm2
+  && pnpm list --depth=0
+
+# 复制项目代码
+COPY . .
 
 # 创建日志目录
 RUN mkdir -p logs
@@ -46,7 +43,7 @@ RUN mkdir -p logs
 EXPOSE 3123
 
 # 设置启动命令
-# CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]
 
 
 
