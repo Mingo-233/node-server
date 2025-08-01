@@ -32,10 +32,12 @@ RUN git clone --single-branch --branch parking https://github.com/Mingo-233/node
   && rm -rf .git
 
 # 安装项目依赖
-RUN pnpm install --frozen-lockfile --prod \
-  && echo "依赖安装完成，检查关键模块..." \
-  && ls -la node_modules/express || echo "警告：express 模块未找到" \
-  && pnpm list express
+RUN echo "开始安装依赖..." \
+  && pnpm install --prod \
+  && echo "依赖安装完成，验证关键模块..." \
+  && test -d node_modules/express || (echo "错误：express 模块未找到" && exit 1) \
+  && echo "验证成功，关键依赖已正确安装" \
+  && pnpm list express pm2
 
 # 创建日志目录
 RUN mkdir -p logs
@@ -44,7 +46,7 @@ RUN mkdir -p logs
 EXPOSE 3123
 
 # 设置启动命令
-CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+# CMD ["pm2-runtime", "start", "ecosystem.config.js"]
 
 
 
