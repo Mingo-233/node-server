@@ -32,7 +32,10 @@ RUN git clone --single-branch --branch parking https://github.com/Mingo-233/node
   && rm -rf .git
 
 # 安装项目依赖
-RUN pnpm install --prod
+RUN pnpm install --frozen-lockfile --prod \
+  && echo "依赖安装完成，检查关键模块..." \
+  && ls -la node_modules/express || echo "警告：express 模块未找到" \
+  && pnpm list express
 
 # 创建日志目录
 RUN mkdir -p logs

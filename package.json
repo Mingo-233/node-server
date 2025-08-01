@@ -14,15 +14,18 @@
     "pm2:monit": "pm2 monit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["parking", "notification", "server"],
+  "keywords": [
+    "parking",
+    "notification",
+    "server"
+  ],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "express": "^4.17.1",
-    "nodemon": "^3.0.1"
-  },
   "dependencies": {
-    "axios": "^1.7.5",
+    "express": "^4.17.1",
     "pm2": "^5.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
