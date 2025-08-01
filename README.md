@@ -13,11 +13,11 @@
 
 ## 🚀 快速开始
 
-### depoly
+### deploy
 
 docker run -it -v $PWD/mylogs:/src/logs -p 3123:3123 -d --name my-node m-node-env:v2.0.0
+git clone --single-branch --branch parking https://github.com/Mingo-233/node-server.git
 
-https://github.com/Mingo-233/node-server.git
 git checkout parking
 
 ## 📋 可用脚本
@@ -32,26 +32,6 @@ git checkout parking
 | `npm run pm2:delete`  | 删除 PM2 服务                    |
 | `npm run pm2:logs`    | 查看服务日志                     |
 | `npm run pm2:monit`   | 监控服务状态                     |
-
-## 📊 监控和日志
-
-### 查看服务状态
-
-```bash
-pm2 status
-```
-
-### 查看实时日志
-
-```bash
-pm2 logs parking-server
-```
-
-### 监控面板
-
-```bash
-pm2 monit
-```
 
 ### 日志文件位置
 
