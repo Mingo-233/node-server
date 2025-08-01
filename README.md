@@ -13,12 +13,18 @@
 
 ## 🚀 快速开始
 
-### deploy
+### 构建镜像
 
-docker run -it -v $PWD/mylogs:/src/logs -p 3123:3123 -d --name my-node m-node-env:v2.0.0
-git clone --single-branch --branch parking https://github.com/Mingo-233/node-server.git
+docker build --platform linux/amd64 -t park-web:v1.0.0 -f park.dockerfile .
 
-git checkout parking
+docker tag park-web:v1.0.0 mingooao/park-web:v1.0.0
+docker push mingooao/park-web:v1.0.0
+
+### 运行容器
+
+docker run -d -p 3123:3123 --name parking-server parking-server
+
+docker run -it -v $PWD/park-logs:/app/logs -p 5005:3123 -d --name park-web mingo-node-env:v2.0.1
 
 ## 📋 可用脚本
 
