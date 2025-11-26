@@ -26,6 +26,8 @@ docker run -d -p 3123:3123 --name parking-server parking-server
 
 docker run -it -v $PWD/logs:/app/logs -p 3123:3123 -d --name park-web park-web:v1.0.3
 
+docker run -it --network host -v "$PWD/logs:/app/logs" -d --name park-web park-web:v1.0.3
+
 ## 📋 可用脚本
 
 | 命令                  | 说明                             |
