@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product Size Generator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+      }
+      .canvas-wrapper {
+        border: 1px solid #ccc;
+        /* Visual scale for screen, actual canvas is 800x800 */
+        width: 500px;
+        height: 500px;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        min-width: 250px;
+      }
+      .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      label {
+        font-weight: bold;
+        font-size: 14px;
+        color: #333;
+      }
+      input[type="file"] {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 12px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .preview-hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Product Size Template Tool</h1>
+
+    <div class="container">
+      <div class="canvas-wrapper">
+        <!-- Actual size 800x800, displayed via CSS as 500x500 -->
+        <canvas id="canvas" width="800" height="800"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="upload">1. Upload Design (Pattern)</label>
+          <input type="file" id="upload" accept="image/*" />
+          <p class="preview-hint">
+            Supports PNG, JPG. Will replace the card area.
+          </p>
+        </div>
+
+        <div class="control-group">
+          <label>2. Export</label>
+          <button id="downloadBtn">Download PNG (800x800)</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Configuration for layout
+      const CONFIG = {
+        canvasSize: 800,
+        // Card Area (Left side)
+        card: {
+          x: 50, // Reduced from 80
+          y: 240,
+          w: 350, // Approx width based on 4.7 inch ratio
+          h: 520, // Approx height based on 7.1 inch ratio
+        },
+        rightTextX: 480, // New config for text column start position
+        // Colors
+        colors: {
+          textBlack: "#000000",
+          textRed: "#8B0000", // Dark red matches the image better
+          line: "#333333",
+        },
+      };
+
+      // State
+      let currentDesignImage = null;
+
+      // Initialize
+      window.onload = () => {
+        drawCanvas();
+      };
+
+      // Handle Upload
+      document.getElementById("upload").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            currentDesignImage = img;
+            drawCanvas();
+          };
+          img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Handle Download
+      document.getElementById("downloadBtn").addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = "product-size-export.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+
+      // Main Drawing Function
+      function drawCanvas() {
+        // 1. Clear & Background
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, CONFIG.canvasSize, CONFIG.canvasSize);
+
+        // 2. Draw Header "PRODUCT SIZE"
+        ctx.fillStyle = CONFIG.colors.textBlack;
+        ctx.font = " 900 90px Arial Black, sans-serif"; // Bold italic
+        ctx.textAlign = "center";
+        ctx.fillText("PRODUCT SIZE", CONFIG.canvasSize / 2, 100);
+
+        // 3. Draw Card Area (The Design)
+        drawCardArea();
+
+        // 4. Draw Dimensions Lines (Left/Top)
+        drawDimensionLines();
+
+        // 5. Draw Right Side Text Info
+        drawInfoText();
+      }
+
+      function drawCardArea() {
+        const { x, y, w, h } = CONFIG.card;
+
+        // Draw Card Shadow
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 5;
+        ctx.shadowOffsetY = 5;
+
+        // Draw Card Background (White placeholder if no image)
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(x, y, w, h);
+        ctx.restore();
+
+        // Draw Design Image if exists
+        if (currentDesignImage) {
+          // Draw image covering the card area (stretch or crop? Let's do fill for now as per request)
+          // Use 'drawImage' directly to fit.
+          ctx.drawImage(currentDesignImage, x, y, w, h);
+        } else {
+          // Default placeholder text simulating the "HI I MISS YOUR FACE"
+          ctx.fillStyle = "#000000";
+          ctx.font = "40px 'Arial Narrow', sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          const centerX = x + w / 2;
+          const centerY = y + h / 2;
+
+          ctx.fillText("UPLOAD", centerX, centerY - 40);
+          ctx.fillText("YOUR", centerX, centerY);
+          ctx.fillText("DESIGN", centerX, centerY + 40);
+
+          // Draw a light border to show area
+          ctx.strokeStyle = "#ddd";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x, y, w, h);
+        }
+      }
+
+      function drawDimensionLines() {
+        const { x, y, w, h } = CONFIG.card;
+
+        ctx.beginPath();
+        ctx.strokeStyle = CONFIG.colors.line;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+
+        // --- Top Horizontal Line (Width) ---
+        // Reference Y for the top line
+        const topRefY = y - 40;
+        const leftX = x;
+        const rightX = x + w;
+        const centerX = (leftX + rightX) / 2;
+
+        // Prepare Text to measure gap
+        ctx.font = "20px Arial, sans-serif";
+        ctx.textAlign = "center";
+        const widthText = "12CM/4.7IN";
+        const textMetrics = ctx.measureText(widthText);
+        const textGap = textMetrics.width + 20; // 10px padding each side
+
+        // Line Part 1 (Left)
+        ctx.moveTo(leftX, topRefY);
+        ctx.lineTo(centerX - textGap / 2, topRefY);
+
+        // Line Part 2 (Right)
+        ctx.moveTo(centerX + textGap / 2, topRefY);
+        ctx.lineTo(rightX, topRefY);
+
+        // Vertical ticks
+        ctx.moveTo(leftX, topRefY - 10);
+        ctx.lineTo(leftX, topRefY + 10);
+        ctx.moveTo(rightX, topRefY - 10);
+        ctx.lineTo(rightX, topRefY + 10);
+
+        // Draw Text
+        ctx.fillStyle = CONFIG.colors.textBlack;
+        ctx.fillText(widthText, centerX, topRefY + 0);
+
+        // --- Right Vertical Line (Height) ---
+        const rightRefX = x + w + 40;
+        const topY = y;
+        const bottomY = y + h;
+        const centerY = (topY + bottomY) / 2;
+
+        // Prepare Text for Height
+        const heightText = "18CM/7.1IN";
+        const hTextWidth = ctx.measureText(heightText).width;
+        const hTextGap = hTextWidth + 20;
+
+        // Line Part 1 (Top)
+        ctx.moveTo(rightRefX, topY);
+        ctx.lineTo(rightRefX, centerY - hTextGap / 2);
+
+        // Line Part 2 (Bottom)
+        ctx.moveTo(rightRefX, centerY + hTextGap / 2);
+        ctx.lineTo(rightRefX, bottomY);
+
+        // Horizontal ticks
+        ctx.moveTo(rightRefX - 10, topY);
+        ctx.lineTo(rightRefX + 10, topY);
+        ctx.moveTo(rightRefX - 10, bottomY);
+        ctx.lineTo(rightRefX + 10, bottomY);
+
+        ctx.stroke(); // Commit lines
+
+        // Text: 18CM/7.1IN (Rotated)
+        ctx.save();
+        ctx.translate(rightRefX, centerY);
+        ctx.rotate((90 * Math.PI) / 180);
+        ctx.fillStyle = CONFIG.colors.textBlack;
+        ctx.textAlign = "center";
+        ctx.fillText(heightText, 0, 2);
+        ctx.restore();
+      }
+
+      function drawInfoText() {
+        let startX = CONFIG.rightTextX; // Use config value
+        let startY = 280;
+        const lineHeight = 70; // Spacing between blocks
+
+        ctx.textAlign = "left";
+
+        // 1. Size
+        drawKeyValue(startX, startY, "Size:", "4.7x7.1Inch", true);
+
+        // 2. GSM
+        startY += lineHeight;
+        ctx.font = "bold 28px Arial, sans-serif";
+        ctx.fillStyle = CONFIG.colors.textRed;
+        ctx.fillText("300GSM", startX + 50, startY); // Indented slightly to align center visually
+
+        // 3. Package
+        startY += lineHeight;
+        drawKeyValue(startX, startY, "Package:", "Cardx1", true);
+
+        // 4. Envelope
+        startY += 50; // Less space
+        ctx.fillStyle = CONFIG.colors.textRed;
+        ctx.font = "bold 28px Arial, sans-serif";
+        ctx.fillText("Envelopex1", startX + 50, startY); // Align with value above
+
+        // 5. Bottom Text
+        startY += 120;
+        // Calculate center for bottom block based on estimated column width
+        // Assuming column width is roughly from rightTextX to right edge (800)
+        const columnCenter = startX + 130; // Approximate center offset for the text block relative to startX
+
+        ctx.textAlign = "center"; // Switch to center alignment
+
+        ctx.fillStyle = CONFIG.colors.textRed;
+        ctx.font = "bold 24px Arial, sans-serif";
+        ctx.fillText("Followed", columnCenter, startY);
+
+        startY += 40;
+        ctx.fillText("Our Shop:", columnCenter, startY);
+
+        startY += 40;
+        ctx.fillStyle = CONFIG.colors.textBlack; // Black for the rest?
+        ctx.font = "bold 22px Arial, sans-serif";
+        ctx.fillText("We Will Bring In", columnCenter, startY);
+
+        startY += 40;
+        ctx.fillText("New Products", columnCenter, startY);
+
+        startY += 40;
+        ctx.fillText("Frequently.", columnCenter, startY);
+      }
+
+      // Helper to draw "Key: Value" where Value is Red
+      function drawKeyValue(x, y, key, value, isValueRed = false) {
+        ctx.font = "bold 28px Arial, sans-serif";
+        ctx.fillStyle = CONFIG.colors.textBlack;
+        ctx.fillText(key, x, y);
+
+        const keyWidth = ctx.measureText(key).width;
+
+        if (isValueRed) {
+          ctx.fillStyle = CONFIG.colors.textRed;
+        }
+        // Add small spacing
+        ctx.fillText(value, x + keyWidth + 10, y);
+      }
+    </script>
+  </body>
+</html>
