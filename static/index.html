@@ -4,15 +4,20 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#1a1a1a" />
+    <meta name="theme-color" content="#0f0f23" />
     <title>停车位置信息记录</title>
     <style>
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+      }
+
+      html {
+        background: #0f0f23;
+        min-height: 100%;
       }
 
       body {
@@ -24,9 +29,15 @@
           #1a1a2e 50%,
           #16213e 100%
         );
+        background-attachment: fixed;
         color: #e0e6ed;
         min-height: 100vh;
-        padding: 20px;
+        padding: calc(20px + env(safe-area-inset-top)) calc(
+            20px + env(safe-area-inset-right)
+          )
+          calc(20px + env(safe-area-inset-bottom)) calc(
+            20px + env(safe-area-inset-left)
+          );
         position: relative;
         overflow-x: hidden;
       }
@@ -94,12 +105,6 @@
         }
       }
 
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4),
-          inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      }
-
       .form-group {
         margin-bottom: 20px;
         position: relative;
@@ -107,7 +112,7 @@
 
       label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         font-weight: 600;
         font-size: 14px;
         color: #a8b2d1;
@@ -115,10 +120,7 @@
         letter-spacing: 0.5px;
       }
 
-      select,
-      input[type="text"],
-      input[type="number"],
-      input[type="color"] {
+      input[type="text"] {
         width: 100%;
         padding: 16px 20px;
         background: rgba(15, 15, 35, 0.9);
@@ -130,40 +132,154 @@
         appearance: none;
       }
 
-      select:focus,
       input:focus {
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2),
           0 0 20px rgba(102, 126, 234, 0.3);
-        transform: translateY(-1px);
       }
 
-      select {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a8b2d1' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 12px center;
-        background-repeat: no-repeat;
-        background-size: 16px;
-        cursor: pointer;
+      .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
       }
 
-      #color {
-        height: 60px;
-        padding: 8px;
-        cursor: pointer;
-        border-radius: 12px;
+      .photo-item {
         position: relative;
+        aspect-ratio: 1;
+        border-radius: 12px;
         overflow: hidden;
+        background: rgba(15, 15, 35, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        animation: slideInUp 0.4s ease-out;
+      }
+
+      .photo-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        cursor: zoom-in;
+        display: block;
+      }
+
+      .photo-delete {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: rgba(238, 90, 82, 0.9);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      .photo-add {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed rgba(102, 126, 234, 0.5);
+        border-radius: 12px;
+        cursor: pointer;
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.06);
+        transition: all 0.3s ease;
+        gap: 4px;
+      }
+
+      .photo-add:hover {
+        background: rgba(102, 126, 234, 0.18);
+        border-color: #667eea;
+        transform: translateY(-2px);
+      }
+
+      .photo-add-icon {
+        font-size: 28px;
+      }
+
+      .photo-add-text {
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .empty-photo-hint {
+        text-align: center;
+        padding: 30px 10px 10px;
+        color: #6b7280;
+        font-size: 13px;
+      }
+
+      .time-info {
+        background: linear-gradient(
+          135deg,
+          rgba(26, 42, 62, 0.9) 0%,
+          rgba(15, 15, 35, 0.9) 100%
+        );
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        border-radius: 16px;
+        padding: 16px 20px;
+        margin: 20px 0;
+        box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.15);
+      }
+
+      .time-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+      }
+
+      .time-row + .time-row {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .time-label {
+        font-size: 14px;
+        color: #a8b2d1;
+        font-weight: 600;
+      }
+
+      .time-value {
+        font-family: "Courier New", monospace;
+        font-weight: 600;
+        color: #e0e6ed;
+      }
+
+      #result-time {
+        font-size: 18px;
+        color: #4facfe;
+        text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.75;
+        }
       }
 
       .btn {
         width: 100%;
-        padding: 18px;
+        padding: 16px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
         border-radius: 12px;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -171,7 +287,7 @@
         overflow: hidden;
         text-transform: uppercase;
         letter-spacing: 1px;
-        margin-bottom: 15px;
+        margin-bottom: 12px;
       }
 
       .btn::before {
@@ -210,186 +326,41 @@
         box-shadow: none;
       }
 
-      .btn-secondary {
+      .btn-info {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       }
 
-      .btn-secondary:hover {
+      .btn-info:hover {
         box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
       }
 
-      .result {
-        position: relative;
-        background: linear-gradient(
-          135deg,
-          rgba(26, 42, 62, 0.9) 0%,
-          rgba(15, 15, 35, 0.9) 100%
-        );
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(102, 126, 234, 0.3);
-        border-radius: 20px;
-        padding: 25px;
-        animation: slideInDown 0.6s ease-out;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-          0 0 0 1px rgba(102, 126, 234, 0.2);
-      }
-
-      @keyframes slideInDown {
-        from {
-          opacity: 0;
-          transform: translateY(-30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .result h3 {
-        font-size: 20px;
-        margin-bottom: 20px;
-        color: #667eea;
-        text-align: center;
-        font-weight: 700;
-      }
-
-      .result p {
-        margin-bottom: 12px;
-        font-size: 16px;
-        display: flex;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .result p:last-of-type {
-        border-bottom: none;
-      }
-
-      .result span {
-        margin-left: auto;
-        font-weight: 600;
-      }
-
-      #result-color {
-        width: 24px !important;
-        height: 24px !important;
-        border-radius: 6px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        margin-left: auto !important;
-      }
-
-      #result-time {
-        font-family: "Courier New", monospace;
-        font-size: 18px;
-        color: #4facfe;
-        text-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-
-      .reset-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
+      .btn-danger {
         background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
       }
 
-      .reset-btn:hover {
-        transform: rotate(90deg) scale(1.1);
-        box-shadow: 0 6px 20px rgba(238, 90, 82, 0.5);
+      .btn-danger:hover {
+        box-shadow: 0 10px 25px rgba(238, 90, 82, 0.4);
       }
 
-      .form-operation {
-        animation: fadeIn 0.8s ease-out;
+      .btn-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
+      .btn-row .btn {
+        margin-bottom: 0;
+        padding: 14px 8px;
+        font-size: 13px;
       }
 
-      /* 深色模式优化 */
       ::placeholder {
         color: #6b7280;
       }
 
-      /* 响应式设计 */
-      @media (max-width: 480px) {
-        body {
-          padding: 15px;
-        }
-
-        .card {
-          padding: 20px;
-          border-radius: 16px;
-        }
-
-        h2 {
-          font-size: 24px;
-          margin-bottom: 25px;
-        }
-      }
-
-      /* 加载动画 */
-      .loading {
-        opacity: 0.7;
-        pointer-events: none;
-      }
-
-      .loading .btn::after {
-        content: "";
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        border: 2px solid transparent;
-        border-top: 2px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-
-      @keyframes spin {
-        0% {
-          transform: translateY(-50%) rotate(0deg);
-        }
-        100% {
-          transform: translateY(-50%) rotate(360deg);
-        }
-      }
-
-      /* 成功反馈动画 */
       .success-feedback {
         position: fixed;
-        top: 20px;
+        top: calc(20px + env(safe-area-inset-top));
         left: 50%;
         transform: translateX(-50%);
         background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
@@ -397,8 +368,10 @@
         padding: 12px 24px;
         border-radius: 25px;
         box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
-        z-index: 1000;
+        z-index: 1100;
         animation: successSlide 3s ease-out;
+        max-width: 90%;
+        text-align: center;
       }
 
       @keyframes successSlide {
@@ -416,6 +389,66 @@
           transform: translateX(-50%) translateY(-100%);
         }
       }
+
+      .photo-viewer {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1200;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .photo-viewer.show {
+        display: flex;
+      }
+
+      .photo-viewer img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      .photo-viewer-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: calc(15px + env(safe-area-inset-top)) calc(
+              15px + env(safe-area-inset-right)
+            )
+            calc(15px + env(safe-area-inset-bottom)) calc(
+              15px + env(safe-area-inset-left)
+            );
+        }
+
+        .card {
+          padding: 20px;
+          border-radius: 16px;
+        }
+
+        h2 {
+          font-size: 24px;
+          margin-bottom: 25px;
+        }
+      }
     </style>
   </head>
 
@@ -423,305 +456,281 @@
     <div class="container">
       <h2>🚗 Parking Information</h2>
 
-      <div class="result card" id="result" style="display: none">
-        <h3>📍 Last saved location</h3>
-        <p>楼层: <span id="result-floor"></span></p>
-        <p>区域: <span id="result-area"></span></p>
-        <p>
-          停车位颜色:
-          <span
-            id="result-color"
-            style="display: inline-block; width: 20px; height: 20px"
-          ></span>
-        </p>
-        <p>停车位号码: <span id="result-area-number"></span></p>
-        <p>停车时间: <span id="result-time"></span></p>
-        <p>备注: <span id="result-remark"></span></p>
-        <button class="reset-btn" onclick="reset()">✕</button>
-      </div>
-
-      <div class="form-operation card">
-        <div class="form-group">
-          <label for="floor">🏢 当前楼层</label>
-          <select id="floor">
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
-            <option value="B3">B3</option>
-            <option value="L1">L1</option>
-            <option value="L2">L2</option>
-            <option value="L3">L3</option>
-            <option value="L4">L4</option>
-            <option value="L5">L5</option>
-          </select>
+      <div class="card">
+        <label>📷 停车照片</label>
+        <div class="photo-grid" id="photo-grid"></div>
+        <div
+          class="empty-photo-hint"
+          id="empty-photo-hint"
+          style="display: none"
+        >
+          点击上方按钮拍摄停车位照片，可拍摄多张
         </div>
+        <input
+          type="file"
+          id="photo-input"
+          accept="image/*"
+          capture="environment"
+          style="display: none"
+        />
 
-        <div class="form-group">
-          <label for="area">📍 当前停车位区域</label>
-          <select id="area">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="G">G</option>
-            <option value="H">H</option>
-            <option value="I">I</option>
-            <option value="J">J</option>
-            <option value="K">K</option>
-            <option value="L">L</option>
-            <option value="M">M</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="color">🎨 设置当前停车位区域主颜色</label>
-          <input type="color" id="color" value="#0000ff" />
-        </div>
-
-        <div class="form-group">
-          <label for="area-number">🔢 设置当前停车位号码</label>
-          <input type="number" id="area-number" placeholder="例如：118" />
-        </div>
-
-        <div class="form-group">
+        <div class="form-group" style="margin-top: 22px; margin-bottom: 0">
           <label for="remark">📝 备注</label>
-          <input type="text" id="remark" placeholder="额外信息" />
+          <input type="text" id="remark" placeholder="额外信息（可选）" />
         </div>
 
-        <button class="btn" id="save-btn" onclick="saveParkingInfo()">
-          💾 保存停车信息
-        </button>
+        <div class="time-info" id="time-info" style="display: none">
+          <div class="time-row">
+            <span class="time-label">停车开始时间</span>
+            <span class="time-value" id="result-start-time"></span>
+          </div>
+          <div class="time-row">
+            <span class="time-label">已停车时长</span>
+            <span class="time-value" id="result-time">00:00:00</span>
+          </div>
+        </div>
 
-        <button class="btn btn-secondary" id="test-btn" onclick="testNotify()">
-          🔔 Mock Test
-        </button>
-
-        <button
-          class="btn"
-          style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)"
-          onclick="clearNotifyTasks()"
-        >
-          🗑️ 清空通知任务
-        </button>
-
-        <button
-          class="btn"
-          style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
-          onclick="checkNotifyStatus()"
-        >
-          📊 查看通知状态
-        </button>
+        <div style="margin-top: 20px">
+          <button class="btn" id="save-btn" onclick="saveParkingInfo()">
+            💾 保存停车信息
+          </button>
+          <button class="btn btn-danger" onclick="clearAll()">🗑️ 清空</button>
+          <div class="btn-row">
+            <button class="btn btn-info" id="test-btn" onclick="testNotify()">
+              🔔 Mock Test
+            </button>
+            <button class="btn btn-info" onclick="checkNotifyStatus()">
+              📊 通知状态
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
+    <div class="photo-viewer" id="photo-viewer" onclick="closeViewer()">
+      <button class="photo-viewer-close" onclick="closeViewer()">✕</button>
+      <img id="viewer-img" alt="" />
+    </div>
+
     <script>
-      let parkingInfo = {};
-      let displayTimeDom = null;
-      const floorDom = document.getElementById("floor");
-      const areaDom = document.getElementById("area");
-      const colorDom = document.getElementById("color");
-      const areaNumberDom = document.getElementById("area-number");
-      const remarkDom = document.getElementById("remark");
-      const resultDom = document.getElementById("result");
-      const formDom = document.querySelector(".form-operation");
-      const saveBtnDom = document.getElementById("save-btn");
+      const STORAGE_KEY = "PARKING_INFO";
+      let parkingInfo = { photos: [], remark: "", time: null };
       let timer = null;
 
-      // 页面加载动画
-      document.addEventListener("DOMContentLoaded", function () {
-        echoParkingInfo();
-        addInteractiveEffects();
+      const photoInput = document.getElementById("photo-input");
+      const photoGrid = document.getElementById("photo-grid");
+      const emptyHint = document.getElementById("empty-photo-hint");
+      const remarkDom = document.getElementById("remark");
+      const timeInfoDom = document.getElementById("time-info");
+      const resultTimeDom = document.getElementById("result-time");
+      const resultStartTimeDom = document.getElementById("result-start-time");
+      const saveBtnDom = document.getElementById("save-btn");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadParkingInfo();
+        photoInput.addEventListener("change", handlePhotoSelect);
       });
 
-      function addInteractiveEffects() {
-        // 为输入框添加焦点动效
-        const inputs = document.querySelectorAll("input, select");
-        inputs.forEach((input) => {
-          input.addEventListener("focus", function () {
-            this.parentElement.style.transform = "translateY(-2px)";
-          });
+      function loadParkingInfo() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            parkingInfo = {
+              photos: Array.isArray(parsed.photos) ? parsed.photos : [],
+              remark: parsed.remark || "",
+              time: parsed.time || null,
+            };
+          } catch {
+            parkingInfo = { photos: [], remark: "", time: null };
+          }
+        }
+        remarkDom.value = parkingInfo.remark || "";
+        renderPhotos();
+        if (parkingInfo.time) {
+          showTimeInfo();
+          startTimer();
+        }
+      }
 
-          input.addEventListener("blur", function () {
-            this.parentElement.style.transform = "translateY(0)";
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parkingInfo));
+        } catch (e) {
+          console.error("Persist failed:", e);
+          showSuccessFeedback("存储空间不足，请删除部分照片");
+        }
+      }
+
+      function renderPhotos() {
+        photoGrid.innerHTML = "";
+        parkingInfo.photos.forEach((photo, idx) => {
+          const item = document.createElement("div");
+          item.className = "photo-item";
+          const img = document.createElement("img");
+          img.src = photo;
+          img.alt = `photo-${idx}`;
+          img.addEventListener("click", () => viewPhoto(idx));
+          const del = document.createElement("button");
+          del.className = "photo-delete";
+          del.textContent = "✕";
+          del.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePhoto(idx);
           });
+          item.appendChild(img);
+          item.appendChild(del);
+          photoGrid.appendChild(item);
+        });
+        const addBtn = document.createElement("div");
+        addBtn.className = "photo-add";
+        addBtn.innerHTML =
+          '<span class="photo-add-icon">📷</span><span class="photo-add-text">拍摄</span>';
+        addBtn.addEventListener("click", () => photoInput.click());
+        photoGrid.appendChild(addBtn);
+
+        emptyHint.style.display = parkingInfo.photos.length ? "none" : "block";
+      }
+
+      function handlePhotoSelect(e) {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        Promise.all(files.map(compressImage))
+          .then((results) => {
+            parkingInfo.photos.push(...results);
+            persist();
+            renderPhotos();
+          })
+          .catch((err) => {
+            console.error("Compress failed:", err);
+            showSuccessFeedback("照片处理失败");
+          });
+        e.target.value = "";
+      }
+
+      function compressImage(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(reader.error);
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onerror = () => reject(new Error("image load failed"));
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              const maxSize = 1280;
+              let { width, height } = img;
+              if (width > height && width > maxSize) {
+                height = Math.round((height * maxSize) / width);
+                width = maxSize;
+              } else if (height > maxSize) {
+                width = Math.round((width * maxSize) / height);
+                height = maxSize;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL("image/jpeg", 0.7));
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
         });
       }
 
-      function showSuccessFeedback(message = "停车信息保存成功！") {
-        const feedback = document.createElement("div");
-        feedback.className = "success-feedback";
-        feedback.textContent = message;
-        document.body.appendChild(feedback);
-
-        setTimeout(() => {
-          if (feedback.parentNode) {
-            feedback.parentNode.removeChild(feedback);
-          }
-        }, 3000);
+      function deletePhoto(idx) {
+        if (!confirm("删除这张照片？")) return;
+        parkingInfo.photos.splice(idx, 1);
+        persist();
+        renderPhotos();
       }
 
-      function setLoadingState(isLoading) {
-        if (isLoading) {
-          saveBtnDom.classList.add("loading");
-          saveBtnDom.disabled = true;
-          saveBtnDom.textContent = "💾 保存中...";
-        } else {
-          saveBtnDom.classList.remove("loading");
-          saveBtnDom.disabled = false;
-          saveBtnDom.textContent = "💾 保存停车信息";
-        }
+      function viewPhoto(idx) {
+        const viewer = document.getElementById("photo-viewer");
+        document.getElementById("viewer-img").src = parkingInfo.photos[idx];
+        viewer.classList.add("show");
       }
 
-      function animateCardTransition() {
-        // 表单向左滑出
-        formDom.style.transform = "translateX(-100%)";
-        formDom.style.opacity = "0";
-
-        setTimeout(() => {
-          formDom.style.display = "none";
-          resultDom.style.display = "block";
-          resultDom.style.transform = "translateX(100%)";
-          resultDom.style.opacity = "0";
-
-          // 结果向右滑入
-          setTimeout(() => {
-            resultDom.style.transform = "translateX(0)";
-            resultDom.style.opacity = "1";
-          }, 50);
-        }, 300);
+      function closeViewer() {
+        document.getElementById("photo-viewer").classList.remove("show");
       }
 
       function saveParkingInfo() {
-        const floor = floorDom.value;
-        const area = areaDom.value;
-        const color = colorDom.value;
-        const spotNumber = areaNumberDom.value;
-        const remark = remarkDom.value;
-
-        // 验证输入
-        if (!spotNumber) {
-          alert("请输入停车位号码");
-          areaNumberDom.focus();
+        if (parkingInfo.photos.length === 0) {
+          alert("请至少拍摄一张停车照片");
           return;
         }
 
-        setLoadingState(true);
+        saveBtnDom.disabled = true;
+        const originalText = saveBtnDom.textContent;
+        saveBtnDom.textContent = "💾 保存中...";
 
-        // 模拟保存延迟
-        setTimeout(() => {
-          parkingInfo = {
-            floor: floor,
-            area: area,
-            color: color,
-            spotNumber: spotNumber,
-            time: Date.parse(new Date()),
-            remark: remark,
-          };
-
-          localStorage.setItem("PARKING_INFO", JSON.stringify(parkingInfo));
-
-          // 更新显示内容
-          document.getElementById("result-floor").textContent = floor;
-          document.getElementById("result-area").textContent = area;
-          document.getElementById("result-color").style.backgroundColor = color;
-          document.getElementById("result-area-number").textContent =
-            spotNumber;
-          document.getElementById("result-remark").textContent = remark || "无";
-
-          setLoadingState(false);
-          animateCardTransition();
-          updateTime();
-          window.scrollTo(0, 0);
-          showSuccessFeedback();
-          notify();
-        }, 800);
-      }
-
-      function echoParkingInfo() {
-        const parkingInfoStr = localStorage.getItem("PARKING_INFO");
-        if (parkingInfoStr) {
-          parkingInfo = JSON.parse(parkingInfoStr);
-          document.getElementById("result-floor").textContent =
-            parkingInfo.floor;
-          document.getElementById("result-area").textContent = parkingInfo.area;
-          document.getElementById("result-color").style.backgroundColor =
-            parkingInfo.color;
-          document.getElementById("result-area-number").textContent =
-            parkingInfo.spotNumber;
-          document.getElementById("result-remark").textContent =
-            parkingInfo.remark || "无";
-          resultDom.style.display = "block";
-          formDom.style.display = "none";
-          updateTime();
+        const isFirstSave = !parkingInfo.time;
+        parkingInfo.remark = remarkDom.value;
+        if (isFirstSave) {
+          parkingInfo.time = Date.now();
         }
+        persist();
+
+        setTimeout(() => {
+          saveBtnDom.disabled = false;
+          saveBtnDom.textContent = originalText;
+          showTimeInfo();
+          startTimer();
+          showSuccessFeedback("停车信息保存成功！");
+          if (isFirstSave) notify();
+        }, 400);
       }
 
-      function getParkedTime() {
-        const parkedTime = new Date();
-        const pastTime = parkedTime - parkingInfo.time;
-
-        // 显示时间 hh-mm-ss
-        const hour = Math.floor(pastTime / 1000 / 60 / 60);
-        const minute = Math.floor(pastTime / 1000 / 60) % 60;
-        const second = Math.floor(pastTime / 1000) % 60;
-        const displayTime = `${hour < 10 ? "0" + hour : hour}:${
-          minute < 10 ? "0" + minute : minute
-        }:${second < 10 ? "0" + second : second}`;
-        displayTimeDom.innerText = displayTime;
+      function showTimeInfo() {
+        timeInfoDom.style.display = "block";
+        resultStartTimeDom.textContent = formatDateTime(parkingInfo.time);
       }
 
-      function updateTime() {
-        displayTimeDom = document.getElementById("result-time");
+      function startTimer() {
         if (timer) clearInterval(timer);
-        timer = setInterval(() => {
-          getParkedTime();
-        }, 1000);
+        updateElapsedTime();
+        timer = setInterval(updateElapsedTime, 1000);
       }
 
-      function reset() {
-        // 添加确认对话框
-        if (!confirm("确定要重置停车信息吗？")) {
-          return;
-        }
+      function updateElapsedTime() {
+        if (!parkingInfo.time) return;
+        const past = Date.now() - parkingInfo.time;
+        const hour = Math.floor(past / 1000 / 60 / 60);
+        const minute = Math.floor(past / 1000 / 60) % 60;
+        const second = Math.floor(past / 1000) % 60;
+        const pad = (n) => (n < 10 ? "0" + n : "" + n);
+        resultTimeDom.textContent = `${pad(hour)}:${pad(minute)}:${pad(
+          second
+        )}`;
+      }
 
-        localStorage.removeItem("PARKING_INFO");
+      async function clearAll() {
+        if (!confirm("确定要清空所有照片和备注信息吗？")) return;
 
-        // 动画效果
-        resultDom.style.transform = "translateX(100%)";
-        resultDom.style.opacity = "0";
-
-        setTimeout(() => {
-          resultDom.style.display = "none";
-          formDom.style.display = "block";
-          formDom.style.transform = "translateX(-100%)";
-          formDom.style.opacity = "0";
-
-          setTimeout(() => {
-            formDom.style.transform = "translateX(0)";
-            formDom.style.opacity = "1";
-          }, 50);
-        }, 300);
-
-        parkingInfo = {};
-        clearInterval(timer);
-
-        // 重置表单
-        floorDom.value = "B1";
-        areaDom.value = "A";
-        colorDom.value = "#0000ff";
-        areaNumberDom.value = "";
+        localStorage.removeItem(STORAGE_KEY);
+        parkingInfo = { photos: [], remark: "", time: null };
         remarkDom.value = "";
+        if (timer) clearInterval(timer);
+        timer = null;
+        timeInfoDom.style.display = "none";
+        resultTimeDom.textContent = "00:00:00";
+        renderPhotos();
 
-        showSuccessFeedback("停车信息已重置");
+        try {
+          const res = await fetch("./clear");
+          const data = await res.json();
+          const prev = data?.data?.previousNotifyCount ?? 0;
+          showSuccessFeedback(`已清空（之前已发送 ${prev} 次通知）`);
+        } catch (error) {
+          console.error("Clear tasks failed:", error);
+          showSuccessFeedback("已清空（清空通知任务失败）");
+        }
       }
 
       async function notify() {
         try {
           const res = await fetch("./notify");
           const data = await res.json();
-          console.log("Notify result:", data);
-
           if (data.code === 200) {
             showSuccessFeedback("停车通知任务已启动！将在50分钟后开始提醒");
           } else {
@@ -736,14 +745,10 @@
       async function testNotify() {
         const testBtn = document.getElementById("test-btn");
         const originalText = testBtn.textContent;
-
         testBtn.disabled = true;
         testBtn.textContent = "🔔 测试中...";
-
         try {
-          const res = await fetch("./mock");
-          const data = await res.json();
-          console.log("Mock test result:", data);
+          await fetch("./mock");
           showSuccessFeedback("Mock 测试成功！");
         } catch (error) {
           console.error("Mock test failed:", error);
@@ -756,62 +761,21 @@
         }
       }
 
-      async function clearNotifyTasks() {
-        if (!confirm("确定要清空所有通知任务吗？")) {
-          return;
-        }
-
-        try {
-          const res = await fetch("./clear");
-          const data = await res.json();
-          console.log("Clear tasks result:", data);
-
-          if (data.code === 200) {
-            const prev = data?.data?.previousNotifyCount ?? 0;
-            showSuccessFeedback(`已清空通知任务（之前已发送 ${prev} 次）！`);
-          } else {
-            showSuccessFeedback("清空任务失败！");
-          }
-        } catch (error) {
-          console.error("Clear tasks failed:", error);
-          showSuccessFeedback("清空任务失败！");
-        }
-      }
-
-      function formatDateTime(val) {
-        try {
-          if (!val) return "—";
-          const d = new Date(val);
-          if (isNaN(d.getTime())) return "—";
-          const pad = (n) => (n < 10 ? "0" + n : "" + n);
-          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
-            d.getDate()
-          )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(
-            d.getSeconds()
-          )}`;
-        } catch (e) {
-          return "—";
-        }
-      }
-
       async function checkNotifyStatus() {
         try {
           const res = await fetch("./status");
           const data = await res.json();
-          console.log("Notify status:", data);
-
           if (data.code === 200) {
-            const statusInfo = data.data;
+            const s = data.data;
             const message = `
 通知状态信息：
-• 当前通知次数：${statusInfo.currentNotifyCount}/${statusInfo.maxNotifyCount}
-• 剩余通知次数：${statusInfo.remainingNotifyCount}
-• 任务状态：${statusInfo.taskStatus}
-• 是否执行中：${statusInfo.running ? "是" : "否"}
-• 下一次触发时间：${formatDateTime(statusInfo.nextFireAt)}
-• 任务开始时间：${formatDateTime(statusInfo.startAt)}
-                    `.trim();
-
+• 当前通知次数：${s.currentNotifyCount}/${s.maxNotifyCount}
+• 剩余通知次数：${s.remainingNotifyCount}
+• 任务状态：${s.taskStatus}
+• 是否执行中：${s.running ? "是" : "否"}
+• 下一次触发时间：${formatDateTime(s.nextFireAt)}
+• 任务开始时间：${formatDateTime(s.startAt)}
+            `.trim();
             alert(message);
           } else {
             showSuccessFeedback("获取状态失败！");
@@ -822,14 +786,39 @@
         }
       }
 
-      // 页面可见性变化时暂停/恢复计时器
-      document.addEventListener("visibilitychange", function () {
+      function formatDateTime(val) {
+        if (!val) return "—";
+        const d = new Date(val);
+        if (isNaN(d.getTime())) return "—";
+        const pad = (n) => (n < 10 ? "0" + n : "" + n);
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+          d.getDate()
+        )} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+      }
+
+      function showSuccessFeedback(message) {
+        const feedback = document.createElement("div");
+        feedback.className = "success-feedback";
+        feedback.textContent = message;
+        document.body.appendChild(feedback);
+        setTimeout(() => {
+          if (feedback.parentNode) feedback.parentNode.removeChild(feedback);
+        }, 3000);
+      }
+
+      remarkDom.addEventListener("blur", () => {
+        if (parkingInfo.time) {
+          parkingInfo.remark = remarkDom.value;
+          persist();
+        }
+      });
+
+      document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
           if (timer) clearInterval(timer);
-        } else {
-          if (parkingInfo.time && resultDom.style.display !== "none") {
-            updateTime();
-          }
+          timer = null;
+        } else if (parkingInfo.time) {
+          startTimer();
         }
       });
     </script>
